@@ -148,6 +148,7 @@ function removeAllFiles() {
 
 // ── Paid flow detection ──
 const accessToken = ref('')
+const customerId = ref('')
 
 // ── Screen 2: Observations ──
 const userName = ref('')
@@ -288,7 +289,9 @@ async function startAnalysis() {
   // ── Build FormData ──
   const form = new FormData()
 
-  if (accessToken.value) form.append('access_token', accessToken.value)
+  form.append('plan', currentPlan.value)
+  if (accessToken.value)  form.append('access_token', accessToken.value)
+  if (customerId.value)   form.append('customer_id',  customerId.value)
   form.append('user_name', userName.value.trim())
 
   if (bYear.value && bMonth.value && bDay.value) {
@@ -297,15 +300,15 @@ async function startAnalysis() {
     form.append('birth_date', `${bYear.value}-${m}-${d}`)
   }
 
-  if (crushName.value.trim())  form.append('crush_name',      crushName.value.trim())
-  if (crushAgeRange.value)     form.append('crush_age_range', crushAgeRange.value)
-  if (observations.value.trim()) form.append('observations',  observations.value.trim())
-  if (selectedTags.value.length) form.append('feelings',      selectedTags.value.join(', '))
+  if (crushName.value.trim())    form.append('crush_name',      crushName.value.trim())
+  if (crushAgeRange.value)       form.append('crush_age_range', crushAgeRange.value)
+  if (observations.value.trim()) form.append('observations',    observations.value.trim())
+  if (selectedTags.value.length) form.append('feelings',        selectedTags.value.join(', '))
 
   uploadedFiles.value.forEach(file => form.append('images', file))
 
   try {
-    const res = await fetch('/api/analyze', {
+    const res = await fetch('https://scancrush-n8n.xpsbu9.easypanel.host/webhook/analyze', {
       method: 'POST',
       body: form,
     })
@@ -374,9 +377,11 @@ function resetAll() {
   btnNewAnalysisText.value = 'Nova análise'
   btnNewAnalysisStyle.value = {}
   accessToken.value = ''
+  customerId.value = ''
   if (import.meta.client) {
     sessionStorage.removeItem('sc_analysis_done')
     sessionStorage.removeItem('sc_access_token')
+    sessionStorage.removeItem('sc_customer_id')
   }
   goTo(1)
 }
@@ -400,8 +405,9 @@ onMounted(() => {
   if (import.meta.client) {
     // 1. Check URL param first (coming from Kiwify redirect)
     const urlParams = new URLSearchParams(window.location.search)
-    const planParam  = urlParams.get('plan')
-    const tokenParam = urlParams.get('access_token')
+    const planParam       = urlParams.get('plan')
+    const tokenParam      = urlParams.get('access_token')
+    const customerIdParam = urlParams.get('customer_id')
     const validPlans = Object.keys(PLAN_LIMITS)
 
     if (planParam && validPlans.includes(planParam)) {
@@ -420,6 +426,15 @@ onMounted(() => {
     } else {
       const savedToken = sessionStorage.getItem('sc_access_token')
       if (savedToken) accessToken.value = savedToken
+    }
+
+    // 4. Read customer_id
+    if (customerIdParam) {
+      customerId.value = customerIdParam
+      sessionStorage.setItem('sc_customer_id', customerIdParam)
+    } else {
+      const savedCid = sessionStorage.getItem('sc_customer_id')
+      if (savedCid) customerId.value = savedCid
     }
   }
   shuffleTags()
