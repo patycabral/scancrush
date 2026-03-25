@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────
+   CSS VARIABLES — Identidade visual ScanCrush
+   Usadas nas páginas Vue SFC (sem scoped)
+───────────────────────────────────────── */
+:root {
+  --bg:          #07070D;
+  --surface:     #0D0D1A;
+  --card:        #111120;
+  --card-hi:     #16162A;
+  --border:      rgba(255,255,255,0.06);
+  --border-soft: rgba(255,255,255,0.04);
+
+  --pink:        #FF2D6B;
+  --pink-glow:   rgba(255,45,107,0.18);
+  --pink-border: rgba(255,45,107,0.28);
+
+  --purple:      #9B5DE5;
+  --purple-glow: rgba(155,93,229,0.15);
+  --purple-dim:  rgba(155,93,229,0.12);
+
+  --teal:        #00F5D4;
+  --amber:       #FFB800;
+  --danger:      #FF4D4D;
+  --safe:        #00D68F;
+
+  --text:        #EEEEF8;
+  --text-2:      #9090B8;
+  --text-3:      #4A4A6A;
+
+  --font:        'Sora', sans-serif;
+  --mono:        'JetBrains Mono', monospace;
+
+  --r:           18px;
+  --r-sm:        10px;
+  --glow-pink:   0 0 48px rgba(255,45,107,0.35), 0 0 100px rgba(255,45,107,0.1);
+}
