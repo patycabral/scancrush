@@ -67,7 +67,7 @@ function redirect() {
 
       <div v-if="!token" class="tack-error-box">
         <p class="tack-error">Houve um erro ao processar seu acesso.</p>
-        <p class="tack-error-hint">Entre em contato com o nosso suporte (contato@scancrush.com) para que possamos resolver.</p>
+        <p class="tack-error-hint">Entre em contato com o nosso suporte, através do e-mail: contato@scancrush.com, para que possamos resolver.</p>
       </div>
 
     </div>
