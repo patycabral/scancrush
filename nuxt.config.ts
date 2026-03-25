@@ -38,6 +38,7 @@ export default defineNuxtConfig({
   // SSR apenas na landing page — o resto é client-only (sem indexação)
   routeRules: {
     '/':        { ssr: true },
+    '/b':       { ssr: true },
     '/scan':    { ssr: false },
     '/tack':    { ssr: false },
     '/privacy': { ssr: false },
