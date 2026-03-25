@@ -373,7 +373,7 @@ onMounted(() => {
               <p class="plan-label">Para quem quer entender</p>
             </div>
             <div class="text-right">
-              <p class="plan-price">R$ 19,90</p>
+              <p class="plan-price">R$ 14,90</p>
               <p class="plan-price-label">pagamento único</p>
             </div>
           </div>
@@ -395,7 +395,7 @@ onMounted(() => {
               <p class="plan-label">Para quem quer a verdade</p>
             </div>
             <div class="text-right">
-              <p class="plan-price" style="color: var(--pink)">R$ 29,90</p>
+              <p class="plan-price" style="color: var(--pink)">R$ 27,90</p>
               <p class="plan-price-label">pagamento único</p>
             </div>
           </div>
@@ -417,7 +417,7 @@ onMounted(() => {
               <p class="plan-label">Diagnóstico completo</p>
             </div>
             <div class="text-right">
-              <p class="plan-price">R$ 44,90</p>
+              <p class="plan-price">R$ 39,90</p>
               <p class="plan-price-label">pagamento único</p>
             </div>
           </div>
