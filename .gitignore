@@ -1,0 +1,21 @@
+# Nuxt
+.nuxt
+.nitro
+.cache
+dist
+.output
+
+# Node
+node_modules
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Uploads (temporários)
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db
