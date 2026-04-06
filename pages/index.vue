@@ -1,9 +1,81 @@
 <script setup lang="ts">
 useHead({
-  title: 'ScanCrush — Seus sentimentos são válidos. A análise também.',
+  title: 'ScanCrush — Analise a Conversa do Seu Crush com IA',
   meta: [
-    { name: 'description', content: 'Cole a conversa com o seu crush e descubra o que realmente está escondido nas mensagens. Análise emocional clara e direta.' }
-  ]
+    { name: 'description',        content: 'Descubra o que o seu crush realmente sente analisando a conversa com IA. Cole os prints e receba uma análise emocional honesta — resultado em segundos.' },
+    { name: 'keywords',           content: 'analisar conversa do crush, meu crush gosta de mim, como saber se o crush gosta de mim, análise de conversa com IA, sinais que o crush gosta de mim, interpretar mensagens do crush' },
+    { property: 'og:type',        content: 'website' },
+    { property: 'og:url',         content: 'https://scancrush.com/' },
+    { property: 'og:title',       content: 'ScanCrush — Analise a Conversa do Seu Crush com IA' },
+    { property: 'og:description', content: 'Descubra o que o seu crush realmente sente analisando a conversa com IA. Cole os prints e receba uma análise emocional honesta — resultado em segundos.' },
+    { property: 'og:image',       content: 'https://scancrush.com/og-image.png' },
+    { name: 'twitter:card',       content: 'summary_large_image' },
+    { name: 'twitter:title',      content: 'ScanCrush — Analise a Conversa do Seu Crush com IA' },
+    { name: 'twitter:description', content: 'Descubra o que o seu crush realmente sente analisando a conversa com IA.' },
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://scancrush.com/' }
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'ScanCrush',
+        url: 'https://scancrush.com',
+        description: 'Analise a conversa do seu crush com IA e descubra os sinais reais de interesse — score, padrões emocionais e conclusão direta.',
+        applicationCategory: 'LifestyleApplication',
+        operatingSystem: 'Web',
+        inLanguage: 'pt-BR',
+        offers: [
+          { '@type': 'Offer', price: '0', priceCurrency: 'BRL', name: 'Primeiras Impressões — 1 print' },
+          { '@type': 'Offer', price: '14.90', priceCurrency: 'BRL', name: 'Sinais Básicos — até 5 prints' },
+          { '@type': 'Offer', price: '27.90', priceCurrency: 'BRL', name: 'Sinais Revelados — até 10 prints' },
+          { '@type': 'Offer', price: '39.90', priceCurrency: 'BRL', name: 'Raio-X do Crush — até 20 prints' },
+        ],
+      }),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'Como funciona a análise de conversa do crush?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Você envia prints ou o texto da conversa. Nossa IA identifica padrões emocionais, consistência nas mensagens e sinais que passam despercebidos no calor do momento.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Minha conversa fica salva em algum lugar?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. As mensagens são processadas no momento da análise e não ficam armazenadas. Sua privacidade é levada a sério.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'A análise é 100% precisa?',
+            acceptedAnswer: { '@type': 'Answer', text: 'É uma análise de padrões, não uma leitura da mente. Ela oferece clareza baseada no que as mensagens revelam — mas a decisão final é sempre sua.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Posso enviar qualquer tipo de conversa?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Sim — conversas de WhatsApp, Instagram DM, Telegram. Quanto mais contexto, mais precisa a análise.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Quantos prints posso enviar?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Gratuito (1 print), Sinais Básicos (até 5 prints), Sinais Revelados (até 10 prints), Raio-X do Crush (até 20 prints). Mais prints permitem uma análise mais profunda e precisa.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Como saber se o crush gosta de mim pela conversa?',
+            acceptedAnswer: { '@type': 'Answer', text: 'A resposta está nos padrões das mensagens: frequência de resposta, iniciativa de contato, consistência no tom e sinais de distância emocional. O ScanCrush analisa esses padrões e entrega um score com sinais concretos.' },
+          },
+        ],
+      }),
+    },
+  ],
 })
 
 const { t } = useAppI18n()

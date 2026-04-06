@@ -1,8 +1,85 @@
 <script setup lang="ts">
 useHead({
-  title: 'ScanCrush — Você releu aquela mensagem umas 5 vezes, né?',
+  title: 'Como Saber se o Crush Gosta de Mim? IA Analisa a Conversa | ScanCrush',
   meta: [
-    { name: 'description', content: 'IA que analisa conversas do crush e revela o que está escondido nas mensagens. Sem achismo, sem talvez.' },
+    { name: 'description',        content: 'Entenda o que as mensagens do seu crush realmente revelam. Nossa IA interpreta os sinais da conversa e te diz se existe interesse de verdade — sem achismo, sem talvez.' },
+    { name: 'keywords',           content: 'como saber se o crush gosta de mim, meu crush gosta de mim, interpretar mensagens do crush, sinais do crush no whatsapp, analisar conversa do crush, análise de conversa com IA' },
+    { property: 'og:type',        content: 'website' },
+    { property: 'og:url',         content: 'https://scancrush.com/lp' },
+    { property: 'og:title',       content: 'Como Saber se o Crush Gosta de Mim? IA Analisa a Conversa | ScanCrush' },
+    { property: 'og:description', content: 'Entenda o que as mensagens do seu crush realmente revelam. Nossa IA interpreta os sinais da conversa e te diz se existe interesse de verdade.' },
+    { property: 'og:image',       content: 'https://scancrush.com/og-image.png' },
+    { name: 'twitter:card',       content: 'summary_large_image' },
+    { name: 'twitter:title',      content: 'Como Saber se o Crush Gosta de Mim? | ScanCrush' },
+    { name: 'twitter:description', content: 'IA que analisa a conversa com o crush e revela os sinais reais de interesse.' },
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://scancrush.com/lp' }
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'ScanCrush',
+        url: 'https://scancrush.com/lp',
+        description: 'Descubra como saber se o crush gosta de você analisando a conversa com IA. Sinais reais, score de interesse e conclusão direta — sem achismo.',
+        applicationCategory: 'LifestyleApplication',
+        operatingSystem: 'Web',
+        inLanguage: 'pt-BR',
+        offers: [
+          { '@type': 'Offer', price: '0', priceCurrency: 'BRL', name: 'Primeiras Impressões — 1 print' },
+          { '@type': 'Offer', price: '14.90', priceCurrency: 'BRL', name: 'Sinais Básicos — até 5 prints' },
+          { '@type': 'Offer', price: '27.90', priceCurrency: 'BRL', name: 'Sinais Revelados — até 10 prints' },
+          { '@type': 'Offer', price: '39.90', priceCurrency: 'BRL', name: 'Raio-X do Crush — até 20 prints' },
+        ],
+      }),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'Como saber se o crush gosta de mim pela conversa?',
+            acceptedAnswer: { '@type': 'Answer', text: 'A resposta está nos padrões das mensagens: frequência de resposta, quem inicia o contato, consistência no tom e sinais de distância emocional. Nossa IA analisa esses padrões e entrega um score com sinais concretos de interesse.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Como funciona a análise de conversa do crush?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Você envia prints da conversa. Nossa IA identifica padrões emocionais, consistência nas mensagens e sinais que passam despercebidos no calor do momento. O resultado inclui score de interesse, sinais positivos e negativos, e uma conclusão direta.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Minha conversa fica salva em algum lugar?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. As mensagens são processadas no momento da análise e não ficam armazenadas. Sua privacidade é levada a sério.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'A análise de conversa com IA é precisa?',
+            acceptedAnswer: { '@type': 'Answer', text: 'É uma análise de padrões, não uma leitura da mente. Ela oferece clareza baseada no que as mensagens revelam — mas a decisão final é sempre sua.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Posso analisar conversa do WhatsApp, Instagram ou Telegram?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Sim — conversas de WhatsApp, Instagram DM, Telegram ou qualquer outro app. Quanto mais contexto você fornecer, mais precisa será a análise.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Quantos prints posso enviar para análise?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Gratuito (1 print), Sinais Básicos (até 5 prints), Sinais Revelados (até 10 prints), Raio-X do Crush (até 20 prints). Mais prints permitem uma análise mais profunda e precisa.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'O que fazer se não gostar do resultado da análise?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Então provavelmente é algo que você já sentia. Só não queria confirmar. A análise revela o que os padrões mostram — a decisão sobre o que fazer é sempre sua.' },
+          },
+        ],
+      }),
+    },
   ],
 })
 
@@ -62,7 +139,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 <nav class="nav" :class="{ scrolled: navScrolled }">
   <div class="container">
     <div class="nav-inner">
-      <NuxtLink to="/b" class="logo">
+      <NuxtLink to="/lp" class="logo">
         <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
           <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.35"/>
           <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
@@ -98,16 +175,16 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <div class="hero-grid">
 
       <div class="hero-inner">
-        <div class="hero-eyebrow">IA especializada em conversas de relacionamento</div>
+        <div class="hero-eyebrow">IA especializada em analisar conversa do crush</div>
 
         <h1>
-          <span>Você já releu aquela mensagem</span>
-          <span class="line2 grad">umas 5 vezes, né?</span>
+          <span>Como saber se o crush gosta de mim</span>
+          <span class="line2 grad">pela conversa?</span>
         </h1>
 
         <p class="hero-sub">
-          <b> Posso te ajudar a entender o que está escondido nela... </b><br>
-          Cole os prints da conversa com o seu crush e receba uma análise honesta — sem julgamento, sem achismo, sem <em>"talvez"</em>.
+          <b>A resposta está nos padrões das mensagens — não no que você espera ouvir.</b><br>
+          Cole os prints da conversa com o seu crush e receba uma análise honesta dos sinais reais de interesse — sem julgamento, sem achismo, sem <em>"talvez"</em>.
         </p>
 
         <div class="hero-actions">
@@ -231,13 +308,13 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 <section class="section-pad diff-section">
   <div class="container">
     <div class="reveal" style="text-align:center">
-      <span class="tag">// você já até perguntou no chatgpt, né?</span>
+      <span class="tag">// você já até perguntou pra IA, né?</span>
       <h2 class="section-title">
-        <span>Todo mundo tenta.</span><br>
-        <span class="grad">E é isso que acontece:</span>
+        <span>Interpretar mensagens do crush</span><br>
+        <span class="grad">com IA genérica não funciona.</span>
       </h2>
       <p class="diff-sub reveal">Você faz uma pergunta direta e recebe uma evasão educada.</p>
-      <p class="diff-contrast reveal" style="margin-bottom:28px">"Talvez". "Depende". "Cada pessoa é diferente!" — sem nenhuma conclusão real.</p>
+      <p class="diff-contrast reveal" style="margin-bottom:28px">"Talvez". "Depende". "Cada pessoa é diferente!" — sem nenhuma conclusão real sobre a conversa.</p>
     </div>
     <div class="diff-grid">
       <div class="diff-card reveal">

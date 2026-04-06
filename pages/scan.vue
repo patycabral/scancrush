@@ -251,10 +251,48 @@ function updateLoadingMsg() {
   loadingSub.value = loadingMessages[0][1]
 }
 
+// ── Confirm dialog (pre-send) ──
+const showConfirmDialog = ref(false)
+
+function openConfirmDialog() {
+  if (!validateS2()) return
+  showConfirmDialog.value = true
+  if (import.meta.client) document.body.style.overflow = 'hidden'
+}
+
+function closeConfirmDialog() {
+  showConfirmDialog.value = false
+  if (import.meta.client) document.body.style.overflow = ''
+}
+
 // ── Screen 4: Result ──
 const scoreBarWidth = ref('0%')
 const btnNewAnalysisText = ref('Nova análise')
 const btnNewAnalysisStyle = ref({})
+
+// Dados do resultado vindos do webhook
+const resultPlan = ref('')
+const resultData = ref<any>(null)
+const resultCta  = ref<any>(null)
+const resultRelDyn = ref<any>(null)   // raiox only: relationship_dynamics
+
+/** Extrai texto de um item que pode ser string ou objeto {label, text, description} */
+function txt(item: any): string {
+  if (!item) return ''
+  if (typeof item === 'string') return item
+  return item.label || item.title || item.text || item.description || ''
+}
+
+/** Mapeia situation_label.level → texto do pill */
+function verdictText(level: string | null): string {
+  const map: Record<string, string> = {
+    cilada:  '🚨 Atenção: sinais preocupantes',
+    atencao: '⚠️ Prossiga com cautela',
+    duvida:  '🤔 Situação ambígua',
+    seguro:  '✅ Sinais positivos',
+  }
+  return map[level ?? ''] ?? '— Resultado gerado'
+}
 
 function updateNewAnalysisBtn() {
   if (currentPlan.value === 'free') {
@@ -289,37 +327,74 @@ async function startAnalysis() {
   // ── Build FormData ──
   const form = new FormData()
 
-  form.append('plan', currentPlan.value)
-  if (accessToken.value)  form.append('access_token', accessToken.value)
-  if (customerId.value)   form.append('customer_id',  customerId.value)
-  form.append('user_name', userName.value.trim())
+  // Sempre envia todos os campos do formulário, mesmo os vazios (null/empty string).
+  // O n8n recebe o payload completo e decide o que salvar no banco.
+  form.append('plan',            currentPlan.value)
+  form.append('access_token',    accessToken.value)
+  form.append('customer_id',     customerId.value)
+  form.append('user_name',       userName.value.trim())
 
-  if (bYear.value && bMonth.value && bDay.value) {
-    const m = String(bMonth.value).padStart(2, '0')
-    const d = String(bDay.value).padStart(2, '0')
-    form.append('birth_date', `${bYear.value}-${m}-${d}`)
-  }
+  const birthDate = (bYear.value && bMonth.value && bDay.value)
+    ? `${bYear.value}-${String(bMonth.value).padStart(2, '0')}-${String(bDay.value).padStart(2, '0')}`
+    : ''
+  form.append('birth_date',      birthDate)
 
-  if (crushName.value.trim())    form.append('crush_name',      crushName.value.trim())
-  if (crushAgeRange.value)       form.append('crush_age_range', crushAgeRange.value)
-  if (observations.value.trim()) form.append('observations',    observations.value.trim())
-  if (selectedTags.value.length) form.append('feelings',        selectedTags.value.join(', '))
+  form.append('crush_name',      crushName.value.trim())
+  form.append('crush_age_range', crushAgeRange.value)
+  form.append('observations',    observations.value.trim())
+  form.append('feelings',        selectedTags.value.join(', '))
 
   uploadedFiles.value.forEach(file => form.append('images', file))
 
   try {
+    // Timeout de 8 minutos — n8n pode demorar com imagens pesadas
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 8 * 60 * 1000)
+
     const res = await fetch('https://scancrush-n8n.xpsbu9.easypanel.host/webhook/analyze', {
       method: 'POST',
       body: form,
+      signal: controller.signal,
     })
+    clearTimeout(timeoutId)
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
-    // TODO: populate result fields from API response when workflow-02 is ready
+    const data = await res.json()
+
+    // ── Tratamento de erros do webhook ──────────────────────────
+    if (!data?.success) {
+      if (msgInterval) clearInterval(msgInterval)
+      if (import.meta.client) sessionStorage.removeItem('sc_analysis_done')
+
+      if (data?.status === 'limit_reached') {
+        goTo(5)   // tela de limite 24h
+      } else if (data?.error === 'invalid_session') {
+        goTo(6)   // tela de sessão inválida/expirada
+      } else {
+        goTo(2)
+        validationMsgHtml.value = `⚠️ ${data?.message ?? 'Erro ao processar análise. Tente novamente.'}`
+        showValidationMsg.value = true
+      }
+      return
+    }
+
+    // ── Sucesso: popular dados do resultado ─────────────────────
+    const plan = data.plan ?? currentPlan.value
+    resultPlan.value  = plan
+
+    // data e cta chegam como string JSON do n8n — parsear se necessário
+    resultData.value  = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? {})
+    resultCta.value   = typeof data.cta  === 'string' ? JSON.parse(data.cta)  : (data.cta  ?? null)
+    resultRelDyn.value = data.relationship_dynamics ?? null
+
     if (msgInterval) clearInterval(msgInterval)
     goTo(4)
     updateNewAnalysisBtn()
-    setTimeout(() => { scoreBarWidth.value = '73%' }, 100)
+
+    // Animar barra do score após render
+    const score = resultData.value?.interest_score ?? 0
+    setTimeout(() => { scoreBarWidth.value = `${Math.min(score, 100)}%` }, 100)
 
   } catch {
     if (msgInterval) clearInterval(msgInterval)
@@ -484,6 +559,11 @@ onUnmounted(() => {
       <span class="plan-info-limit">até {{ planImageLimit }} {{ planImageLimit === 1 ? 'imagem' : 'imagens' }}</span>
     </div>
 
+    <!-- Free plan limit notice -->
+    <p v-if="currentPlan === 'free'" class="free-limit-notice">
+      ⏳ Plano gratuito · 1 análise a cada 48h
+    </p>
+
     <h1 class="screen-title">Cole a conversa</h1>
     <p class="screen-subtitle">Envie os prints da conversa para análise</p>
 
@@ -539,7 +619,16 @@ onUnmounted(() => {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
       Voltar
     </button>
-    <NuxtLink to="/" class="logo" style="font-size:16px">
+    <NuxtLink to="/" class="logo">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.35"/>
+        <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+        <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+        <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
       <span class="logo-word">Scan<span>Crush</span></span>
     </NuxtLink>
     <div></div>
@@ -629,7 +718,7 @@ onUnmounted(() => {
 
     <div class="person-divider"></div>
 
-    <p class="screen-subtitle" style="margin-bottom:16px;margin-top:-4px">O que você percebeu no comportamento dele?</p>
+    <label class="field-label" style="margin-bottom:12px;display:block">O que você percebeu no comportamento dele(a)?</label>
 
     <textarea
       class="obs-textarea"
@@ -663,10 +752,37 @@ onUnmounted(() => {
       <span style="font-size:12px;opacity:0.7;display:block;margin-top:6px">Faça upgrade para gerar uma nova análise.</span>
     </div>
 
-    <button class="btn-main" v-show="showBtnGenerate" @click="startAnalysis()">
+    <button class="btn-main" v-show="showBtnGenerate" @click="openConfirmDialog()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Gerar análise
     </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- CONFIRM DIALOG: verificar imagens antes de enviar -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="confirm-overlay" :class="{ open: showConfirmDialog }" @click.self="closeConfirmDialog()">
+  <div class="confirm-card">
+    <button class="confirm-close" @click="closeConfirmDialog()" aria-label="Fechar">×</button>
+
+    <p class="confirm-eyebrow">// confirmar envio</p>
+    <h2 class="confirm-title">Essas são as imagens certas?</h2>
+    <p class="confirm-sub">Verifique se <strong>todos os prints são da mesma conversa</strong> e se nenhuma imagem errada entrou. Prints de outras conversas podem comprometer a análise.</p>
+
+    <div class="confirm-previews">
+      <div v-for="preview in filePreviews" :key="preview.idx" class="confirm-thumb-wrap">
+        <img class="confirm-thumb" :src="preview.src" alt="Print" />
+      </div>
+    </div>
+
+    <div class="confirm-actions">
+      <button class="confirm-btn-cancel" @click="closeConfirmDialog()">Corrigir imagens</button>
+      <button class="confirm-btn-ok" @click="closeConfirmDialog(); startAnalysis()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirmar e analisar
+      </button>
+    </div>
   </div>
 </div>
 
@@ -702,11 +818,11 @@ onUnmounted(() => {
 
   <div class="result-body">
 
-    <!-- Score -->
+    <!-- ── Score ── -->
     <div class="score-card">
       <div class="score-label">Score de interesse</div>
       <div class="score-row">
-        <div class="score-num">73<sup>/100</sup></div>
+        <div class="score-num">{{ resultData?.interest_score ?? '—' }}<sup>/100</sup></div>
         <div style="flex:1">
           <div class="score-bar-track">
             <div class="score-bar-fill" :style="{ width: scoreBarWidth }"></div>
@@ -718,43 +834,227 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="verdict-pill">⚠️ Prossiga com cautela</div>
+      <div class="verdict-pill">{{ verdictText(resultData?.situation_label?.level) }}</div>
     </div>
 
-    <!-- Signals -->
-    <div class="signals-card">
-      <div class="signals-title">Sinais identificados</div>
-      <div class="signal-item">
-        <span class="sig-dot r"></span>
-        Distância emocional seletiva — afastamento em momentos-chave
+    <!-- ── Resumo ── -->
+    <div v-if="resultData?.summary" class="result-summary-card">
+      <p class="result-summary-text">{{ resultData.summary }}</p>
+    </div>
+
+    <!-- ── Padrões principais (todos os planos) ── -->
+    <div v-if="resultData?.key_patterns" class="signals-card">
+      <div class="signals-title">Padrões identificados</div>
+
+      <template v-if="resultData.key_patterns.positive?.length">
+        <div class="signal-section-label">Positivos</div>
+        <div v-for="(item, i) in resultData.key_patterns.positive" :key="'kp+'+i" class="signal-item">
+          <span class="sig-dot g"></span>{{ txt(item) }}
+        </div>
+      </template>
+
+      <template v-if="resultData.key_patterns.negative?.length">
+        <div class="signal-section-label" style="margin-top:10px">Negativos</div>
+        <div v-for="(item, i) in resultData.key_patterns.negative" :key="'kp-'+i" class="signal-item">
+          <span class="sig-dot r"></span>{{ txt(item) }}
+        </div>
+      </template>
+    </div>
+
+    <!-- ── Sinais (basic+) ── -->
+    <div v-if="resultData?.signals" class="signals-card">
+      <div class="signals-title">Sinais na conversa</div>
+      <div v-for="(item, i) in resultData.signals.positive ?? []" :key="'sp'+i" class="signal-item">
+        <span class="sig-dot g"></span>{{ txt(item) }}
       </div>
-      <div class="signal-item">
-        <span class="sig-dot r"></span>
-        Comunicação inconsistente — respostas sem padrão definido
+      <div v-for="(item, i) in resultData.signals.negative ?? []" :key="'sn'+i" class="signal-item">
+        <span class="sig-dot r"></span>{{ txt(item) }}
       </div>
-      <div class="signal-item">
-        <span class="sig-dot g"></span>
-        Interesse verbal presente — demonstra afeto em palavras
+      <div v-for="(item, i) in resultData.signals.neutral ?? []" :key="'snu'+i" class="signal-item">
+        <span class="sig-dot y"></span>{{ txt(item) }}
       </div>
     </div>
 
-    <!-- Locked section -->
-    <div class="locked-card">
+    <!-- ── Comportamento (basic+) ── -->
+    <div v-if="resultData?.behavior" class="signals-card">
+      <div class="signals-title">Comportamento</div>
+      <div v-if="resultData.behavior.engagement_level" class="behavior-row">
+        <span class="behavior-label">Engajamento</span>
+        <span class="behavior-val">{{ resultData.behavior.engagement_level }}</span>
+      </div>
+      <div v-if="resultData.behavior.consistency" class="behavior-row">
+        <span class="behavior-label">Consistência</span>
+        <span class="behavior-val">{{ resultData.behavior.consistency }}</span>
+      </div>
+      <div v-if="resultData.behavior.response_pattern" class="behavior-row">
+        <span class="behavior-label">Padrão de resposta</span>
+        <span class="behavior-val">{{ resultData.behavior.response_pattern }}</span>
+      </div>
+    </div>
+
+    <!-- ── Highlights / Padrões ocultos / Inconsistências (revealed+) ── -->
+    <template v-if="resultData?.highlights?.length || resultData?.hidden_patterns?.length || resultData?.inconsistencies?.length">
+      <div class="signals-card">
+        <div class="signals-title">Leitura mais profunda</div>
+
+        <template v-if="resultData?.highlights?.length">
+          <div class="signal-section-label">Destaques</div>
+          <div v-for="(item, i) in resultData.highlights" :key="'hl'+i" class="signal-item">
+            <span class="sig-dot y"></span>{{ txt(item) }}
+          </div>
+        </template>
+
+        <template v-if="resultData?.hidden_patterns?.length">
+          <div class="signal-section-label" style="margin-top:10px">Padrões ocultos</div>
+          <div v-for="(item, i) in resultData.hidden_patterns" :key="'hp'+i" class="signal-item">
+            <span class="sig-dot r"></span>{{ txt(item) }}
+          </div>
+        </template>
+
+        <template v-if="resultData?.inconsistencies?.length">
+          <div class="signal-section-label" style="margin-top:10px">Inconsistências</div>
+          <div v-for="(item, i) in resultData.inconsistencies" :key="'ic'+i" class="signal-item">
+            <span class="sig-dot r"></span>{{ txt(item) }}
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <!-- ── Dinâmica do relacionamento (raiox only) ── -->
+    <div v-if="resultRelDyn" class="signals-card">
+      <div class="signals-title">Dinâmica do relacionamento</div>
+      <div v-if="resultRelDyn['Análise do Usuário (você)']" class="behavior-row">
+        <span class="behavior-label">Você</span>
+        <span class="behavior-val">{{ resultRelDyn['Análise do Usuário (você)'] }}</span>
+      </div>
+      <div v-if="resultRelDyn['Análise do(a) Crush']" class="behavior-row">
+        <span class="behavior-label">Crush</span>
+        <span class="behavior-val">{{ resultRelDyn['Análise do(a) Crush'] }}</span>
+      </div>
+      <div v-if="resultRelDyn['Conclusão']" class="result-conclusion">
+        {{ resultRelDyn['Conclusão'] }}
+      </div>
+    </div>
+
+    <!-- ── Score explanation (revealed+) ── -->
+    <div v-if="resultData?.score_explanation?.reason" class="result-summary-card">
+      <p class="result-summary-text" style="font-size:13px;opacity:0.8">
+        {{ resultData.score_explanation.reason }}
+      </p>
+    </div>
+
+    <!-- ── Seção bloqueada (free / basic / revealed) ── -->
+    <div v-if="resultCta" class="locked-card">
       <div class="locked-blur">
-        Perfil emocional: apresenta padrões de apego ansioso-evitativo. Reage com intensidade quando percebe afastamento, mas mantém distância quando a conexão se aprofunda. Ciclo de aproximação e recuo. Conclusão completa: baseada nos padrões identificados, a análise indica...
+        Perfil emocional completo, padrões de comportamento profundo, e a conclusão final sobre o que essa pessoa realmente demonstra — o que ela sente versus o que ela faz. A análise completa revela o que está por trás do padrão identificado...
       </div>
       <div class="locked-overlay">
-        <p class="locked-label">🔒 Perfil emocional + conclusão bloqueados</p>
-        <p class="locked-sub">Desbloqueie para ver a análise completa</p>
+        <p class="locked-label">🔒 Análise completa bloqueada</p>
+        <p class="locked-sub">Desbloqueie para ver tudo</p>
       </div>
     </div>
 
-    <button class="btn-unlock" @click="openModal()">
-      🔓 Desbloquear análise completa
-    </button>
+    <!-- ── CTA de upgrade (free / basic / revealed) ── -->
+    <template v-if="resultCta">
+      <div class="cta-result-card">
+        <p class="cta-result-title">{{ resultCta.title }}</p>
+        <p class="cta-result-sub">{{ resultCta.subtitle }}</p>
+      </div>
+      <button class="btn-unlock" @click="openModal()">
+        🔓 {{ resultCta.button_label ?? 'Desbloquear análise completa' }}
+      </button>
+      <p v-if="resultCta.price_note" class="cta-price-note">{{ resultCta.price_note }}</p>
+    </template>
+
+    <!-- ── Mensagem final ── -->
+    <p v-if="resultData?.final_message" class="result-final-msg">
+      {{ resultData.final_message }}
+    </p>
 
     <p class="result-urgent">⚠️ Este relatório não fica salvo. Acesse agora ou perca o acesso.</p>
 
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 5: Limit Reached (free plan 24h block) -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="screen" :class="{ active: currentScreen === 5 }">
+  <header class="screen-header">
+    <NuxtLink to="/" class="logo">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.35"/>
+        <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+        <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+        <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-word">Scan<span>Crush</span></span>
+    </NuxtLink>
+    <div></div>
+  </header>
+
+  <div class="screen-body limit-body">
+    <div class="limit-icon">⏳</div>
+    <h1 class="limit-title">Você já fez sua análise gratuita hoje</h1>
+    <p class="limit-desc">
+      O plano gratuito permite <strong>1 análise a cada 48h</strong>.<br>
+      Sua próxima análise gratuita estará disponível amanhã.
+    </p>
+
+    <div class="limit-divider"></div>
+
+    <p class="limit-upgrade-label">Quer analisar mais conversas agora?</p>
+    <p class="limit-upgrade-sub">Escolha um plano e tenha acesso imediato — sem precisar esperar.</p>
+
+    <button class="btn-main" @click="openModal()">
+      Ver planos
+    </button>
+
+    <NuxtLink to="/" class="limit-back-link">Voltar para o início</NuxtLink>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCREEN 6: Sessão inválida / expirada / já usada  -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="screen" :class="{ active: currentScreen === 6 }">
+  <header class="screen-header">
+    <NuxtLink to="/" class="logo">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.35"/>
+        <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+        <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+        <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-word">Scan<span>Crush</span></span>
+    </NuxtLink>
+    <div></div>
+  </header>
+
+  <div class="screen-body limit-body">
+    <div class="limit-icon">🔒</div>
+    <h1 class="limit-title">Acesso inválido ou expirado</h1>
+    <p class="limit-desc">
+      Este link de análise já foi utilizado, expirou ou não é válido.<br>
+      Cada compra gera um acesso único.
+    </p>
+
+    <div class="limit-divider"></div>
+
+    <p class="limit-upgrade-label">Quer fazer uma nova análise?</p>
+    <p class="limit-upgrade-sub">Escolha um plano e receba um novo link de acesso imediatamente.</p>
+
+    <button class="btn-main" @click="openModal()">
+      Ver planos
+    </button>
+
+    <NuxtLink to="/" class="limit-back-link">Voltar para o início</NuxtLink>
   </div>
 </div>
 
@@ -926,6 +1226,14 @@ body::after {
 }
 .plan-info-limit {
   color: var(--text-2);
+}
+.free-limit-notice {
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: var(--mono);
+  margin-top: -8px;
+  margin-bottom: 20px;
+  letter-spacing: 0.01em;
 }
 
 /* ── HEADER ── */
@@ -1455,7 +1763,7 @@ body::after {
   height: 100%;
   width: 0%;
   border-radius: 100px;
-  background: linear-gradient(90deg, var(--safe), var(--amber) 50%, var(--pink) 80%, var(--danger));
+  background: linear-gradient(90deg, var(--danger), var(--pink) 20%, var(--amber) 50%, var(--safe));
   transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .score-bar-labels {
@@ -1787,7 +2095,6 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: 7px;
-  flex: 1;
   margin-bottom: 18px;
 }
 .plan-item {
@@ -1991,4 +2298,266 @@ body::after {
   line-height: 1.5;
   opacity: 0.9;
 }
+
+/* ── RESULT: novos elementos dinâmicos ── */
+.result-summary-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.result-summary-text {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.signal-section-label {
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  margin-top: 2px;
+}
+.sig-dot.y {
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(255,184,0,0.5);
+}
+.behavior-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+.behavior-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text-3);
+  min-width: 100px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.behavior-val {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.result-conclusion {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.7;
+  font-style: italic;
+}
+.cta-result-card {
+  background: linear-gradient(135deg, rgba(255,45,107,0.08), rgba(155,93,229,0.06));
+  border: 1px solid var(--pink-border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.cta-result-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.cta-result-sub {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.cta-price-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+.result-final-msg {
+  text-align: center;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-2);
+  margin: 16px 0 8px;
+  line-height: 1.6;
+}
+
+/* ── CONFIRM DIALOG ── */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7,7,13,0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.confirm-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.confirm-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 28px 24px 32px;
+  width: 100%;
+  max-width: 540px;
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.confirm-overlay.open .confirm-card { transform: translateY(0); }
+.confirm-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: none;
+  border: none;
+  color: var(--text-3);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+}
+.confirm-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--pink);
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.confirm-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+.confirm-sub {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.confirm-sub strong { color: var(--text); }
+.confirm-previews {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 24px;
+  scrollbar-width: none;
+}
+.confirm-previews::-webkit-scrollbar { display: none; }
+.confirm-thumb-wrap {
+  flex-shrink: 0;
+  width: 80px;
+  height: 130px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.confirm-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+.confirm-btn-cancel {
+  flex: 1;
+  padding: 13px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+}
+.confirm-btn-ok {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 13px;
+  border-radius: 100px;
+  border: none;
+  background: linear-gradient(135deg, var(--pink), #C0004D);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255,45,107,0.35);
+}
+
+/* ── SCREEN 5: Limit Reached ── */
+.limit-body {
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  padding-top: 48px;
+}
+.limit-icon {
+  font-size: 52px;
+  margin-bottom: 24px;
+  line-height: 1;
+}
+.limit-title {
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 14px;
+  line-height: 1.2;
+}
+.limit-desc {
+  font-size: 15px;
+  color: var(--text-2);
+  line-height: 1.7;
+  max-width: 340px;
+  margin-bottom: 32px;
+}
+.limit-desc strong { color: var(--text); }
+.limit-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 28px;
+}
+.limit-upgrade-label {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.limit-upgrade-sub {
+  font-size: 13px;
+  color: var(--text-2);
+  max-width: 300px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.limit-back-link {
+  display: block;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--text-3);
+  text-decoration: none;
+}
+.limit-back-link:hover { color: var(--text-2); }
 </style>

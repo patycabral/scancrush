@@ -151,7 +151,7 @@ async function submit() {
 
     <!-- Observações -->
     <div class="w-full flex flex-col gap-2">
-      <label class="text-sm font-medium text-brand-text-2">O que você percebeu no comportamento dele?</label>
+      <label class="text-sm font-medium text-brand-text-2">O que você percebeu no comportamento dele(a)?</label>
       <textarea
         v-model="observations"
         rows="4"
