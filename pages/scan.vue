@@ -12,7 +12,7 @@ const KIWIFY_URLS = {
   basic:    'https://pay.kiwify.com.br/lksicGT',
   revealed: 'https://pay.kiwify.com.br/9er8Nn9',
   raiox:    'https://pay.kiwify.com.br/ZYqerZF',
-  upsell:   'https://pay.kiwify.com.br/upsell', // TODO: substituir pela URL real do upsell
+  upsell:   'https://pay.kiwify.com.br/4PEh4AL',
 }
 
 function goToCheckout(plan: 'basic' | 'revealed' | 'raiox') {
@@ -413,7 +413,11 @@ async function startAnalysis() {
     resultData.value  = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? {})
     resultCta.value   = typeof data.cta  === 'string' ? JSON.parse(data.cta)  : (data.cta  ?? null)
     resultRelDyn.value = data.relationship_dynamics ?? null
-    resultUpsellOffer.value = typeof data.upsell_offer === 'string' ? JSON.parse(data.upsell_offer) : (data.upsell_offer ?? null)
+    // upsell_offer só é setado se show_upsell !== false (quem comprou order bump não recebe)
+    const showUpsell = data.show_upsell !== false
+    resultUpsellOffer.value = showUpsell
+      ? (typeof data.upsell_offer === 'string' ? JSON.parse(data.upsell_offer) : (data.upsell_offer ?? null))
+      : null
 
     if (msgInterval) clearInterval(msgInterval)
     goTo(4)
