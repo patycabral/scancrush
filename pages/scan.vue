@@ -255,7 +255,7 @@ function updateLoadingMsg() {
 const showConfirmDialog = ref(false)
 
 function openConfirmDialog() {
-  if (!validateS2()) return
+  if (uploadedFiles.value.length === 0) return
   showConfirmDialog.value = true
   if (import.meta.client) document.body.style.overflow = 'hidden'
 }
@@ -264,6 +264,11 @@ function closeConfirmDialog() {
   showConfirmDialog.value = false
   if (import.meta.client) document.body.style.overflow = ''
 }
+
+// ── Lightbox (expand image preview) ──
+const lightboxSrc = ref<string | null>(null)
+function openLightbox(src: string) { lightboxSrc.value = src }
+function closeLightbox() { lightboxSrc.value = null }
 
 // ── Screen 4: Result ──
 const scoreBarWidth = ref('0%')
@@ -461,9 +466,13 @@ function resetAll() {
   goTo(1)
 }
 
-// ── Keyboard esc to close modal ──
+// ── Keyboard esc to close modal / lightbox ──
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') closeModal()
+  if (e.key === 'Escape') {
+    if (lightboxSrc.value) { closeLightbox(); return }
+    if (showConfirmDialog.value) { closeConfirmDialog(); return }
+    closeModal()
+  }
 }
 
 // Plan names for display
@@ -603,7 +612,7 @@ onUnmounted(() => {
       <button class="btn-upgrade-inline" @click="openModal()">🔓 Desbloquear análise completa</button>
     </div>
 
-    <button class="btn-main" :disabled="btnContinueDisabled" @click="goTo(2)">
+    <button class="btn-main" :disabled="btnContinueDisabled" @click="openConfirmDialog()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
       Continuar
     </button>
@@ -752,7 +761,7 @@ onUnmounted(() => {
       <span style="font-size:12px;opacity:0.7;display:block;margin-top:6px">Faça upgrade para gerar uma nova análise.</span>
     </div>
 
-    <button class="btn-main" v-show="showBtnGenerate" @click="openConfirmDialog()">
+    <button class="btn-main" v-show="showBtnGenerate" @click="startAnalysis()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Gerar análise
     </button>
@@ -766,24 +775,33 @@ onUnmounted(() => {
   <div class="confirm-card">
     <button class="confirm-close" @click="closeConfirmDialog()" aria-label="Fechar">×</button>
 
-    <p class="confirm-eyebrow">// confirmar envio</p>
-    <h2 class="confirm-title">Essas são as imagens certas?</h2>
-    <p class="confirm-sub">Verifique se <strong>todos os prints são da mesma conversa</strong> e se nenhuma imagem errada entrou. Prints de outras conversas podem comprometer a análise.</p>
+    <p class="confirm-eyebrow">// verificar antes de continuar</p>
+    <h2 class="confirm-title">Os prints estão certos?</h2>
+    <p class="confirm-sub">Confirme que <strong>todos são da mesma conversa</strong> e que nenhuma imagem errada entrou. <span class="confirm-sub-hint">Toque na imagem para ampliar.</span></p>
 
     <div class="confirm-previews">
-      <div v-for="preview in filePreviews" :key="preview.idx" class="confirm-thumb-wrap">
+      <div v-for="preview in filePreviews" :key="preview.idx" class="confirm-thumb-wrap" @click="openLightbox(preview.src)">
         <img class="confirm-thumb" :src="preview.src" alt="Print" />
+        <div class="confirm-thumb-zoom">🔍</div>
       </div>
     </div>
 
     <div class="confirm-actions">
       <button class="confirm-btn-cancel" @click="closeConfirmDialog()">Corrigir imagens</button>
-      <button class="confirm-btn-ok" @click="closeConfirmDialog(); startAnalysis()">
+      <button class="confirm-btn-ok" @click="closeConfirmDialog(); goTo(2)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Confirmar e analisar
+        Sim, continuar
       </button>
     </div>
   </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- LIGHTBOX: expand image -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="lightbox-overlay" :class="{ open: lightboxSrc }" @click="closeLightbox()">
+  <button class="lightbox-close" @click="closeLightbox()" aria-label="Fechar">×</button>
+  <img v-if="lightboxSrc" class="lightbox-img" :src="lightboxSrc" alt="Print ampliado" @click.stop />
 </div>
 
 <!-- ══════════════════════════════════════════════════ -->
@@ -1068,7 +1086,6 @@ onUnmounted(() => {
 
     <p class="modal-eyebrow">// Acesse a análise</p>
     <h2 class="modal-title">Escolha o quanto <span>você quer enxergar.</span></h2>
-    <p class="modal-hook-sub">🔥 O mais escolhido por quem quer parar de ficar na dúvida</p>
 
     <div class="modal-plans">
 
@@ -1093,6 +1110,7 @@ onUnmounted(() => {
       <div class="plan-card featured">
         <div class="plan-badge">Mais escolhido</div>
         <div class="plan-name">Sinais Revelados</div>
+        <p class="plan-hook">🔥 O mais escolhido por quem quer parar de duvidar</p>
         <div class="plan-price">
           <span class="curr">R$</span>27<span class="cents">,90</span>
         </div>
@@ -2505,6 +2523,82 @@ body::after {
   font-family: var(--font);
   cursor: pointer;
   box-shadow: 0 0 20px rgba(255,45,107,0.35);
+}
+
+/* ── CONFIRM: extra styles ── */
+.confirm-sub-hint {
+  color: var(--text-3);
+  font-style: italic;
+}
+.confirm-thumb-wrap {
+  cursor: zoom-in;
+  position: relative;
+}
+.confirm-thumb-zoom {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: rgba(0,0,0,0.45);
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.confirm-thumb-wrap:hover .confirm-thumb-zoom { opacity: 1; }
+
+/* ── LIGHTBOX ── */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.lightbox-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lightbox-img {
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+}
+.lightbox-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ── PLAN HOOK inside featured card ── */
+.plan-hook {
+  font-size: 11px;
+  color: var(--amber);
+  font-weight: 600;
+  font-family: var(--mono);
+  letter-spacing: 0.01em;
+  margin-top: -4px;
+  margin-bottom: 4px;
 }
 
 /* ── SCREEN 5: Limit Reached ── */
