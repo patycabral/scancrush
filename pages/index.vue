@@ -603,7 +603,6 @@ onUnmounted(() => {
 
     <p class="lp-modal-eyebrow">// {{ t.pricing.tag }}</p>
     <h2 class="lp-modal-title">{{ t.pricing.title }} <span class="grad">{{ t.pricing.title_accent }}</span></h2>
-    <p class="lp-modal-sub">{{ t.pricing.plan2_hook }}</p>
 
     <div class="lp-modal-plans">
 
@@ -628,6 +627,7 @@ onUnmounted(() => {
       <div class="lp-plan-card featured">
         <div class="lp-plan-badge">{{ t.pricing.popular }}</div>
         <div class="lp-plan-name">{{ t.pricing.plan2_name }}</div>
+        <p class="lp-plan-hook">{{ t.pricing.plan2_hook }}</p>
         <div class="lp-plan-price">
           <span class="lp-curr">{{ t.pricing.plan2_price_curr }}</span>{{ t.pricing.plan2_price_num }}
         </div>

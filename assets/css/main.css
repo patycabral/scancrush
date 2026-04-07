@@ -1180,6 +1180,14 @@ footer {
   color: var(--text);
   margin-bottom: 6px;
 }
+.lp-plan-hook {
+  font-size: 11px;
+  color: var(--amber);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-bottom: 4px;
+  margin-top: -2px;
+}
 .lp-plan-price {
   font-size: 26px;
   font-weight: 800;

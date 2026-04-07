@@ -366,7 +366,7 @@ async function startAnalysis() {
   form.append('birth_date',      birthDate)
 
   form.append('crush_name',      crushName.value.trim())
-  form.append('crush_age_range', crushAgeRange.value)
+  form.append('crush_age_range', crushAgeRange.value || 'não informado')
   form.append('observations',    observations.value.trim())
   form.append('feelings',        selectedTags.value.join(', '))
 
