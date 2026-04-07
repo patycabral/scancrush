@@ -12,6 +12,7 @@ const KIWIFY_URLS = {
   basic:    'https://pay.kiwify.com.br/lksicGT',
   revealed: 'https://pay.kiwify.com.br/9er8Nn9',
   raiox:    'https://pay.kiwify.com.br/ZYqerZF',
+  upsell:   'https://pay.kiwify.com.br/upsell', // TODO: substituir pela URL real do upsell
 }
 
 function goToCheckout(plan: 'basic' | 'revealed' | 'raiox') {
@@ -272,6 +273,11 @@ function closeLightbox() { lightboxSrc.value = null }
 
 // ── Screen 4: Result ──
 const scoreBarWidth = ref('0%')
+// Cover width = inverted scoreBarWidth (dark cover from right that shrinks as score grows)
+const scoreBarCoverWidth = computed(() => {
+  const pct = parseFloat(scoreBarWidth.value) || 0
+  return `${100 - pct}%`
+})
 const btnNewAnalysisText = ref('Nova análise')
 const btnNewAnalysisStyle = ref({})
 
@@ -279,7 +285,22 @@ const btnNewAnalysisStyle = ref({})
 const resultPlan = ref('')
 const resultData = ref<any>(null)
 const resultCta  = ref<any>(null)
-const resultRelDyn = ref<any>(null)   // raiox only: relationship_dynamics
+const resultRelDyn = ref<any>(null)      // raiox only: relationship_dynamics
+const resultUpsellOffer = ref<any>(null) // upsell dinâmico por situation_label
+
+// ── Upsell Modal ──
+const showUpsellModal = ref(false)
+function openUpsellModal() {
+  showUpsellModal.value = true
+  if (import.meta.client) document.body.style.overflow = 'hidden'
+}
+function closeUpsellModal() {
+  showUpsellModal.value = false
+  if (import.meta.client) document.body.style.overflow = ''
+}
+function goToCheckoutUpsell() {
+  if (import.meta.client) window.location.href = KIWIFY_URLS.upsell
+}
 
 /** Extrai texto de um item que pode ser string ou objeto {label, text, description} */
 function txt(item: any): string {
@@ -392,6 +413,7 @@ async function startAnalysis() {
     resultData.value  = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? {})
     resultCta.value   = typeof data.cta  === 'string' ? JSON.parse(data.cta)  : (data.cta  ?? null)
     resultRelDyn.value = data.relationship_dynamics ?? null
+    resultUpsellOffer.value = typeof data.upsell_offer === 'string' ? JSON.parse(data.upsell_offer) : (data.upsell_offer ?? null)
 
     if (msgInterval) clearInterval(msgInterval)
     goTo(4)
@@ -425,10 +447,12 @@ function handleOverlayClick(e: MouseEvent) {
   if ((e.target as HTMLElement).classList.contains('modal-overlay')) closeModal()
 }
 
-// ── Handle "Nova análise" ──
+// ── Handle "Nova análise" / "Fazer upgrade" ──
 function handleNewAnalysis() {
   if (currentPlan.value === 'free') {
-    openModal()
+    // Se tem dados de upsell dinâmico, abre o upsell modal
+    if (resultUpsellOffer.value) openUpsellModal()
+    else openModal()
   } else {
     resetAll()
   }
@@ -447,6 +471,7 @@ function resetAll() {
   crushName.value = ''
   crushAgeRange.value = ''
   scoreBarWidth.value = '0%'
+  resultUpsellOffer.value = null
   showUploadMeta.value = false
   uploadCounterText.value = ''
   uploadBarWidth.value = '0%'
@@ -466,11 +491,12 @@ function resetAll() {
   goTo(1)
 }
 
-// ── Keyboard esc to close modal / lightbox ──
+// ── Keyboard esc to close modal / lightbox / upsell ──
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     if (lightboxSrc.value) { closeLightbox(); return }
     if (showConfirmDialog.value) { closeConfirmDialog(); return }
+    if (showUpsellModal.value) { closeUpsellModal(); return }
     closeModal()
   }
 }
@@ -843,7 +869,8 @@ onUnmounted(() => {
         <div class="score-num">{{ resultData?.interest_score ?? '—' }}<sup>/100</sup></div>
         <div style="flex:1">
           <div class="score-bar-track">
-            <div class="score-bar-fill" :style="{ width: scoreBarWidth }"></div>
+            <!-- dark cover shrinks from right as score increases -->
+            <div class="score-bar-cover" :style="{ width: scoreBarCoverWidth }"></div>
           </div>
           <div class="score-bar-labels">
             <span>Distante</span>
@@ -978,7 +1005,7 @@ onUnmounted(() => {
         <p class="cta-result-title">{{ resultCta.title }}</p>
         <p class="cta-result-sub">{{ resultCta.subtitle }}</p>
       </div>
-      <button class="btn-unlock" @click="openModal()">
+      <button class="btn-unlock" @click="resultUpsellOffer ? openUpsellModal() : openModal()">
         🔓 {{ resultCta.button_label ?? 'Desbloquear análise completa' }}
       </button>
       <p v-if="resultCta.price_note" class="cta-price-note">{{ resultCta.price_note }}</p>
@@ -1073,6 +1100,50 @@ onUnmounted(() => {
     </button>
 
     <NuxtLink to="/" class="limit-back-link">Voltar para o início</NuxtLink>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- UPSELL MODAL: emotional, personalized            -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="upsell-overlay" :class="{ open: showUpsellModal }" @click.self="closeUpsellModal()">
+  <div class="upsell-card">
+    <button class="upsell-close" @click="closeUpsellModal()" aria-label="Fechar">×</button>
+
+    <!-- Resultado em contexto -->
+    <div class="upsell-verdict-mini">{{ verdictText(resultData?.situation_label?.level) }}</div>
+
+    <h2 class="upsell-title">{{ resultUpsellOffer?.title ?? 'Tem algo aqui que você ainda não viu' }}</h2>
+    <p class="upsell-sub">{{ resultUpsellOffer?.subtitle ?? 'Alguns padrões só aparecem quando a leitura vai mais fundo.' }}</p>
+
+    <!-- O que está bloqueado -->
+    <div class="upsell-locked-preview">
+      <p class="upsell-locked-label">// ainda bloqueado para você</p>
+      <ul class="upsell-locked-list">
+        <li v-if="(resultData?.counts?.negative_locked ?? 0) > 0">
+          {{ resultData.counts.negative_locked }} sinal(is) negativo(s) oculto(s)
+        </li>
+        <li v-if="(resultData?.counts?.positive_locked ?? 0) > 0">
+          {{ resultData.counts.positive_locked }} sinal(is) positivo(s) oculto(s)
+        </li>
+        <li>Perfil emocional completo</li>
+        <li>Padrões ocultos de comportamento</li>
+        <li>Conclusão direta sem rodeios</li>
+      </ul>
+    </div>
+
+    <div class="upsell-price-row">
+      <span class="upsell-price">R$<strong>{{ resultUpsellOffer?.price ?? '7,40' }}</strong></span>
+      <span class="upsell-price-label">acesso único · agora</span>
+    </div>
+
+    <button class="upsell-btn" @click="goToCheckoutUpsell()">
+      🔓 {{ resultUpsellOffer?.button_label ?? 'Desbloquear análise completa' }}
+    </button>
+
+    <p class="upsell-guarantee">Pagamento seguro · acesso imediato · sem assinatura</p>
+
+    <button class="upsell-see-plans" @click="closeUpsellModal(); openModal()">Ver todos os planos →</button>
   </div>
 </div>
 
@@ -1772,16 +1843,19 @@ body::after {
 .score-bar-track {
   flex: 1;
   height: 8px;
-  background: rgba(255,255,255,0.06);
+  /* Full gradient always visible — cover masks unscored portion */
+  background: linear-gradient(90deg, #FF4D4D 0%, #FF8800 18%, #FFB800 45%, #a8dd63 72%, #00D68F 100%);
   border-radius: 100px;
   overflow: hidden;
   margin-bottom: 6px;
+  position: relative;
 }
-.score-bar-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 100px;
-  background: linear-gradient(90deg, var(--danger), var(--pink) 20%, var(--amber) 50%, var(--safe));
+/* Dark cover from right — shrinks as score grows */
+.score-bar-cover {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  background: var(--bg);
+  border-radius: 0 100px 100px 0;
   transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .score-bar-labels {
@@ -2523,6 +2597,156 @@ body::after {
   font-family: var(--font);
   cursor: pointer;
   box-shadow: 0 0 20px rgba(255,45,107,0.35);
+}
+
+/* ── UPSELL MODAL ── */
+.upsell-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.upsell-overlay.open { opacity: 1; pointer-events: auto; }
+.upsell-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px 24px 0 0;
+  padding: 32px 24px 36px;
+  width: 100%;
+  max-width: 520px;
+  position: relative;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+.upsell-overlay.open .upsell-card { transform: translateY(0); }
+.upsell-close {
+  position: absolute;
+  top: 16px; right: 18px;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: var(--text-2);
+  font-size: 22px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.upsell-verdict-mini {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--amber);
+  background: rgba(255,184,0,0.1);
+  border: 1px solid rgba(255,184,0,0.2);
+  border-radius: 100px;
+  padding: 4px 14px;
+  letter-spacing: 0.05em;
+}
+.upsell-title {
+  font-size: clamp(18px, 4vw, 22px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: var(--text);
+  margin: 0;
+}
+.upsell-sub {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.65;
+  max-width: 340px;
+}
+.upsell-locked-preview {
+  width: 100%;
+  background: rgba(255,45,107,0.04);
+  border: 1px solid rgba(255,45,107,0.12);
+  border-radius: 14px;
+  padding: 16px 20px;
+  text-align: left;
+}
+.upsell-locked-label {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+.upsell-locked-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.upsell-locked-list li {
+  font-size: 13px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.upsell-locked-list li::before {
+  content: '🔒';
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.upsell-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 4px;
+}
+.upsell-price {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -1px;
+}
+.upsell-price strong { font-size: inherit; }
+.upsell-price-label {
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: var(--mono);
+}
+.upsell-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 100px;
+  border: none;
+  background: linear-gradient(135deg, var(--pink), #C0004D);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  box-shadow: var(--glow-pink);
+  letter-spacing: 0.01em;
+}
+.upsell-guarantee {
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: var(--mono);
+}
+.upsell-see-plans {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-top: -4px;
 }
 
 /* ── CONFIRM: extra styles ── */
