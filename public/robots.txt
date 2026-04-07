@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /scan
+Disallow: /tack
+
+Sitemap: https://scancrush.com/sitemap.xml

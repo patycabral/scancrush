@@ -238,18 +238,43 @@ function validateS2(): boolean {
 
 // ── Screen 3: Loading ──
 const loadingMessages = [
-  ['Analisando padrões...', 'lendo os sinais da conversa'],
-  ['Identificando sinais...', 'mapeando comportamentos'],
-  ['Gerando resultado...', 'quase pronto']
+  ['Lendo os prints...', 'identificando quem é quem na conversa'],
+  ['Mapeando padrões...', 'quem inicia, quem some, quem responde com pressa'],
+  ['Analisando consistência...', 'o que ele diz vs. o que ele faz'],
+  ['Identificando sinais...', 'positivos, negativos e os que passam despercebidos'],
+  ['Calculando o score...', 'baseado em comportamento, não em intenção'],
+  ['Gerando o relatório...', 'quase pronto — vale cada segundo'],
 ]
-const loadingText = ref('Analisando padrões...')
-const loadingSub = ref('aguarde um momento')
+const loadingText = ref('')
+const loadingSub = ref('')
+const loadingProgress = ref(0)
 let msgIdx = 0
 let msgInterval: ReturnType<typeof setInterval> | null = null
+let progressInterval: ReturnType<typeof setInterval> | null = null
 
 function updateLoadingMsg() {
   loadingText.value = loadingMessages[0][0]
-  loadingSub.value = loadingMessages[0][1]
+  loadingSub.value  = loadingMessages[0][1]
+  loadingProgress.value = 0
+
+  // Avança texto a cada 18s (6 msgs × 18s = ~108s antes de loop)
+  msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % loadingMessages.length
+    loadingText.value = ''
+    setTimeout(() => {
+      loadingText.value = loadingMessages[msgIdx][0]
+      loadingSub.value  = loadingMessages[msgIdx][1]
+    }, 300)
+  }, 18000)
+
+  // Progresso fake: avança até 92% em ~7min, para de crescer após isso
+  progressInterval = setInterval(() => {
+    if (loadingProgress.value < 92) {
+      // acelera no começo, desacelera no final
+      const step = loadingProgress.value < 30 ? 1.2 : loadingProgress.value < 60 ? 0.7 : 0.25
+      loadingProgress.value = Math.min(92, loadingProgress.value + step)
+    }
+  }, 1000)
 }
 
 // ── Confirm dialog (pre-send) ──
@@ -287,6 +312,28 @@ const resultData = ref<any>(null)
 const resultCta  = ref<any>(null)
 const resultRelDyn = ref<any>(null)      // raiox only: relationship_dynamics
 const resultUpsellOffer = ref<any>(null) // upsell dinâmico por situation_label
+
+// ── Result timer (urgency) ──
+const resultTimerSeconds = ref(15 * 60) // 15 minutos
+const resultTimerDisplay = computed(() => {
+  const m = Math.floor(resultTimerSeconds.value / 60)
+  const s = resultTimerSeconds.value % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+})
+const resultTimerUrgent = computed(() => resultTimerSeconds.value < 3 * 60)
+let resultTimerInterval: ReturnType<typeof setInterval> | null = null
+
+function startResultTimer() {
+  resultTimerSeconds.value = 15 * 60
+  if (resultTimerInterval) clearInterval(resultTimerInterval)
+  resultTimerInterval = setInterval(() => {
+    if (resultTimerSeconds.value > 0) {
+      resultTimerSeconds.value--
+    } else {
+      clearInterval(resultTimerInterval!)
+    }
+  }, 1000)
+}
 
 // ── Upsell Modal ──
 const showUpsellModal = ref(false)
@@ -391,6 +438,7 @@ async function startAnalysis() {
     // ── Tratamento de erros do webhook ──────────────────────────
     if (!data?.success) {
       if (msgInterval) clearInterval(msgInterval)
+      if (progressInterval) clearInterval(progressInterval)
       if (import.meta.client) sessionStorage.removeItem('sc_analysis_done')
 
       if (data?.status === 'limit_reached') {
@@ -420,8 +468,12 @@ async function startAnalysis() {
       : null
 
     if (msgInterval) clearInterval(msgInterval)
+    if (progressInterval) clearInterval(progressInterval)
+    loadingProgress.value = 100
+    await new Promise(r => setTimeout(r, 400)) // breve flash nos 100% antes de trocar tela
     goTo(4)
     updateNewAnalysisBtn()
+    startResultTimer()
 
     // Animar barra do score após render
     const score = resultData.value?.interest_score ?? 0
@@ -429,6 +481,7 @@ async function startAnalysis() {
 
   } catch {
     if (msgInterval) clearInterval(msgInterval)
+    if (progressInterval) clearInterval(progressInterval)
     if (import.meta.client) sessionStorage.removeItem('sc_analysis_done')
     goTo(2)
     validationMsgHtml.value = '⚠️ Erro ao processar sua análise. Verifique sua conexão e tente novamente.'
@@ -559,6 +612,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (msgInterval) clearInterval(msgInterval)
+  if (progressInterval) clearInterval(progressInterval)
+  if (resultTimerInterval) clearInterval(resultTimerInterval)
   window.removeEventListener('keydown', onKeydown)
   filePreviews.value.forEach(p => URL.revokeObjectURL(p.src))
 })
@@ -842,10 +897,17 @@ onUnmounted(() => {
     <div class="scan-ring">
       <div class="scan-inner">🔍</div>
     </div>
-    <div>
+    <div class="loading-content">
       <p class="loading-text">{{ loadingText }}</p>
       <p class="loading-sub">{{ loadingSub }}</p>
     </div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar-track">
+        <div class="loading-bar-fill" :style="{ width: loadingProgress + '%' }"></div>
+      </div>
+      <span class="loading-bar-pct">{{ Math.round(loadingProgress) }}%</span>
+    </div>
+    <p class="loading-notice">A análise é feita em tempo real — pode levar alguns minutos.<br>Não feche esta tela.</p>
   </div>
 </div>
 
@@ -1020,7 +1082,10 @@ onUnmounted(() => {
       {{ resultData.final_message }}
     </p>
 
-    <p class="result-urgent">⚠️ Este relatório não fica salvo. Acesse agora ou perca o acesso.</p>
+    <div class="result-timer" :class="{ urgent: resultTimerUrgent }">
+      <span class="result-timer-icon">⏳</span>
+      <span>Este relatório some em <strong>{{ resultTimerDisplay }}</strong></span>
+    </div>
 
   </div>
 </div>
@@ -1791,6 +1856,71 @@ body::after {
   text-align: center;
   letter-spacing: 0.05em;
 }
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+.loading-bar-wrap {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.loading-bar-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.loading-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--purple), var(--pink));
+  transition: width 1s ease;
+}
+.loading-bar-pct {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text-3);
+  min-width: 32px;
+  text-align: right;
+}
+.loading-notice {
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: var(--mono);
+  text-align: center;
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+/* ── RESULT TIMER ── */
+.result-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-3);
+  font-family: var(--mono);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  margin-top: 8px;
+  transition: all 0.4s;
+}
+.result-timer strong { color: var(--text-2); }
+.result-timer.urgent {
+  border-color: rgba(255,77,77,0.3);
+  background: rgba(255,77,77,0.06);
+  color: var(--danger);
+}
+.result-timer.urgent strong { color: var(--danger); }
 
 /* ── RESULT SCREEN ── */
 .result-body {
