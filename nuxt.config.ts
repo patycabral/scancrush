@@ -19,6 +19,10 @@ export default defineNuxtConfig({
         { property: 'og:title', content: 'ScanCrush' },
         { property: 'og:description', content: 'Análise emocional de conversas com IA.' },
       ],
+      script: [
+        { src: 'https://www.googletagmanager.com/gtag/js?id=G-CFLFJK84RL', async: true },
+        { innerHTML: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-CFLFJK84RL');` },
+      ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
