@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxt/content'],
 
   css: ['~/assets/css/main.css'],
 
@@ -42,12 +42,20 @@ export default defineNuxtConfig({
 
   // SSR apenas na landing page — o resto é client-only (sem indexação)
   routeRules: {
-    '/':        { ssr: true },
-    '/lp':      { ssr: true },
-    '/scan':    { ssr: false },
-    '/tack':    { ssr: false },
-    '/privacy': { ssr: false },
-    '/terms':   { ssr: false },
+    '/':           { ssr: true },
+    '/lp':         { ssr: true },
+    '/blog':       { ssr: true },
+    '/blog/**':    { ssr: true },
+    '/quiz':       { ssr: true },
+    '/quiz/**':    { ssr: true },
+    '/scan':       { ssr: false },
+    '/tack':       { ssr: false },
+    '/privacy':    { ssr: false },
+    '/terms':      { ssr: false },
+  },
+
+  content: {
+    highlight: false,
   },
 
   compatibilityDate: '2024-11-01',

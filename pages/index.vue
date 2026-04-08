@@ -169,6 +169,7 @@ onUnmounted(() => {
         <li><a href="#how">{{ t.nav.how }}</a></li>
         <li><a href="#report">{{ t.nav.report }}</a></li>
         <li><a href="#pricing">{{ t.nav.pricing }}</a></li>
+        <li><NuxtLink to="/blog">Blog</NuxtLink></li>
       </ul>
 
       <div class="nav-right">

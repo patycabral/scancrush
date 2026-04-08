@@ -156,6 +156,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <li><a href="#b-how">Como funciona</a></li>
         <li><a href="#b-report">O relatório</a></li>
         <li><a href="#b-pricing">Planos</a></li>
+        <li><NuxtLink to="/blog">Blog</NuxtLink></li>
       </ul>
 
       <div class="nav-right">
