@@ -1062,6 +1062,11 @@ onUnmounted(() => {
       </p>
     </div>
 
+    <!-- ── Mensagem final ── -->
+    <p v-if="resultData?.final_message" class="result-final-msg">
+      {{ resultData.final_message }}
+    </p>
+
     <!-- ── Seção bloqueada (free / basic / revealed) ── -->
     <div v-if="resultCta" class="locked-card">
       <div class="locked-blur">
@@ -1069,7 +1074,7 @@ onUnmounted(() => {
       </div>
       <div class="locked-overlay">
         <p class="locked-label">🔒 Análise completa bloqueada</p>
-        <p class="locked-sub">Desbloqueie para ver tudo</p>
+        <button class="locked-sub-btn" @click="resultUpsellOffer ? openUpsellModal() : openModal()">Ver análise completa →</button>
       </div>
     </div>
 
@@ -1082,11 +1087,6 @@ onUnmounted(() => {
         🔓 {{ typeof resultCta === 'string' ? 'Desbloquear análise completa' : (resultCta.button_label ?? 'Desbloquear análise completa') }}
       </button>
     </template>
-
-    <!-- ── Mensagem final ── -->
-    <p v-if="resultData?.final_message" class="result-final-msg">
-      {{ resultData.final_message }}
-    </p>
 
     <div class="result-timer" :class="{ urgent: resultTimerUrgent }">
       <span class="result-timer-icon">⏳</span>
@@ -2113,11 +2113,22 @@ body::after {
   color: var(--text);
   text-align: center;
 }
-.locked-sub {
+.locked-sub-btn {
   font-size: 12px;
-  color: var(--text-2);
-  text-align: center;
+  font-weight: 600;
+  color: var(--pink);
+  background: rgba(255,45,107,0.1);
+  border: 1px solid rgba(255,45,107,0.3);
+  border-radius: 100px;
+  padding: 7px 18px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 0.2s, border-color 0.2s;
   margin-bottom: 4px;
+}
+.locked-sub-btn:hover {
+  background: rgba(255,45,107,0.18);
+  border-color: rgba(255,45,107,0.5);
 }
 
 .btn-unlock {
