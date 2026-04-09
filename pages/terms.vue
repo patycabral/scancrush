@@ -68,7 +68,7 @@ useHead({ title: 'ScanCrush — Termos de Uso' })
 </footer>
 </template>
 
-<style>
+<style scoped>
 :root {
   --bg: #07070D; --surface: #0D0D1A; --card: #111120;
   --border: rgba(255,255,255,0.06);
