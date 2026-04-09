@@ -58,5 +58,13 @@ export default defineNuxtConfig({
     highlight: false,
   },
 
+  nitro: {
+    compressPublicAssets: true,
+    routeRules: {
+      '/_nuxt/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
+      '/fonts/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
+    },
+  },
+
   compatibilityDate: '2024-11-01',
 })

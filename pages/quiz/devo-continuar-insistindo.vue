@@ -69,7 +69,7 @@ const questions = [
 const results = [
   {
     min: 0, max: 5,
-    label: 'Hora de soltar, bb',
+    label: 'Hora de soltar, amiga',
     emoji: '🕊️',
     color: '#60A5FA',
     text: 'Eu sei que não é fácil ler isso. Mas o que você descreveu mostra muito investimento de um lado só, tempo parado sem avanço, e uma situação que está te custando mais do que rendendo. Soltar não é desistir — é parar de gastar energia em algo que não tá correspondendo. Você merece mais que isso.',

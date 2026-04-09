@@ -78,14 +78,14 @@ const questions = [
 const results = [
   {
     min: 0, max: 7,
-    label: 'Mais educação do que interesse, bb',
+    label: 'Mais educação do que interesse, amiga',
     emoji: '🤍',
     color: '#94A3B8',
     text: 'Com base no que você descreveu, o comportamento dele parece mais de alguém que é simplesmente educado do que de alguém que está afim. Isso dói ouvir, mas é melhor saber agora do que investir meses numa situação unilateral. Isso não significa que vai ser assim pra sempre — mas como está agora, a iniciativa toda está vindo de você.',
   },
   {
     min: 8, max: 13,
-    label: 'Hmm... os sinais são mistos, girl',
+    label: 'Hmm... os sinais são mistos, amiga',
     emoji: '🤔',
     color: '#F59E0B',
     text: 'Tem coisa boa, tem coisa que deixa dúvida. Pode ser interesse em desenvolvimento, pode ser que ele é naturalmente atencioso com todo mundo. Nesses casos, o padrão das próximas semanas vai dizer mais do que qualquer análise de hoje. Mas se você quer uma resposta mais precisa agora, analisar a conversa completa ajuda muito.',

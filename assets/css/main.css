@@ -142,6 +142,8 @@ body::after {
   align-items: center;
   gap: 30px;
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 .nav-links a {
   font-size: 14px;
@@ -976,7 +978,7 @@ footer {
   flex-wrap: wrap;
 }
 .footer-tagline { font-size: 12px; color: var(--text-3); margin-top: 6px; font-style: italic; }
-.footer-links { display: flex; gap: 24px; list-style: none; }
+.footer-links { display: flex; gap: 24px; list-style: none; padding: 0; margin: 0; }
 .footer-links a { font-size: 13px; color: var(--text-2); transition: color 0.2s; }
 .footer-links a:hover { color: var(--text); }
 .footer-copy { font-size: 11px; color: var(--text-3); margin-top: 28px; text-align: center; }
