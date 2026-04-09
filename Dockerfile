@@ -6,7 +6,10 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+
+# Invalida o cache do Docker a cada novo commit
+ARG GIT_SHA
+RUN echo "Building commit: $GIT_SHA" && npm run build
 
 # ── Stage 2: runtime ─────────────────────────────────────────────
 FROM node:20-alpine
