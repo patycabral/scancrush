@@ -927,6 +927,11 @@ onUnmounted(() => {
     <button class="header-action" :style="btnNewAnalysisStyle" @click="handleNewAnalysis()">{{ btnNewAnalysisText }}</button>
   </header>
 
+  <div class="result-notice-bar">
+    <span class="result-notice-icon">⚠</span>
+    <span>Não atualize nem feche esta página — o resultado não fica salvo e não poderá ser recuperado.</span>
+  </div>
+
   <div class="result-body">
 
     <!-- ── Score ── -->
@@ -1897,6 +1902,24 @@ body::after {
   text-align: center;
   line-height: 1.7;
   max-width: 280px;
+}
+
+/* ── RESULT NOTICE BAR ── */
+.result-notice-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 184, 0, 0.06);
+  border-bottom: 1px solid rgba(255, 184, 0, 0.18);
+  padding: 10px 20px;
+  font-size: 12px;
+  color: rgba(255, 184, 0, 0.85);
+  font-family: var(--mono);
+  line-height: 1.5;
+}
+.result-notice-icon {
+  flex-shrink: 0;
+  font-size: 13px;
 }
 
 /* ── RESULT TIMER ── */
