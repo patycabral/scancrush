@@ -457,8 +457,9 @@ async function startAnalysis() {
     const plan = data.plan ?? currentPlan.value
     resultPlan.value  = plan
 
-    // data pode chegar como string JSON do n8n — parsear se necessário
-    resultData.value  = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? {})
+    // data pode chegar como string JSON ou array do n8n — parsear/desempacotar
+    const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? {})
+    resultData.value  = Array.isArray(rawData) ? (rawData[0] ?? {}) : rawData
     // cta é sempre string de texto — nunca JSON.parse
     resultCta.value   = data.cta ?? null
     resultRelDyn.value = data.relationship_dynamics ?? null
@@ -927,9 +928,10 @@ onUnmounted(() => {
     <button class="header-action" :style="btnNewAnalysisStyle" @click="handleNewAnalysis()">{{ btnNewAnalysisText }}</button>
   </header>
 
-  <div class="result-notice-bar">
-    <span class="result-notice-icon">⚠</span>
-    <span>Não atualize nem feche esta página — o resultado não fica salvo e não poderá ser recuperado.</span>
+  <div class="result-notice-wrap">
+    <div class="result-notice-card">
+      ⚠️ Não atualize nem feche esta página — o resultado não fica salvo e não poderá ser recuperado.
+    </div>
   </div>
 
   <div class="result-body">
@@ -1074,13 +1076,11 @@ onUnmounted(() => {
     <!-- ── CTA de upgrade (free / basic / revealed) ── -->
     <template v-if="resultCta">
       <div class="cta-result-card">
-        <p class="cta-result-title">{{ resultCta.title }}</p>
-        <p class="cta-result-sub">{{ resultCta.subtitle }}</p>
+        <p class="cta-result-sub">{{ typeof resultCta === 'string' ? resultCta : (resultCta.subtitle ?? '') }}</p>
       </div>
       <button class="btn-unlock" @click="resultUpsellOffer ? openUpsellModal() : openModal()">
-        🔓 {{ resultCta.button_label ?? 'Desbloquear análise completa' }}
+        🔓 {{ typeof resultCta === 'string' ? 'Desbloquear análise completa' : (resultCta.button_label ?? 'Desbloquear análise completa') }}
       </button>
-      <p v-if="resultCta.price_note" class="cta-price-note">{{ resultCta.price_note }}</p>
     </template>
 
     <!-- ── Mensagem final ── -->
@@ -1904,22 +1904,24 @@ body::after {
   max-width: 280px;
 }
 
-/* ── RESULT NOTICE BAR ── */
-.result-notice-bar {
+/* ── RESULT NOTICE CARD ── */
+.result-notice-wrap {
+  padding: 16px 20px 0;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 184, 0, 0.06);
-  border-bottom: 1px solid rgba(255, 184, 0, 0.18);
-  padding: 10px 20px;
-  font-size: 12px;
-  color: rgba(255, 184, 0, 0.85);
-  font-family: var(--mono);
-  line-height: 1.5;
+  justify-content: center;
 }
-.result-notice-icon {
-  flex-shrink: 0;
+.result-notice-card {
+  border-radius: 12px;
+  padding: 14px 20px;
   font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  text-align: center;
+  background: rgba(255, 184, 0, 0.05);
+  border: 1px solid rgba(255, 184, 0, 0.2);
+  color: #FFB800;
+  max-width: 560px;
+  width: 100%;
 }
 
 /* ── RESULT TIMER ── */
