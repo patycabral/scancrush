@@ -65,7 +65,7 @@ const quizzes = [
 <template>
 <div class="quiz-page">
   <div class="quiz-header">
-    <NuxtLink to="/" class="quiz-back">← Voltar</NuxtLink>
+    <NuxtLink to="/blog" class="quiz-back">← Blog</NuxtLink>
     <div class="quiz-header-inner">
       <p class="quiz-eyebrow">// descubra agora</p>
       <h1 class="quiz-title">Para de adivinhar.<br><span class="grad">Responde o quiz.</span></h1>

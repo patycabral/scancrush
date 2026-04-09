@@ -45,4 +45,8 @@ export default {
     },
   },
   plugins: [],
+  corePlugins: {
+    // Desativa o utilitário container do Tailwind para evitar conflito com o .container do main.css
+    container: false,
+  },
 } satisfies Config

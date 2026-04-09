@@ -44,6 +44,8 @@ useHead({
 </script>
 
 <template>
+<SiteNav />
+
 <div class="article-page" v-if="article">
   <div class="article-header">
     <NuxtLink to="/blog" class="article-back">← Blog</NuxtLink>
@@ -51,7 +53,6 @@ useHead({
       <p class="article-tag">{{ article.tag ?? 'análise' }}</p>
       <h1 class="article-title">{{ article.title }}</h1>
       <p class="article-desc">{{ article.description }}</p>
-      <p class="article-date">{{ new Date(article.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) }}</p>
     </div>
   </div>
 
@@ -92,7 +93,7 @@ useHead({
 </template>
 
 <style scoped>
-.article-page { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--font); }
+.article-page { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--font); padding-top: 68px; }
 .article-header { padding: 32px 24px 40px; max-width: 720px; margin: 0 auto; }
 .article-back { font-size: 13px; color: var(--text-3); text-decoration: none; font-family: var(--mono); display: block; margin-bottom: 28px; }
 .article-back:hover { color: var(--text-2); }
