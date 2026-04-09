@@ -457,9 +457,10 @@ async function startAnalysis() {
     const plan = data.plan ?? currentPlan.value
     resultPlan.value  = plan
 
-    // data e cta chegam como string JSON do n8n — parsear se necessário
+    // data pode chegar como string JSON do n8n — parsear se necessário
     resultData.value  = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? {})
-    resultCta.value   = typeof data.cta  === 'string' ? JSON.parse(data.cta)  : (data.cta  ?? null)
+    // cta é sempre string de texto — nunca JSON.parse
+    resultCta.value   = data.cta ?? null
     resultRelDyn.value = data.relationship_dynamics ?? null
     // upsell_offer só é setado se show_upsell !== false (quem comprou order bump não recebe)
     const showUpsell = data.show_upsell !== false
