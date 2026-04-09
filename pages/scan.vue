@@ -1074,7 +1074,7 @@ onUnmounted(() => {
       </div>
       <div class="locked-overlay">
         <p class="locked-label">🔒 Análise completa bloqueada</p>
-        <button class="locked-sub-btn" @click="resultUpsellOffer ? openUpsellModal() : openModal()">Ver análise completa →</button>
+        <button class="locked-sub-btn" @click="resultUpsellOffer ? goToCheckoutUpsell() : openModal()">Ver análise completa →</button>
       </div>
     </div>
 
@@ -1083,7 +1083,7 @@ onUnmounted(() => {
       <div class="cta-result-card">
         <p class="cta-result-sub">{{ typeof resultCta === 'string' ? resultCta : (resultCta.subtitle ?? '') }}</p>
       </div>
-      <button class="btn-unlock" @click="resultUpsellOffer ? openUpsellModal() : openModal()">
+      <button class="btn-unlock" @click="resultUpsellOffer ? goToCheckoutUpsell() : openModal()">
         🔓 {{ typeof resultCta === 'string' ? 'Desbloquear análise completa' : (resultCta.button_label ?? 'Desbloquear análise completa') }}
       </button>
     </template>
