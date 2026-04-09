@@ -314,22 +314,22 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <span>Interpretar mensagens do crush</span><br>
         <span class="grad">com IA genérica não funciona.</span>
       </h2>
-      <p class="diff-sub reveal">Você faz uma pergunta direta e recebe uma evasão educada.</p>
+      <p class="diff-sub reveal">Qualquer pessoa pode perguntar pra IA genérica o que uma mensagem significa. Mas a IA genérica não foi treinada para ler relacionamentos — foi treinada para parecer prestativa com qualquer pergunta.</p>
       <p class="diff-contrast reveal" style="margin-bottom:28px">"Talvez". "Depende". "Cada pessoa é diferente!" — sem nenhuma conclusão real sobre a conversa.</p>
     </div>
     <div class="diff-grid">
       <div class="diff-card reveal">
-        <div class="diff-icon" style="color:var(--danger)">✗</div>
+        <div class="diff-icon">◈</div>
         <h3 class="diff-card-title">IA genérica evita se comprometer</h3>
         <p class="diff-card-desc">Não foi treinada pra analisar relacionamentos — então sempre diz "talvez" e "depende do contexto".</p>
       </div>
       <div class="diff-card reveal" style="transition-delay:.08s">
-        <div class="diff-icon" style="color:var(--danger)">✗</div>
+        <div class="diff-icon">◈</div>
         <h3 class="diff-card-title">Amigos são parciais por natureza</h3>
         <p class="diff-card-desc">Querem te ver feliz. Ou te proteger. De qualquer forma, não são imparciais — e isso distorce a análise.</p>
       </div>
       <div class="diff-card reveal" style="transition-delay:.16s">
-        <div class="diff-icon" style="color:var(--pink)">◈</div>
+        <div class="diff-icon">◈</div>
         <h3 class="diff-card-title">ScanCrush foi treinado pra isso</h3>
         <p class="diff-card-desc">Lê padrões reais da sua conversa e entrega um score, sinais concretos e uma conclusão direta. Sem rodeios.</p>
       </div>
