@@ -94,6 +94,10 @@ function goToCheckout(plan: 'basic' | 'revealed' | 'raiox') {
 // ── Plans modal (opens for paid CTAs on landing) ──
 const isPricesModalOpen = ref(false)
 
+function scrollToPricing() {
+  if (import.meta.client) document.querySelector('#pricing')?.scrollIntoView({ behavior: 'smooth' })
+}
+
 function openPricesModal() {
   isPricesModalOpen.value = true
   if (import.meta.client) document.body.style.overflow = 'hidden'
@@ -202,7 +206,7 @@ onUnmounted(() => {
         </p>
 
         <div class="hero-actions">
-          <button class="btn-primary" @click="openPricesModal()">
+          <button class="btn-primary" @click="scrollToPricing()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <span>{{ t.hero.cta_primary }}</span>
           </button>
@@ -559,7 +563,7 @@ onUnmounted(() => {
         <span class="grad">{{ t.cta_final.title_accent }}</span>
       </h2>
       <p>{{ t.cta_final.sub }}</p>
-      <button class="btn-primary" style="font-size:17px;padding:18px 40px" @click="openPricesModal()">
+      <button class="btn-primary" style="font-size:17px;padding:18px 40px" @click="scrollToPricing()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span>{{ t.cta_final.btn }}</span>
       </button>

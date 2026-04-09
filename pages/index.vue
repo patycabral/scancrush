@@ -96,6 +96,10 @@ function goToCheckout(plan: 'basic' | 'revealed' | 'raiox') {
 }
 
 const isPricesModalOpen = ref(false)
+function scrollToPricing() {
+  if (import.meta.client) document.querySelector('#b-pricing')?.scrollIntoView({ behavior: 'smooth' })
+}
+
 function openPricesModal() {
   isPricesModalOpen.value = true
   if (import.meta.client) document.body.style.overflow = 'hidden'
@@ -189,7 +193,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         </p>
 
         <div class="hero-actions">
-          <button class="btn-primary" @click="openPricesModal()">
+          <button class="btn-primary" @click="scrollToPricing()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <span>Analisar minha conversa</span>
           </button>
@@ -532,7 +536,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <span class="grad">só ainda não viu do jeito certo.</span>
       </h2>
       <p>Enquanto você fica ruminando, a resposta já está nos prints.</p>
-      <button class="btn-primary" style="font-size:17px;padding:18px 40px" @click="openPricesModal()">
+      <button class="btn-primary" style="font-size:17px;padding:18px 40px" @click="scrollToPricing()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span>Ver o que isso realmente significa</span>
       </button>
