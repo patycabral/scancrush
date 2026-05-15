@@ -240,7 +240,7 @@ function validateS2(): boolean {
 const loadingMessages = [
   ['Lendo os prints...', 'identificando quem é quem na conversa'],
   ['Mapeando padrões...', 'quem inicia, quem some, quem responde com pressa'],
-  ['Analisando consistência...', 'o que ele diz vs. o que ele faz'],
+  ['Analisando consistência...', 'o que ele(a) diz vs. o que ele(a) faz'],
   ['Identificando sinais...', 'positivos, negativos e os que passam despercebidos'],
   ['Calculando o score...', 'baseado em comportamento, não em intenção'],
   ['Gerando o relatório...', 'quase pronto — vale cada segundo'],
@@ -420,7 +420,40 @@ async function startAnalysis() {
   uploadedFiles.value.forEach(file => form.append('images', file))
 
   try {
-    // Timeout de 8 minutos — n8n pode demorar com imagens pesadas
+    // ── Free: preview rápido sem n8n ──────────────────────────────
+    if (currentPlan.value === 'free') {
+      const previewRes = await fetch('/api/preview', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          name:          userName.value.trim(),
+          crush_name:    crushName.value.trim(),
+          feelings:      selectedTags.value.join(', '),
+          observations:  observations.value.trim(),
+        }),
+      })
+      const previewData = await previewRes.json()
+
+      if (msgInterval) clearInterval(msgInterval)
+      if (progressInterval) clearInterval(progressInterval)
+      loadingProgress.value = 100
+      await new Promise(r => setTimeout(r, 400))
+
+      resultPlan.value = 'free'
+      resultData.value = {
+        interest_score:   null,
+        situation_label:  { level: null },
+        final_message:    previewData.preview ?? 'Existe interesse… mas os padrões revelam algo que você precisa ver com mais calma.',
+        signals:          [],
+      }
+      resultCta.value  = 'Ver análise completa'
+      resultUpsellOffer.value = null
+      goTo(4)
+      updateNewAnalysisBtn()
+      return
+    }
+
+    // ── Pago: análise completa via n8n ────────────────────────────
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 8 * 60 * 1000)
 
@@ -570,40 +603,44 @@ const PLAN_NAMES: Record<string, string> = {
 const planDisplayName = computed(() => PLAN_NAMES[currentPlan.value] ?? 'Gratuito')
 const planImageLimit = computed(() => PLAN_LIMITS[currentPlan.value] ?? 1)
 
-onMounted(() => {
+onMounted(async () => {
   if (import.meta.client) {
-    // 1. Check URL param first (coming from Kiwify redirect)
-    const urlParams = new URLSearchParams(window.location.search)
-    const planParam       = urlParams.get('plan')
-    const tokenParam      = urlParams.get('access_token')
-    const customerIdParam = urlParams.get('customer_id')
+    const urlParams  = new URLSearchParams(window.location.search)
+    const tokenParam = urlParams.get('token')
     const validPlans = Object.keys(PLAN_LIMITS)
 
-    if (planParam && validPlans.includes(planParam)) {
-      currentPlan.value = planParam
-      sessionStorage.setItem('sc_plan', planParam)
+    if (tokenParam) {
+      // Token presente → validar via API (que chama n8n → Supabase)
+      accessToken.value = tokenParam
+      sessionStorage.setItem('sc_token', tokenParam)
+
+      try {
+        const res  = await fetch('/api/validate-token', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ token: tokenParam }),
+        })
+        const data = await res.json()
+
+        if (!data.valid) {
+          window.location.href = '/acesso-invalido.html'; return
+        }
+        if (data.used) {
+          window.location.href = '/acesso-usado.html'; return
+        }
+
+        const plan = data.plan ?? 'free'
+        currentPlan.value = validPlans.includes(plan) ? plan : 'free'
+        sessionStorage.setItem('sc_plan',        currentPlan.value)
+        sessionStorage.setItem('sc_image_limit', String(data.image_limit ?? 1))
+      } catch {
+        // Falha de rede: permite continuar em free para não bloquear o usuário
+        currentPlan.value = 'free'
+      }
     } else {
-      // 2. Fallback to saved session plan
+      // Sem token → plano free (sessão salva ou default)
       const saved = sessionStorage.getItem('sc_plan')
       if (saved && validPlans.includes(saved)) currentPlan.value = saved
-    }
-
-    // 3. Read access_token (paid flow)
-    if (tokenParam) {
-      accessToken.value = tokenParam
-      sessionStorage.setItem('sc_access_token', tokenParam)
-    } else {
-      const savedToken = sessionStorage.getItem('sc_access_token')
-      if (savedToken) accessToken.value = savedToken
-    }
-
-    // 4. Read customer_id
-    if (customerIdParam) {
-      customerId.value = customerIdParam
-      sessionStorage.setItem('sc_customer_id', customerIdParam)
-    } else {
-      const savedCid = sessionStorage.getItem('sc_customer_id')
-      if (savedCid) customerId.value = savedCid
     }
   }
   shuffleTags()
@@ -798,7 +835,7 @@ onUnmounted(() => {
         />
       </div>
       <div class="field-group">
-        <label class="field-label" for="crushAgeRange">Faixa etária dele <span class="field-optional">(opcional)</span></label>
+        <label class="field-label" for="crushAgeRange">Faixa etária dele(a) <span class="field-optional">(opcional)</span></label>
         <select class="date-select" id="crushAgeRange" v-model="crushAgeRange" style="flex:1;min-width:0">
           <option value="">Não sei / prefiro não dizer</option>
           <option value="menor-18">Menos de 18 anos</option>
@@ -819,7 +856,7 @@ onUnmounted(() => {
     <textarea
       class="obs-textarea"
       v-model="observations"
-      placeholder="Ex: ele demora pra responder, parece distante, some às vezes..."
+      placeholder="Ex: ele(a) demora para responder, parece distante, some às vezes..."
       rows="5"
     ></textarea>
 
