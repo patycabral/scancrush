@@ -6,16 +6,16 @@ useHead({ title: 'ScanCrush — Analisar conversa' })
 // currentPlan is set here for frontend UX only.
 // ⚠️ BACKEND REQUIRED: validate plan + usage server-side
 // ════════════════════════════════════════════════════
-const PLAN_LIMITS: Record<string, number> = { free: 1, basic: 5, revealed: 10, xray: 20 }
+const PLAN_LIMITS: Record<string, number> = { free: 1, basic: 5, plus: 10, full: 20 }
 
 const KIWIFY_URLS = {
-  basic:    'https://pay.kiwify.com.br/lksicGT',
-  revealed: 'https://pay.kiwify.com.br/9er8Nn9',
-  raiox:    'https://pay.kiwify.com.br/ZYqerZF',
-  upsell:   'https://pay.kiwify.com.br/4PEh4AL',
+  basic:  'https://pay.kiwify.com.br/lksicGT',
+  plus:   'https://pay.kiwify.com.br/9er8Nn9',
+  full:   'https://pay.kiwify.com.br/ZYqerZF',
+  upsell: 'https://pay.kiwify.com.br/4PEh4AL',
 }
 
-function goToCheckout(plan: 'basic' | 'revealed' | 'raiox') {
+function goToCheckout(plan: 'basic' | 'plus' | 'full') {
   if (import.meta.client) window.location.href = KIWIFY_URLS[plan]
 }
 
@@ -402,9 +402,9 @@ async function startAnalysis() {
 
   // Sempre envia todos os campos do formulário, mesmo os vazios (null/empty string).
   // O n8n recebe o payload completo e decide o que salvar no banco.
-  form.append('plan',            currentPlan.value)
-  form.append('access_token',    accessToken.value)
-  form.append('customer_id',     customerId.value)
+  form.append('token',       accessToken.value)
+  form.append('plan',        currentPlan.value)
+  form.append('image_count', String(uploadedFiles.value.length))
   form.append('user_name',       userName.value.trim())
 
   const birthDate = (bYear.value && bMonth.value && bDay.value)
@@ -577,8 +577,9 @@ function resetAll() {
   customerId.value = ''
   if (import.meta.client) {
     sessionStorage.removeItem('sc_analysis_done')
-    sessionStorage.removeItem('sc_access_token')
-    sessionStorage.removeItem('sc_customer_id')
+    sessionStorage.removeItem('sc_token')
+    sessionStorage.removeItem('sc_plan')
+    sessionStorage.removeItem('sc_max_images')
   }
   goTo(1)
 }
@@ -595,10 +596,10 @@ function onKeydown(e: KeyboardEvent) {
 
 // Plan names for display
 const PLAN_NAMES: Record<string, string> = {
-  free: 'Gratuito',
+  free:  'Gratuito',
   basic: 'Sinais Básicos',
-  revealed: 'Sinais Revelados',
-  raiox: 'Raio-X do Crush',
+  plus:  'Sinais Revelados',
+  full:  'Raio-X do Crush',
 }
 const planDisplayName = computed(() => PLAN_NAMES[currentPlan.value] ?? 'Gratuito')
 const planImageLimit = computed(() => PLAN_LIMITS[currentPlan.value] ?? 1)
@@ -631,8 +632,8 @@ onMounted(async () => {
 
         const plan = data.plan ?? 'free'
         currentPlan.value = validPlans.includes(plan) ? plan : 'free'
-        sessionStorage.setItem('sc_plan',        currentPlan.value)
-        sessionStorage.setItem('sc_image_limit', String(data.image_limit ?? 1))
+        sessionStorage.setItem('sc_plan',       currentPlan.value)
+        sessionStorage.setItem('sc_max_images', String(data.max_images ?? PLAN_LIMITS[currentPlan.value] ?? 1))
       } catch {
         // Falha de rede: permite continuar em free para não bloquear o usuário
         currentPlan.value = 'free'
