@@ -1,5 +1,5 @@
 -- ================================================================
--- ScanCrush — Supabase Schema  (versão QA-aprovada)
+-- ScanCrush — Supabase Schema  (PerfectPay · v2)
 -- Execute no SQL Editor do Supabase
 -- ================================================================
 
@@ -35,53 +35,57 @@ DROP FUNCTION IF EXISTS cleanup_expired_sessions();
 
 -- ================================================================
 -- TABELA: customers
--- Perfil do usuário — pagantes (via Kiwify) e usuários do plano free.
+-- Perfil do usuário — pagantes (via PerfectPay) e usuários do plano free.
 --
 -- Campos preenchidos por fluxo:
---   WF01 (pago via Kiwify): full_name, first_name, email, mobile,
---                            cpf, country, ip
---   WF04 (free):            nenhum — análise free não cria customer
+--   WF01 (pago via PerfectPay): full_name, first_name, email, mobile,
+--                               identification_type, identification_number,
+--                               country, ip
+--   WF04 (free): nenhum — análise free não cria customer
 --
 -- birth_date e age: preenchidos somente se o fluxo de análise (WF03)
 --   incluir nó de UPDATE com os dados do formulário de scan.
---   Atualmente não há esse nó — campos existem para uso futuro.
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS customers (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Nome completo (Customer.full_name via Kiwify).
+  -- Nome completo do comprador (via PerfectPay).
   full_name  TEXT NOT NULL,
 
-  -- Primeiro nome (Customer.first_name via Kiwify). Personaliza emails.
+  -- Primeiro nome. Usado para personalizar e-mails.
   first_name TEXT,
 
-  -- E-mail do comprador (Customer.email via Kiwify).
-  -- NULL para usuários gratuitos (não há customer record no free flow).
+  -- E-mail do comprador (via PerfectPay).
   email      TEXT,
 
   -- Data de nascimento — coletada pelo formulário de scan.
   -- Atualmente nenhum fluxo n8n a salva automaticamente.
-  -- Requer nó de UPDATE em WF03 para ser preenchida.
   birth_date DATE,
 
   -- Idade calculada pela trigger trg_customer_age ao INSERT.
   -- NULL quando birth_date não foi informado.
   age        INTEGER,
 
-  -- Telefone (Customer.mobile via Kiwify), ex: +5511999999999
+  -- Telefone do comprador, ex: +5511999999999
   mobile     TEXT,
 
-  -- IP registrado no momento da compra (Customer.ip via Kiwify).
+  -- IP registrado no momento da compra.
   ip         TEXT,
 
-  -- CPF (Customer.CPF via Kiwify) — armazenar conforme política LGPD.
-  cpf        TEXT,
+  -- Tipo do documento de identificação (identification-type via PerfectPay).
+  -- Ex: "CPF", "CNPJ", "Passport"
+  identification_type   TEXT,
 
-  -- País (Customer.country via Kiwify), ex: "br"
+  -- Número do documento (identification-number via PerfectPay).
+  -- Ex: "00000000000"
+  -- Armazenar conforme política LGPD.
+  identification_number TEXT,
+
+  -- País do comprador, ex: "br"
   country    TEXT,
 
-  -- Data do cadastro (= momento do webhook Kiwify)
+  -- Data do cadastro (= momento do webhook PerfectPay)
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -136,29 +140,17 @@ FROM customers;
 -- ================================================================
 -- TABELA: sessions
 -- Token de acesso para UMA análise paga.
--- Criada por WF01 após pagamento aprovado.
+-- Criada por WF01 após pagamento aprovado via PerfectPay.
 -- Lida por WF02 (validate-token) e atualizada por WF03 (analyze).
 --
--- Ciclo de vida — sessão normal:
+-- Ciclo de vida:
 --   1. WF01 cria a sessão (used=false, expires_at=now()+6h)
 --   2. Frontend valida via WF02 → recebe plan e max_images
 --   3. Frontend envia prints → WF03 processa análise
 --   4. WF03 atualiza: score, result_json, model, tokens_*, used=true
 --
--- Ciclo de vida — sessão upsell (is_upsell=true):
---   1. Usuário clica no botão upsell → frontend chama /api/mark-upsell-intent
---      → marca upsell_intent=true na sessão original
---   2. Usuário compra no Kiwify → WF01 detecta produto upsell
---   3. WF01 busca sessão original por email + upsell_intent=true
---   4. WF01 cria sessão upsell (is_upsell=true, upsell_tier, parent_session_id)
---   5. Email enviado com novo token upsell
---   6. WF03 ao receber token upsell: busca result_json da sessão pai,
---      retorna o tier mais profundo sem rodar OCR nem IA
---   7. Sessão pai: upsell_completed=true
---
 -- Campos preenchidos na criação (WF01):
---   order_id, customer_id, user_name, plan, is_full, used, expires_at
---   is_upsell, upsell_tier, parent_session_id (sessões upsell)
+--   order_id, customer_id, user_name, plan, used, expires_at
 --   access_token (gerado automaticamente pelo banco)
 --
 -- Campos preenchidos na análise (WF03):
@@ -169,23 +161,23 @@ FROM customers;
 CREATE TABLE IF NOT EXISTS sessions (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- ID do pedido Kiwify (order_id) que originou esta sessão.
+  -- ID do pedido PerfectPay que originou esta sessão.
   order_id     TEXT,
 
   -- FK para customers.id — preenchido na criação pelo WF01.
   customer_id  UUID REFERENCES customers(id),
 
   -- Token de 64 chars hexadecimais gerado automaticamente pelo banco.
-  -- Enviado por email e validado a cada request de análise.
+  -- Enviado por e-mail e validado a cada request de análise.
   access_token TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
 
-  -- true quando a análise (ou entrega do upsell) já foi realizada.
+  -- true quando a análise já foi realizada.
   used         BOOLEAN NOT NULL DEFAULT false,
 
   -- Expiração automática: now() + 6 horas.
   expires_at   TIMESTAMPTZ NOT NULL DEFAULT now() + INTERVAL '6 hours',
 
-  -- Nome do comprador (Customer.first_name via Kiwify).
+  -- Nome do comprador (first_name via PerfectPay).
   user_name    TEXT,
 
   -- ── Contexto da análise (preenchido quando o usuário envia o formulário)
@@ -194,43 +186,13 @@ CREATE TABLE IF NOT EXISTS sessions (
   feelings        TEXT,
   behavior_notes  TEXT,
 
-  -- Plano contratado: basic | plus | full
-  -- basic = 5 imgs | plus = 10 imgs | full = 20 imgs
-  -- Sessões upsell também têm plan (herdado do produto upsell comprado).
-  plan         TEXT NOT NULL CHECK (plan IN ('basic', 'plus', 'full')),
-
-  -- true quando o cliente adquiriu o ScanCrush Full (order bump).
-  -- Impede exibição de upsell no frontend quando já comprado.
-  is_full      BOOLEAN NOT NULL DEFAULT false,
-
-  -- ── Upsell ──────────────────────────────────────────────────────
-  -- true = esta sessão é um upsell (não roda nova análise).
-  -- WF03 detecta isso e entrega o tier mais profundo da sessão pai.
-  is_upsell         BOOLEAN NOT NULL DEFAULT false,
-
-  -- Qual tier de aprofundamento foi comprado neste upsell.
-  -- upsell_free → 'basic' | upsell_basic → 'plus' | upsell_revealed → 'full'
-  -- NULL em sessões normais (não upsell).
-  upsell_tier       TEXT CHECK (upsell_tier IN ('basic', 'plus', 'full')),
-
-  -- FK para a sessão original cujo result_json será reutilizado.
-  -- NULL em sessões normais.
-  parent_session_id UUID REFERENCES sessions(id),
-
-  -- Marcado pelo frontend quando o usuário clica no botão de upsell.
-  -- WF01 usa esse flag para identificar qual sessão vincular à compra.
-  upsell_intent     BOOLEAN NOT NULL DEFAULT false,
-
-  -- Quando o botão foi clicado. Usado para o reset automático após 7 dias.
-  upsell_intent_at  TIMESTAMPTZ,
-
-  -- true quando o upsell foi pago e entregue com sucesso.
-  -- Setado pelo WF03 ao retornar o tier mais profundo.
-  upsell_completed  BOOLEAN NOT NULL DEFAULT false,
+  -- Plano contratado: revealed | raiox
+  -- revealed = 4 prints | raiox = 10 prints
+  plan         TEXT NOT NULL CHECK (plan IN ('revealed', 'raiox')),
 
   -- ── Tokens do Analista Emocional (etapa de análise, salvo pelo WF03) ─
-  -- Estes são os tokens usados pela chamada principal ao Claude/GPT
-  -- (nó "Analista Emocional"). Tokens de OCR ficam em messages_history.
+  -- Estes são os tokens usados pela chamada principal ao Claude/GPT.
+  -- Tokens de OCR ficam em messages_history.
   tokens_input   INTEGER DEFAULT 0,
   tokens_output  INTEGER DEFAULT 0,
   tokens_total   INTEGER GENERATED ALWAYS AS (
@@ -245,7 +207,6 @@ CREATE TABLE IF NOT EXISTS sessions (
   score        INTEGER,
 
   -- Resultado completo da IA em JSON. NULL até a análise.
-  -- Preenchido pelo WF03 junto com used=true.
   result_json  TEXT,
 
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -262,31 +223,38 @@ CREATE INDEX IF NOT EXISTS idx_sessions_active
   ON sessions (expires_at)
   WHERE used = false;
 
--- Busca de intenção de upsell por customer (usada pelo WF01 ao receber compra upsell)
-CREATE INDEX IF NOT EXISTS idx_sessions_upsell_intent
-  ON sessions (customer_id, upsell_intent_at DESC)
-  WHERE upsell_intent = true AND upsell_completed = false;
-
 
 -- ================================================================
 -- TABELA: payments
--- Registro completo de cada pagamento recebido via webhook Kiwify.
+-- Registro completo de cada pagamento recebido via webhook PerfectPay.
 -- Garante idempotência: mesmo order_id não gera duplicata.
 --
--- Campos preenchidos pelo WF01 "Registrar Pagamento":
---   provider, customer_id, session_id, plan, product_id, product_name,
---   amount_cents, currency, kiwify_fee_cents, payment_method, card_type,
---   installments, status, webhook_event_type, estimated_deposit_date,
---   approved_at, max_prints, order_id, order_bump
+-- Mapeamento webhook PerfectPay → coluna:
+--   status-venda          → status
+--   detalhe-status-venda  → status_detail
+--   data-pedido           → order_date
+--   data-aprovacao        → approved_at
+--   product-id            → product_id
+--   product-name          → product_name
+--   plan-id               → plan_id
+--   plan-name             → plan_name  (mapeado para plano interno)
+--   valor-venda           → amount_cents  (× 100)
+--   payment-method        → payment_method
+--   card-type             → card_type
+--   numero-de-parcelas    → installments
+--   valor-parcela         → installment_amount_cents  (× 100)
+--   moeda-compra          → currency
+--   perfectpay_fee        → platform_fee_cents  (× 100)
+--   my_commission         → commission_cents  (× 100)
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS payments (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Plataforma de pagamento. Atualmente só 'kiwify'.
-  provider     TEXT NOT NULL CHECK (provider IN ('kiwify', 'stripe')),
+  -- Plataforma de pagamento.
+  provider     TEXT NOT NULL CHECK (provider IN ('perfectpay', 'stripe')),
 
-  -- ID do pedido Kiwify (order_id). UNIQUE = idempotência garantida.
+  -- ID do pedido PerfectPay. UNIQUE = idempotência garantida.
   order_id     TEXT UNIQUE,
 
   -- FK para sessions.id criada para este pagamento.
@@ -295,54 +263,60 @@ CREATE TABLE IF NOT EXISTS payments (
   -- FK para customers.id registrado nesta compra.
   customer_id  UUID REFERENCES customers(id),
 
-  -- Plano contratado: basic | plus | full
-  plan         TEXT NOT NULL CHECK (plan IN ('basic', 'plus', 'full')),
+  -- Plano interno contratado: revealed | raiox
+  plan         TEXT NOT NULL CHECK (plan IN ('revealed', 'raiox')),
 
-  -- ID do produto no Kiwify (Product.product_id).
-  -- Usado para mapear produto → plano após BUG-01 ser corrigido.
+  -- ID do produto na PerfectPay (product-id).
   product_id   TEXT,
 
-  -- Nome do produto (Product.product_name) ou da oferta
-  -- (Product.product_offer_name) — salvo como informação legível.
+  -- Nome do produto (product-name).
   product_name TEXT,
 
-  -- true quando o cliente comprou o order bump (upgrade full).
-  order_bump   BOOLEAN,
+  -- ID do plano na PerfectPay (plan-id), ex: "PPLQQPF70".
+  plan_id      TEXT,
+
+  -- Nome do plano na PerfectPay (plan-name), ex: "Raio-X do Crush".
+  plan_name    TEXT,
 
   -- Limite de imagens para este pagamento.
-  -- basic=5 | plus=10 | full=20
-  max_prints   INTEGER NOT NULL CHECK (max_prints IN (5, 10, 20)),
+  -- revealed=4 | raiox=10
+  max_prints   INTEGER NOT NULL CHECK (max_prints IN (4, 10)),
 
-  -- Valor pago, em centavos (Commissions.charge_amount).
-  -- Ex: 2990 = R$29,90
+  -- Valor total pago, em centavos (valor-venda × 100).
+  -- Ex: 503 = R$5,03
   amount_cents INTEGER,
 
-  -- Moeda (Commissions.currency). Normalmente "BRL".
+  -- Moeda (moeda-compra), ex: "BRL".
   currency     TEXT DEFAULT 'BRL',
 
-  -- Taxa Kiwify, em centavos (Commissions.kiwify_fee).
-  kiwify_fee_cents INTEGER,
+  -- Taxa da plataforma, em centavos (perfectpay_fee × 100).
+  platform_fee_cents INTEGER,
 
-  -- Método: credit_card | pix | boleto
+  -- Comissão líquida, em centavos (my_commission × 100).
+  commission_cents   INTEGER,
+
+  -- Método de pagamento: pix | credit_card | boleto
   payment_method TEXT,
 
-  -- Bandeira do cartão: visa | mastercard | elo | etc.
+  -- Bandeira do cartão (card-type): visa | mastercard | none | etc.
   card_type    TEXT,
 
-  -- Número de parcelas (1 = à vista).
+  -- Número de parcelas (numero-de-parcelas). 1 = à vista.
   installments INTEGER DEFAULT 1,
 
-  -- Status do pagamento: approved | refunded | cancelled
+  -- Valor de cada parcela, em centavos (valor-parcela × 100).
+  installment_amount_cents INTEGER,
+
+  -- Status principal do pagamento (status-venda): approved | pending | cancelled
   status       TEXT NOT NULL DEFAULT 'approved',
 
-  -- Tipo do evento Kiwify que disparou este registro.
-  -- Ex: "order_approved", "order_refunded"
-  webhook_event_type TEXT,
+  -- Detalhe do status (detalhe-status-venda): paid | waiting | etc.
+  status_detail TEXT,
 
-  -- Data estimada de depósito (Commissions.estimated_deposit_date).
-  estimated_deposit_date TIMESTAMPTZ,
+  -- Data/hora em que o pedido foi criado (data-pedido).
+  order_date   TIMESTAMPTZ,
 
-  -- Data/hora de aprovação do pagamento (approved_date do payload).
+  -- Data/hora de aprovação do pagamento (data-aprovacao).
   approved_at  TIMESTAMPTZ,
 
   -- Quando este registro foi inserido (≈ momento do webhook recebido)
@@ -453,30 +427,6 @@ FROM customers c
 LEFT JOIN sessions         s  ON s.customer_id  = c.id
 LEFT JOIN messages_history mh ON mh.customer_id = c.id
 GROUP BY c.id, c.full_name, c.email;
-
-
--- ================================================================
--- FUNÇÃO: cleanup_expired_upsell_intents
--- Reseta upsell_intent=false em sessões onde o usuário clicou no
--- botão de upsell mas não completou o pagamento em 7 dias.
--- Execute via pg_cron diariamente ou no WF01 ao detectar upsell.
--- ================================================================
-
-CREATE OR REPLACE FUNCTION cleanup_expired_upsell_intents()
-RETURNS INTEGER AS $$
-DECLARE
-  updated_count INTEGER;
-BEGIN
-  UPDATE sessions
-  SET upsell_intent    = false,
-      upsell_intent_at = NULL
-  WHERE upsell_intent    = true
-    AND upsell_completed = false
-    AND upsell_intent_at < now() - INTERVAL '7 days';
-  GET DIAGNOSTICS updated_count = ROW_COUNT;
-  RETURN updated_count;
-END;
-$$ LANGUAGE plpgsql;
 
 
 -- ================================================================
