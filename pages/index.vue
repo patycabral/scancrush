@@ -30,9 +30,8 @@ useHead({
         inLanguage: 'pt-BR',
         offers: [
           { '@type': 'Offer', price: '0', priceCurrency: 'BRL', name: 'Primeiras Impressões — 1 print' },
-          { '@type': 'Offer', price: '14.90', priceCurrency: 'BRL', name: 'Sinais Básicos — até 5 prints' },
-          { '@type': 'Offer', price: '27.90', priceCurrency: 'BRL', name: 'Sinais Revelados — até 10 prints' },
-          { '@type': 'Offer', price: '39.90', priceCurrency: 'BRL', name: 'Raio-X do Crush — até 20 prints' },
+          { '@type': 'Offer', price: '19.90', priceCurrency: 'BRL', name: 'Sinais Revelados — até 4 prints' },
+          { '@type': 'Offer', price: '44.90', priceCurrency: 'BRL', name: 'Raio-X do Crush — até 10 prints' },
         ],
       }),
     },
@@ -70,7 +69,7 @@ useHead({
           {
             '@type': 'Question',
             name: 'Quantos prints posso enviar para análise?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Gratuito (1 print), Sinais Básicos (até 5 prints), Sinais Revelados (até 10 prints), Raio-X do Crush (até 20 prints). Mais prints permitem uma análise mais profunda e precisa.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Gratuito (1 print), Sinais Revelados (até 4 prints), Raio-X do Crush (até 10 prints). Mais prints permitem uma análise mais profunda e precisa.' },
           },
           {
             '@type': 'Question',
@@ -86,12 +85,11 @@ useHead({
 const { t } = useAppI18n()
 
 const KIWIFY_URLS = {
-  basic:    'https://pay.kiwify.com.br/lksicGT',
   revealed: 'https://pay.kiwify.com.br/9er8Nn9',
   raiox:    'https://pay.kiwify.com.br/ZYqerZF',
 }
 
-function goToCheckout(plan: 'basic' | 'revealed' | 'raiox') {
+function goToCheckout(plan: 'revealed' | 'raiox') {
   if (import.meta.client) window.location.href = KIWIFY_URLS[plan]
 }
 
@@ -287,7 +285,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <div class="loop-item loop-item-2">
         <div class="loop-emoji">📲</div>
         <strong>Manda pro grupo</strong>
-        <p>"O que ele quis dizer com isso?"</p>
+        <p>"O que ele(a) quis dizer com isso?"</p>
       </div>
       <div class="loop-item loop-item-3">
         <div class="loop-emoji">🤔</div>
@@ -313,19 +311,19 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 <section class="section-pad diff-section">
   <div class="container">
     <div class="reveal" style="text-align:center">
-      <span class="tag">// você já até perguntou pra IA, né?</span>
+      <span class="tag">// você já até perguntou para IA, né?</span>
       <h2 class="section-title">
         <span>Interpretar mensagens do crush</span><br>
         <span class="grad">com IA genérica não funciona.</span>
       </h2>
-      <p class="diff-sub reveal">Qualquer pessoa pode perguntar pra IA genérica o que uma mensagem significa. Mas a IA genérica não foi treinada para ler relacionamentos — foi treinada para parecer prestativa com qualquer pergunta.</p>
+      <p class="diff-sub reveal">Qualquer pessoa pode perguntar para IA genérica o que uma mensagem significa. Mas a IA genérica não foi treinada para ler relacionamentos — foi treinada para parecer prestativa com qualquer pergunta.</p>
       <p class="diff-contrast reveal" style="margin-bottom:28px">"Talvez". "Depende". "Cada pessoa é diferente!" — sem nenhuma conclusão real sobre a conversa.</p>
     </div>
     <div class="diff-grid">
       <div class="diff-card reveal">
         <div class="diff-icon">◈</div>
         <h3 class="diff-card-title">IA genérica evita se comprometer</h3>
-        <p class="diff-card-desc">Não foi treinada pra analisar relacionamentos — então sempre diz "talvez" e "depende do contexto".</p>
+        <p class="diff-card-desc">Não foi treinada para analisar relacionamentos — então sempre diz "talvez" e "depende do contexto".</p>
       </div>
       <div class="diff-card reveal" style="transition-delay:.08s">
         <div class="diff-icon">◈</div>
@@ -334,7 +332,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       </div>
       <div class="diff-card reveal" style="transition-delay:.16s">
         <div class="diff-icon">◈</div>
-        <h3 class="diff-card-title">ScanCrush foi treinado pra isso</h3>
+        <h3 class="diff-card-title">ScanCrush foi treinado para isso</h3>
         <p class="diff-card-desc">Lê padrões reais da sua conversa e entrega um score, sinais concretos e uma conclusão direta. Sem rodeios.</p>
       </div>
     </div>
@@ -435,15 +433,18 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item1 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item2 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item3 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item4 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item5 }}</span></li>
         </ul>
         <NuxtLink to="/scan" class="btn-price btn-price-free">{{ t.pricing.plan0_cta }}</NuxtLink>
       </div>
 
-      <div class="price-card reveal" style="transition-delay:.08s">
+      <div class="price-card featured reveal" style="transition-delay:.08s">
+        <div class="popular-badge">{{ t.pricing.popular }}</div>
         <div class="price-name">{{ t.pricing.plan1_name }}</div>
         <p class="price-desc">{{ t.pricing.plan1_desc }}</p>
         <div class="price-amount">
-          <span class="price-curr">{{ t.pricing.plan1_price_curr }}</span>
+          <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan1_price_curr }}</span>
           <span class="price-num">{{ t.pricing.plan1_price_num }}</span>
         </div>
         <div class="price-divider"></div>
@@ -452,48 +453,31 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item2 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item3 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item4 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item5 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item6 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item7 }}</span></li>
         </ul>
-        <button class="btn-price btn-price-paid" @click="goToCheckout('basic')">{{ t.pricing.plan1_cta }}</button>
+        <button class="btn-price btn-price-featured" @click="goToCheckout('revealed')">{{ t.pricing.plan1_cta }}</button>
       </div>
 
-      <div class="price-card featured reveal" style="transition-delay:.16s">
-        <div class="popular-badge">{{ t.pricing.popular }}</div>
+      <div class="price-card reveal" style="transition-delay:.16s">
         <div class="price-name">{{ t.pricing.plan2_name }}</div>
-        <p class="price-hook">{{ t.pricing.plan2_hook }}</p>
         <p class="price-desc">{{ t.pricing.plan2_desc }}</p>
         <div class="price-amount">
-          <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan2_price_curr }}</span>
+          <span class="price-curr">{{ t.pricing.plan2_price_curr }}</span>
           <span class="price-num">{{ t.pricing.plan2_price_num }}</span>
         </div>
         <div class="price-divider"></div>
         <ul class="price-features">
           <li class="pf-includes">+ {{ t.pricing.plan1_name }}</li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item1 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item2 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item3 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item4 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item5 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item6 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item7 }}</span></li>
         </ul>
-        <button class="btn-price btn-price-featured" @click="goToCheckout('revealed')">{{ t.pricing.plan2_cta }}</button>
-      </div>
-
-      <div class="price-card reveal" style="transition-delay:.24s">
-        <div class="price-name">{{ t.pricing.plan3_name }}</div>
-        <p class="price-desc">{{ t.pricing.plan3_desc }}</p>
-        <div class="price-amount">
-          <span class="price-curr">{{ t.pricing.plan3_price_curr }}</span>
-          <span class="price-num">{{ t.pricing.plan3_price_num }}</span>
-        </div>
-        <div class="price-divider"></div>
-        <ul class="price-features">
-          <li class="pf-includes">+ {{ t.pricing.plan2_name }}</li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan3_item1 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan3_item2 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan3_item3 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan3_item4 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan3_item5 }}</span></li>
-        </ul>
-        <button class="btn-price btn-price-paid" @click="goToCheckout('raiox')">{{ t.pricing.plan3_cta }}</button>
+        <button class="btn-price btn-price-paid" @click="goToCheckout('raiox')">{{ t.pricing.plan2_cta }}</button>
       </div>
     </div>
   </div>
@@ -579,9 +563,14 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <h2 class="lp-modal-title">{{ t.pricing.title }} <span class="grad">{{ t.pricing.title_accent }}</span></h2>
 
     <div class="lp-modal-plans">
-      <div class="lp-plan-card">
+
+      <!-- Sinais Revelados (FEATURED) -->
+      <div class="lp-plan-card featured">
+        <div class="lp-plan-badge">{{ t.pricing.popular }}</div>
         <div class="lp-plan-name">{{ t.pricing.plan1_name }}</div>
-        <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan1_price_curr }}</span>{{ t.pricing.plan1_price_num }}</div>
+        <div class="lp-plan-price">
+          <span class="lp-curr">{{ t.pricing.plan1_price_curr }}</span>{{ t.pricing.plan1_price_num }}
+        </div>
         <p class="lp-plan-period">pagamento único</p>
         <p class="lp-plan-desc">{{ t.pricing.plan1_desc }}</p>
         <ul class="lp-plan-items">
@@ -589,47 +578,37 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
           <li>{{ t.pricing.plan1_item2 }}</li>
           <li>{{ t.pricing.plan1_item3 }}</li>
           <li>{{ t.pricing.plan1_item4 }}</li>
+          <li>{{ t.pricing.plan1_item5 }}</li>
+          <li>{{ t.pricing.plan1_item6 }}</li>
+          <li>{{ t.pricing.plan1_item7 }}</li>
         </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('basic')">{{ t.pricing.plan1_cta }}</button>
+        <button class="lp-btn-plan primary" @click="goToCheckout('revealed')">{{ t.pricing.plan1_cta }}</button>
       </div>
 
-      <div class="lp-plan-card featured">
-        <div class="lp-plan-badge">{{ t.pricing.popular }}</div>
+      <!-- Raio-X do Crush -->
+      <div class="lp-plan-card">
         <div class="lp-plan-name">{{ t.pricing.plan2_name }}</div>
-        <p class="lp-plan-hook">{{ t.pricing.plan2_hook }}</p>
-        <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan2_price_curr }}</span>{{ t.pricing.plan2_price_num }}</div>
+        <div class="lp-plan-price">
+          <span class="lp-curr">{{ t.pricing.plan2_price_curr }}</span>{{ t.pricing.plan2_price_num }}
+        </div>
         <p class="lp-plan-period">pagamento único</p>
         <p class="lp-plan-desc">{{ t.pricing.plan2_desc }}</p>
         <ul class="lp-plan-items">
           <li class="lp-plan-item-includes">+ {{ t.pricing.plan1_name }}</li>
-          <li>{{ t.pricing.plan2_item1 }}</li>
           <li>{{ t.pricing.plan2_item2 }}</li>
           <li>{{ t.pricing.plan2_item3 }}</li>
           <li>{{ t.pricing.plan2_item4 }}</li>
           <li>{{ t.pricing.plan2_item5 }}</li>
+          <li>{{ t.pricing.plan2_item6 }}</li>
+          <li>{{ t.pricing.plan2_item7 }}</li>
         </ul>
-        <button class="lp-btn-plan primary" @click="goToCheckout('revealed')">{{ t.pricing.plan2_cta }}</button>
+        <button class="lp-btn-plan" @click="goToCheckout('raiox')">{{ t.pricing.plan2_cta }}</button>
       </div>
 
-      <div class="lp-plan-card">
-        <div class="lp-plan-name">{{ t.pricing.plan3_name }}</div>
-        <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan3_price_curr }}</span>{{ t.pricing.plan3_price_num }}</div>
-        <p class="lp-plan-period">pagamento único</p>
-        <p class="lp-plan-desc">{{ t.pricing.plan3_desc }}</p>
-        <ul class="lp-plan-items">
-          <li class="lp-plan-item-includes">+ {{ t.pricing.plan2_name }}</li>
-          <li>{{ t.pricing.plan3_item1 }}</li>
-          <li>{{ t.pricing.plan3_item2 }}</li>
-          <li>{{ t.pricing.plan3_item3 }}</li>
-          <li>{{ t.pricing.plan3_item4 }}</li>
-          <li>{{ t.pricing.plan3_item5 }}</li>
-        </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('raiox')">{{ t.pricing.plan3_cta }}</button>
-      </div>
     </div>
 
-    <p class="lp-modal-guarantee">🔒 Pagamento seguro · acesso imediato · uso único</p>
-    <p class="lp-modal-free-hint">Quer tentar grátis? <NuxtLink to="/scan" class="lp-modal-free-link" @click="closePricesModal()">Começar com 1 imagem →</NuxtLink></p>
+    <p class="lp-modal-guarantee">Pagamento seguro · acesso imediato · uso único</p>
+    <p class="lp-modal-free-hint">Quer experimentar antes? <NuxtLink to="/scan" class="lp-modal-free-link" @click="closePricesModal()">Começar com 1 imagem →</NuxtLink></p>
   </div>
 </div>
 </template>

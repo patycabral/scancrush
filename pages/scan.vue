@@ -6,16 +6,14 @@ useHead({ title: 'ScanCrush — Analisar conversa' })
 // currentPlan is set here for frontend UX only.
 // ⚠️ BACKEND REQUIRED: validate plan + usage server-side
 // ════════════════════════════════════════════════════
-const PLAN_LIMITS: Record<string, number> = { free: 1, basic: 5, plus: 10, full: 20 }
+const PLAN_LIMITS: Record<string, number> = { free: 1, revealed: 4, raiox: 10 }
 
 const KIWIFY_URLS = {
-  basic:  'https://pay.kiwify.com.br/lksicGT',
-  plus:   'https://pay.kiwify.com.br/9er8Nn9',
-  full:   'https://pay.kiwify.com.br/ZYqerZF',
-  upsell: 'https://pay.kiwify.com.br/4PEh4AL',
+  revealed: 'https://pay.kiwify.com.br/dkydgbk',
+  raiox:    'https://pay.kiwify.com.br/V5nE9jP',
 }
 
-function goToCheckout(plan: 'basic' | 'plus' | 'full') {
+function goToCheckout(plan: 'revealed' | 'raiox') {
   if (import.meta.client) window.location.href = KIWIFY_URLS[plan]
 }
 
@@ -311,7 +309,6 @@ const resultPlan = ref('')
 const resultData = ref<any>(null)
 const resultCta  = ref<any>(null)
 const resultRelDyn = ref<any>(null)      // raiox only: relationship_dynamics
-const resultUpsellOffer = ref<any>(null) // upsell dinâmico por situation_label
 
 // ── Result timer (urgency) ──
 const resultTimerSeconds = ref(15 * 60) // 15 minutos
@@ -335,19 +332,6 @@ function startResultTimer() {
   }, 1000)
 }
 
-// ── Upsell Modal ──
-const showUpsellModal = ref(false)
-function openUpsellModal() {
-  showUpsellModal.value = true
-  if (import.meta.client) document.body.style.overflow = 'hidden'
-}
-function closeUpsellModal() {
-  showUpsellModal.value = false
-  if (import.meta.client) document.body.style.overflow = ''
-}
-function goToCheckoutUpsell() {
-  if (import.meta.client) window.location.href = KIWIFY_URLS.upsell
-}
 
 /** Extrai texto de um item que pode ser string ou objeto {label, text, description} */
 function txt(item: any): string {
@@ -447,7 +431,6 @@ async function startAnalysis() {
         signals:          [],
       }
       resultCta.value  = 'Ver análise completa'
-      resultUpsellOffer.value = null
       goTo(4)
       updateNewAnalysisBtn()
       return
@@ -496,11 +479,6 @@ async function startAnalysis() {
     // cta é sempre string de texto — nunca JSON.parse
     resultCta.value   = data.cta ?? null
     resultRelDyn.value = data.relationship_dynamics ?? null
-    // upsell_offer só é setado se show_upsell !== false (quem comprou order bump não recebe)
-    const showUpsell = data.show_upsell !== false
-    resultUpsellOffer.value = showUpsell
-      ? (typeof data.upsell_offer === 'string' ? JSON.parse(data.upsell_offer) : (data.upsell_offer ?? null))
-      : null
 
     if (msgInterval) clearInterval(msgInterval)
     if (progressInterval) clearInterval(progressInterval)
@@ -542,9 +520,7 @@ function handleOverlayClick(e: MouseEvent) {
 // ── Handle "Nova análise" / "Fazer upgrade" ──
 function handleNewAnalysis() {
   if (currentPlan.value === 'free') {
-    // Se tem dados de upsell dinâmico, abre o upsell modal
-    if (resultUpsellOffer.value) openUpsellModal()
-    else openModal()
+    openModal()
   } else {
     resetAll()
   }
@@ -563,7 +539,6 @@ function resetAll() {
   crushName.value = ''
   crushAgeRange.value = ''
   scoreBarWidth.value = '0%'
-  resultUpsellOffer.value = null
   showUploadMeta.value = false
   uploadCounterText.value = ''
   uploadBarWidth.value = '0%'
@@ -589,17 +564,15 @@ function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     if (lightboxSrc.value) { closeLightbox(); return }
     if (showConfirmDialog.value) { closeConfirmDialog(); return }
-    if (showUpsellModal.value) { closeUpsellModal(); return }
     closeModal()
   }
 }
 
 // Plan names for display
 const PLAN_NAMES: Record<string, string> = {
-  free:  'Gratuito',
-  basic: 'Sinais Básicos',
-  plus:  'Sinais Revelados',
-  full:  'Raio-X do Crush',
+  free:     'Gratuito',
+  revealed: 'Sinais Revelados',
+  raiox:    'Raio-X do Crush',
 }
 const planDisplayName = computed(() => PLAN_NAMES[currentPlan.value] ?? 'Gratuito')
 const planImageLimit = computed(() => PLAN_LIMITS[currentPlan.value] ?? 1)
@@ -976,7 +949,7 @@ onUnmounted(() => {
 
     <!-- ── Score ── -->
     <div class="score-card">
-      <div class="score-label">Score de interesse</div>
+      <div class="score-label">Padrão de resposta</div>
       <div class="score-row">
         <div class="score-num">{{ resultData?.interest_score ?? '—' }}<sup>/100</sup></div>
         <div style="flex:1">
@@ -985,9 +958,9 @@ onUnmounted(() => {
             <div class="score-bar-cover" :style="{ width: scoreBarCoverWidth }"></div>
           </div>
           <div class="score-bar-labels">
-            <span>Distante</span>
-            <span>Ambíguo</span>
-            <span>Interesse</span>
+            <span>Baixo</span>
+            <span>Médio</span>
+            <span>Alto</span>
           </div>
         </div>
       </div>
@@ -1112,7 +1085,7 @@ onUnmounted(() => {
       </div>
       <div class="locked-overlay">
         <p class="locked-label">🔒 Análise completa bloqueada</p>
-        <button class="locked-sub-btn" @click="goToCheckoutUpsell()">Ver análise completa →</button>
+        <button class="locked-sub-btn" @click="openModal()">Ver análise completa →</button>
       </div>
     </div>
 
@@ -1216,49 +1189,6 @@ onUnmounted(() => {
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════ -->
-<!-- UPSELL MODAL: emotional, personalized            -->
-<!-- ══════════════════════════════════════════════════ -->
-<div class="upsell-overlay" :class="{ open: showUpsellModal }" @click.self="closeUpsellModal()">
-  <div class="upsell-card">
-    <button class="upsell-close" @click="closeUpsellModal()" aria-label="Fechar">×</button>
-
-    <!-- Resultado em contexto -->
-    <div class="upsell-verdict-mini">{{ verdictText(resultData?.situation_label?.level) }}</div>
-
-    <h2 class="upsell-title">{{ resultUpsellOffer?.title ?? 'Tem algo aqui que você ainda não viu' }}</h2>
-    <p class="upsell-sub">{{ resultUpsellOffer?.subtitle ?? 'Alguns padrões só aparecem quando a leitura vai mais fundo.' }}</p>
-
-    <!-- O que está bloqueado -->
-    <div class="upsell-locked-preview">
-      <p class="upsell-locked-label">// ainda bloqueado para você</p>
-      <ul class="upsell-locked-list">
-        <li v-if="(resultData?.counts?.negative_locked ?? 0) > 0">
-          {{ resultData.counts.negative_locked }} sinal(is) negativo(s) oculto(s)
-        </li>
-        <li v-if="(resultData?.counts?.positive_locked ?? 0) > 0">
-          {{ resultData.counts.positive_locked }} sinal(is) positivo(s) oculto(s)
-        </li>
-        <li>Perfil emocional completo</li>
-        <li>Padrões ocultos de comportamento</li>
-        <li>Conclusão direta sem rodeios</li>
-      </ul>
-    </div>
-
-    <div class="upsell-price-row">
-      <span class="upsell-price">R$<strong>{{ resultUpsellOffer?.price ?? '7,40' }}</strong></span>
-      <span class="upsell-price-label">acesso único · agora</span>
-    </div>
-
-    <button class="upsell-btn" @click="goToCheckoutUpsell()">
-      🔓 {{ resultUpsellOffer?.button_label ?? 'Desbloquear análise completa' }}
-    </button>
-
-    <p class="upsell-guarantee">Pagamento seguro · acesso imediato · sem assinatura</p>
-
-    <button class="upsell-see-plans" @click="closeUpsellModal(); openModal()">Ver todos os planos →</button>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════════════════════ -->
 <!-- MODAL: Plans -->
@@ -1273,67 +1203,51 @@ onUnmounted(() => {
 
     <div class="modal-plans">
 
-      <!-- Plan: Sinais Básicos -->
-      <div class="plan-card">
-        <div class="plan-name">Sinais Básicos</div>
-        <div class="plan-price">
-          <span class="curr">R$</span>14<span class="cents">,90</span>
-        </div>
-        <p class="plan-period">pagamento único</p>
-        <p class="plan-desc">Veja se existe interesse… ou só educação.</p>
-        <ul class="plan-items">
-          <li class="plan-item">Descubra o nível real de interesse</li>
-          <li class="plan-item">Entenda os sinais principais da conversa</li>
-          <li class="plan-item">Receba uma conclusão direta</li>
-          <li class="plan-item">Até 5 prints</li>
-        </ul>
-        <button class="btn-plan" @click="goToCheckout('basic')">Ver análise básica</button>
-      </div>
-
       <!-- Plan: Sinais Revelados (FEATURED) -->
       <div class="plan-card featured">
         <div class="plan-badge">Mais escolhido</div>
         <div class="plan-name">Sinais Revelados</div>
-        <p class="plan-hook">🔥 O mais escolhido por quem quer parar de duvidar</p>
         <div class="plan-price">
-          <span class="curr">R$</span>27<span class="cents">,90</span>
+          <span class="curr">R$</span>19<span class="cents">,90</span>
         </div>
         <p class="plan-period">pagamento único</p>
-        <p class="plan-desc">Aqui você começa a enxergar o que realmente está acontecendo.</p>
+        <p class="plan-desc">Descubra o que realmente está escondido nas mensagens.</p>
         <ul class="plan-items">
-          <li class="plan-item plan-item-includes">+ Tudo de Sinais Básicos</li>
-          <li class="plan-item">Descubra padrões escondidos na conversa</li>
-          <li class="plan-item">Entenda por que a pessoa age de forma confusa</li>
-          <li class="plan-item">Veja trechos que revelam intenção</li>
-          <li class="plan-item">Interpretação mais profunda</li>
-          <li class="plan-item">Até 10 prints</li>
+          <li class="plan-item">Até 4 prints analisados</li>
+          <li class="plan-item">Score de Interesse</li>
+          <li class="plan-item">Análise completa da conversa</li>
+          <li class="plan-item">Sinais positivos e negativos</li>
+          <li class="plan-item">Trechos importantes destacados</li>
+          <li class="plan-item">Interpretação da intenção da conversa</li>
+          <li class="plan-item">Conclusão aprofundada</li>
         </ul>
-        <button class="btn-plan primary" @click="goToCheckout('revealed')">Quero entender tudo</button>
+        <button class="btn-plan primary" @click="goToCheckout('revealed')">Desbloquear análise completa</button>
       </div>
 
       <!-- Plan: Raio-X do Crush -->
       <div class="plan-card">
         <div class="plan-name">Raio-X do Crush</div>
         <div class="plan-price">
-          <span class="curr">R$</span>39<span class="cents">,90</span>
+          <span class="curr">R$</span>44<span class="cents">,90</span>
         </div>
         <p class="plan-period">pagamento único</p>
-        <p class="plan-desc">Para quem quer parar de duvidar… e finalmente entender tudo.</p>
+        <p class="plan-desc">Para conversas mais longas e sinais mais difíceis de entender.</p>
         <ul class="plan-items">
-          <li class="plan-item plan-item-includes">+ Tudo de Sinais Revelados</li>
-          <li class="plan-item">Diagnóstico completo do comportamento</li>
-          <li class="plan-item">Padrões emocionais e inconsistências</li>
-          <li class="plan-item">O que a pessoa realmente demonstra (não o que diz)</li>
-          <li class="plan-item">Conclusão clara + direcionamento</li>
-          <li class="plan-item">Até 20 prints</li>
+          <li class="plan-item plan-item-includes">✓ Tudo do plano Sinais Revelados</li>
+          <li class="plan-item">Até 10 prints analisados</li>
+          <li class="plan-item">Identificação de padrões repetitivos</li>
+          <li class="plan-item">Contradições emocionais</li>
+          <li class="plan-item">Análise do nível de reciprocidade</li>
+          <li class="plan-item">Perfil comportamental da conversa</li>
+          <li class="plan-item">Conclusão mais detalhada</li>
         </ul>
-        <button class="btn-plan" @click="goToCheckout('raiox')">Ver análise completa</button>
+        <button class="btn-plan" @click="goToCheckout('raiox')">Fazer análise avançada</button>
       </div>
 
     </div>
 
     <div class="modal-divider"></div>
-    <p class="modal-guarantee">🔒 Pagamento seguro · acesso imediato · uso único</p>
+    <p class="modal-guarantee">Pagamento seguro · acesso imediato · uso único</p>
 
   </div>
 </div>
@@ -2808,155 +2722,6 @@ body::after {
   box-shadow: 0 0 20px rgba(255,45,107,0.35);
 }
 
-/* ── UPSELL MODAL ── */
-.upsell-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 900;
-  background: rgba(0,0,0,0.75);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s;
-}
-.upsell-overlay.open { opacity: 1; pointer-events: auto; }
-.upsell-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 24px 24px 0 0;
-  padding: 32px 24px 36px;
-  width: 100%;
-  max-width: 520px;
-  position: relative;
-  transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 14px;
-}
-.upsell-overlay.open .upsell-card { transform: translateY(0); }
-.upsell-close {
-  position: absolute;
-  top: 16px; right: 18px;
-  background: rgba(255,255,255,0.06);
-  border: none;
-  color: var(--text-2);
-  font-size: 22px;
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.upsell-verdict-mini {
-  font-size: 11px;
-  font-family: var(--mono);
-  color: var(--amber);
-  background: rgba(255,184,0,0.1);
-  border: 1px solid rgba(255,184,0,0.2);
-  border-radius: 100px;
-  padding: 4px 14px;
-  letter-spacing: 0.05em;
-}
-.upsell-title {
-  font-size: clamp(18px, 4vw, 22px);
-  font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -0.3px;
-  color: var(--text);
-  margin: 0;
-}
-.upsell-sub {
-  font-size: 14px;
-  color: var(--text-2);
-  line-height: 1.65;
-  max-width: 340px;
-}
-.upsell-locked-preview {
-  width: 100%;
-  background: rgba(255,45,107,0.04);
-  border: 1px solid rgba(255,45,107,0.12);
-  border-radius: 14px;
-  padding: 16px 20px;
-  text-align: left;
-}
-.upsell-locked-label {
-  font-size: 10px;
-  font-family: var(--mono);
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 10px;
-}
-.upsell-locked-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.upsell-locked-list li {
-  font-size: 13px;
-  color: var(--text-2);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.upsell-locked-list li::before {
-  content: '🔒';
-  font-size: 11px;
-  flex-shrink: 0;
-}
-.upsell-price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-top: 4px;
-}
-.upsell-price {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -1px;
-}
-.upsell-price strong { font-size: inherit; }
-.upsell-price-label {
-  font-size: 12px;
-  color: var(--text-3);
-  font-family: var(--mono);
-}
-.upsell-btn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 100px;
-  border: none;
-  background: linear-gradient(135deg, var(--pink), #C0004D);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  font-family: var(--font);
-  cursor: pointer;
-  box-shadow: var(--glow-pink);
-  letter-spacing: 0.01em;
-}
-.upsell-guarantee {
-  font-size: 11px;
-  color: var(--text-3);
-  font-family: var(--mono);
-}
-.upsell-see-plans {
-  background: none;
-  border: none;
-  color: var(--text-3);
-  font-size: 12px;
-  cursor: pointer;
-  font-family: var(--font);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  margin-top: -4px;
-}
 
 /* ── CONFIRM: extra styles ── */
 .confirm-sub-hint {

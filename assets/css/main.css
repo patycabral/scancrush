@@ -569,7 +569,7 @@ body::after {
   height: 100%;
   width: 73%;
   border-radius: 100px;
-  background: linear-gradient(90deg, var(--safe), var(--amber) 50%, var(--pink) 80%, var(--danger));
+  background: linear-gradient(90deg, var(--danger) 0%, var(--amber) 45%, #a8dd63 72%, var(--safe) 100%);
 }
 .rm-bar-labels {
   display: flex;
@@ -704,7 +704,7 @@ body::after {
 /* ─── PRICING ────────────────────────────────────────────────── */
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 56px;
 }
@@ -715,14 +715,28 @@ body::after {
   border-radius: var(--r);
   display: flex;
   flex-direction: column;
-  transition: border-color 0.3s, transform 0.3s;
+  transition: border-color 0.3s, transform 0.35s, box-shadow 0.35s, opacity 0.35s;
   position: relative;
 }
-.price-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-3px); }
+.price-card:hover {
+  border-color: rgba(255,255,255,0.18);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08);
+  z-index: 2;
+}
+.pricing-grid:has(.price-card:hover) .price-card:not(:hover) {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
 .price-card.featured {
   background: linear-gradient(160deg, rgba(22, 12, 38, 0.98), rgba(14, 8, 28, 0.98));
   border: 1px solid var(--pink-border);
   box-shadow: 0 0 50px rgba(255,45,107,0.1), 0 20px 48px rgba(0,0,0,0.4);
+}
+.price-card.featured:hover {
+  box-shadow: 0 0 60px rgba(255,45,107,0.28), 0 20px 56px rgba(0,0,0,0.5);
+  border-color: rgba(255,45,107,0.55);
+  transform: translateY(-6px);
 }
 .price-card.featured::before {
   content: '';
@@ -1060,7 +1074,7 @@ footer {
   .chat-card { width: 100%; max-width: 320px; margin: 0 auto; }
   .how-grid { grid-template-columns: 1fr; }
   .report-grid { grid-template-columns: 1fr; }
-  .pricing-grid { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
   .nav-links { display: none; }
   .nav-mobile-btn { display: flex; }
 }
