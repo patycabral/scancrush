@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScanCrush — Termos de Uso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07070D; --surface: #0D0D1A; --card: #111120;
+      --border: rgba(255,255,255,0.06);
+      --pink: #FF2D6B; --purple: #9B5DE5;
+      --amber: #FFB800;
+      --text: #EEEEF8; --text-2: #9090B8; --text-3: #4A4A6A;
+      --font: 'Sora', sans-serif; --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--font); font-size: 16px; line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255,45,107,0.04) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      background: rgba(7,7,13,0.8); backdrop-filter: blur(20px);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+      text-decoration: none; color: var(--text);
+    }
+    .logo svg { filter: drop-shadow(0 0 6px var(--pink)); }
+    .logo span { color: var(--pink); }
+    .logo b { font-weight: inherit; }
+    .back-link {
+      font-size: 13px; font-weight: 500; color: var(--text-2);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text); }
+    .page-wrap {
+      max-width: 720px; margin: 0 auto;
+      padding: 56px 24px 80px;
+      position: relative; z-index: 1;
+    }
+    .page-tag {
+      font-family: var(--mono); font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--pink); margin-bottom: 16px; display: block;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 40px); font-weight: 800;
+      letter-spacing: -1.2px; margin-bottom: 8px; line-height: 1.1;
+    }
+    .page-date {
+      font-size: 12px; font-family: var(--mono);
+      color: var(--text-3); margin-bottom: 48px;
+    }
+    h2 {
+      font-size: 18px; font-weight: 700;
+      margin: 40px 0 14px; letter-spacing: -0.3px;
+      padding-top: 40px; border-top: 1px solid var(--border);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    p { font-size: 15px; color: var(--text-2); font-weight: 300; margin-bottom: 16px; line-height: 1.8; }
+    strong { color: var(--text); font-weight: 600; }
+    ul { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 14px; color: var(--text-2); font-weight: 300; line-height: 1.65;
+    }
+    li::before {
+      content: '✦'; color: var(--pink); font-size: 10px;
+      margin-top: 4px; flex-shrink: 0;
+    }
+    .notice-box {
+      background: rgba(255,184,0,0.05);
+      border: 1px solid rgba(255,184,0,0.15);
+      border-radius: 14px;
+      padding: 18px 22px;
+      font-size: 14px;
+      color: rgba(255,184,0,0.85);
+      font-weight: 400;
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+    .info-box {
+      background: rgba(155,93,229,0.05);
+      border: 1px solid rgba(155,93,229,0.15);
+      border-radius: 14px;
+      padding: 18px 22px;
+      font-size: 14px;
+      color: var(--text-2);
+      font-weight: 300;
+      line-height: 1.7;
+      margin: 20px 0;
+    }
+    .info-box strong { color: #9B5DE5; }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px; text-align: center;
+      font-size: 12px; color: var(--text-3);
+    }
+    footer a { color: var(--text-2); text-decoration: none; margin: 0 12px; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="logo">
+    <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.35"/>
+      <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+      <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+      <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <b>Scan<span>Crush</span></b>
+  </a>
+  <a href="index.html" class="back-link">← Voltar ao início</a>
+</nav>
+
+<div class="page-wrap">
+  <span class="page-tag">// Termos</span>
+  <h1>Termos de Uso</h1>
+  <p class="page-date">Última atualização: maio de 2025</p>
+
+  <div class="notice-box">
+    ⚠️ Ao utilizar o ScanCrush, você confirma que leu e concorda com os termos desta página. O uso da plataforma pressupõe aceitação integral destes termos.
+  </div>
+
+  <h2>1. O que é o ScanCrush</h2>
+  <p>O <strong>ScanCrush</strong> é uma plataforma digital que utiliza inteligência artificial para analisar prints e mensagens enviados pelo usuário e gerar uma <strong>interpretação contextual dos padrões e sinais de comunicação</strong> identificados no material enviado.</p>
+  <p>A análise produzida pelo ScanCrush é <strong>estritamente baseada no recorte de conversa fornecido</strong> pelo usuário e representa uma leitura contextual limitada a esse material. Não se trata de:</p>
+  <ul>
+    <li>Aconselhamento psicológico, terapêutico, médico ou jurídico</li>
+    <li>Diagnóstico de personalidade, transtorno mental ou estado emocional</li>
+    <li>Revelação de verdades absolutas sobre sentimentos, intenções ou caráter de terceiros</li>
+    <li>Garantia de precisão, completude ou certeza sobre qualquer aspecto da relação analisada</li>
+  </ul>
+
+  <div class="info-box">
+    <strong>Aviso importante:</strong> A IA analisa apenas o que você enviou. Outras mensagens, histórico da relação ou contexto externo que não estejam no material enviado não são considerados e podem alterar significativamente a interpretação.
+  </div>
+
+  <h2>2. Quem pode usar</h2>
+  <p>O ScanCrush é destinado <strong>exclusivamente a pessoas com 18 anos ou mais</strong>. Ao utilizar a plataforma, você declara expressamente que:</p>
+  <ul>
+    <li>Possui 18 anos de idade ou mais</li>
+    <li>É responsável pela veracidade desta declaração</li>
+    <li>Tem plena capacidade civil para contratar e aceitar estes termos</li>
+  </ul>
+  <p>Caso o usuário seja menor de 18 anos, o acesso à plataforma é expressamente vedado. A empresa não se responsabiliza pelo acesso de menores decorrente de declaração falsa do usuário.</p>
+
+  <h2>3. Uso adequado e responsabilidade pelo conteúdo</h2>
+  <p>Ao utilizar o ScanCrush, você se compromete a:</p>
+  <ul>
+    <li>Usar a plataforma apenas para analisar conversas às quais você tem acesso legítimo</li>
+    <li>Não usar os resultados para praticar assédio, perseguição, chantagem, manipulação, ameaça ou qualquer forma de dano a terceiros</li>
+    <li>Não enviar conteúdo que envolva menores de idade</li>
+    <li>Não enviar conteúdo ilegal, ofensivo ou que viole direitos de terceiros</li>
+    <li>Compreender que a análise é automatizada, baseada em um recorte limitado, e pode conter imprecisões</li>
+    <li>Tomar decisões com responsabilidade, sem se basear exclusivamente no resultado desta análise</li>
+    <li>Buscar apoio profissional adequado (psicólogo, terapeuta, advogado) para situações que exijam orientação especializada</li>
+  </ul>
+  <p>O usuário é o único responsável pelo conteúdo que envia para análise e por qualquer uso que faça dos resultados obtidos.</p>
+
+  <h2>4. Natureza da análise e limitações da IA</h2>
+  <p>A análise gerada pelo ScanCrush é produzida por um sistema de inteligência artificial que interpreta padrões de linguagem, comunicação e contexto no material enviado. Por isso:</p>
+  <ul>
+    <li>A análise reflete apenas o recorte apresentado, podendo mudar completamente com mais contexto</li>
+    <li>A IA não tem acesso à relação completa, ao histórico ou ao contexto externo</li>
+    <li>A IA não é capaz de ler mentes, sentimentos reais ou intenções verdadeiras de terceiros</li>
+    <li>Expressões como "pode indicar", "sugere", "sinal observado" refletem interpretação, não certeza</li>
+    <li>A análise não deve ser usada como única base para decisões importantes</li>
+  </ul>
+  <p>Para mais detalhes sobre as limitações da análise, acesse nossa <a href="ai-policy.html" style="color:var(--pink);text-decoration:none">Política de IA e Limitações da Análise</a>.</p>
+
+  <h2>5. Planos, pagamento e acesso</h2>
+  <p>O ScanCrush oferece diferentes planos de análise com limites de imagens distintos. O acesso à análise paga é processado por meio da plataforma <strong>Kiwify</strong>, nosso parceiro de pagamentos.</p>
+  <p>Após a confirmação do pagamento, o sistema:</p>
+  <ul>
+    <li>Gera um <strong>token de acesso único</strong> associado ao pedido</li>
+    <li>Envia esse token por e-mail ao endereço cadastrado na compra</li>
+    <li>Esse token permite gerar <strong>uma única análise</strong> com o número de imagens do plano contratado</li>
+  </ul>
+  <p><strong>Regra do acesso único:</strong> Cada compra permite gerar uma análise uma única vez. Após a análise ser gerada, o token é marcado como utilizado e não pode ser reusado. Isso garante a integridade do produto e protege todos os usuários.</p>
+  <p>Se você comprou e não recebeu o e-mail de acesso, entre em contato com nosso suporte antes de tentar acessar a plataforma.</p>
+
+  <h2>6. Reembolso</h2>
+  <p>Por se tratar de produto digital entregue imediatamente após a compra, <strong>não há reembolso após a análise ser gerada</strong>. Caso a análise não tenha sido gerada e haja problema técnico comprovado, entre em contato com o suporte para avaliação.</p>
+  <p>Solicitações de reembolso estão sujeitas às políticas da plataforma Kiwify. Para dúvidas sobre pagamento, acesse o suporte da Kiwify ou entre em contato conosco.</p>
+
+  <h2>7. Privacidade e dados pessoais</h2>
+  <p>O tratamento dos seus dados pessoais é regido pela nossa <a href="privacy.html" style="color:var(--pink);text-decoration:none">Política de Privacidade</a>, em conformidade com a Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018).</p>
+  <p>Em resumo: os prints enviados são usados apenas para processamento da análise e <strong>não são armazenados permanentemente</strong>. O e-mail e dados de compra são usados para envio do acesso e gestão do produto.</p>
+
+  <h2>8. Limitação de responsabilidade</h2>
+  <p>Na máxima extensão permitida pela lei, o ScanCrush não se responsabiliza por:</p>
+  <ul>
+    <li>Decisões tomadas com base nos resultados da análise</li>
+    <li>Imprecisões, interpretações equivocadas ou limitações da análise automatizada</li>
+    <li>Danos emocionais, relacionais, financeiros ou de qualquer outra natureza decorrentes do uso da plataforma</li>
+    <li>Uso inadequado do produto em desacordo com estes termos</li>
+    <li>Indisponibilidade temporária da plataforma por razões técnicas</li>
+  </ul>
+
+  <h2>9. Propriedade intelectual</h2>
+  <p>Todo o conteúdo, design, código, marca, metodologia e identidade visual do ScanCrush são de propriedade exclusiva dos seus criadores, protegidos pela legislação de propriedade intelectual aplicável.</p>
+  <p>É expressamente proibida a reprodução, cópia, distribuição, engenharia reversa ou criação de produto derivado sem autorização prévia e por escrito.</p>
+  <p>O conteúdo enviado pelo usuário (prints, mensagens) permanece de propriedade do usuário. Ao enviar esse conteúdo, o usuário concede ao ScanCrush uma licença temporária e limitada para processamento da análise solicitada.</p>
+
+  <h2>10. Conduta proibida</h2>
+  <p>É expressamente proibido usar o ScanCrush para:</p>
+  <ul>
+    <li>Praticar stalking, perseguição, monitoramento não autorizado ou assédio de qualquer tipo</li>
+    <li>Coletar ou usar informações de terceiros sem o consentimento deles</li>
+    <li>Criar, distribuir ou utilizar resultados de análise para fins de chantagem, manipulação ou coerção</li>
+    <li>Expor ou compartilhar publicamente conversas privadas de terceiros</li>
+    <li>Enviar conteúdo que envolva menores de idade</li>
+    <li>Tentar burlar o sistema de token único por meios técnicos</li>
+    <li>Fazer uso comercial não autorizado da plataforma ou dos resultados gerados</li>
+  </ul>
+  <p>O descumprimento dessas regras pode resultar no bloqueio do acesso e, conforme a gravidade, em comunicação às autoridades competentes.</p>
+
+  <h2>11. Casos sensíveis</h2>
+  <p>Se o conteúdo enviado envolver situações de <strong>violência, ameaça, coerção, abuso, perseguição ou risco à integridade física ou emocional</strong>, a análise automática pode não ser suficiente. Nesses casos:</p>
+  <ul>
+    <li>Priorize sua segurança pessoal acima de qualquer análise</li>
+    <li>Busque apoio de pessoas de confiança, serviços de assistência social ou autoridades</li>
+    <li>Em situações de risco imediato, acione os serviços de emergência adequados</li>
+  </ul>
+
+  <h2>12. Alterações nos termos</h2>
+  <p>Podemos atualizar estes Termos de Uso a qualquer momento. Mudanças significativas serão comunicadas por e-mail (quando possível) ou por aviso na plataforma. O uso continuado da plataforma após publicação de novas versões constitui aceitação dos termos atualizados.</p>
+  <p>A data da última atualização está sempre indicada no topo desta página.</p>
+
+  <h2>13. Lei aplicável e foro</h2>
+  <p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca de domicílio do usuário para resolução de eventuais conflitos, conforme o Código de Defesa do Consumidor (Lei nº 8.078/1990), salvo disposição legal em contrário.</p>
+
+  <h2>14. Contato e suporte</h2>
+  <p>Para dúvidas sobre estes Termos de Uso, solicitações relacionadas à sua compra ou outros assuntos, entre em contato:</p>
+  <ul>
+    <li>E-mail: <strong>suporte@scancrush.com</strong></li>
+    <li>Responderemos em até 5 dias úteis</li>
+  </ul>
+</div>
+
+<footer>
+  <p>
+    <a href="index.html">Início</a>
+    <a href="privacy.html">Privacidade</a>
+    <a href="terms.html">Termos</a>
+    <a href="ai-policy.html">Política de IA</a>
+  </p>
+  <p style="margin-top:16px">© 2026 ScanCrush. Clareza emocional em conversas confusas.</p>
+</footer>
+
+</body>
+</html>
+

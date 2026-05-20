@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScanCrush — Política de IA e Limitações da Análise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07070D; --surface: #0D0D1A; --card: #111120;
+      --border: rgba(255,255,255,0.06);
+      --pink: #FF2D6B; --purple: #9B5DE5;
+      --teal: #00F5D4; --amber: #FFB800;
+      --text: #EEEEF8; --text-2: #9090B8; --text-3: #4A4A6A;
+      --font: 'Sora', sans-serif; --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--font); font-size: 16px; line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(155,93,229,0.06) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      background: rgba(7,7,13,0.8); backdrop-filter: blur(20px);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+      text-decoration: none; color: var(--text);
+    }
+    .logo svg { filter: drop-shadow(0 0 6px var(--pink)); }
+    .logo span { color: var(--pink); }
+    .logo b { font-weight: inherit; }
+    .back-link {
+      font-size: 13px; font-weight: 500; color: var(--text-2);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text); }
+    .page-wrap {
+      max-width: 720px; margin: 0 auto;
+      padding: 56px 24px 80px;
+      position: relative; z-index: 1;
+    }
+    .page-tag {
+      font-family: var(--mono); font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--pink); margin-bottom: 16px; display: block;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 40px); font-weight: 800;
+      letter-spacing: -1.2px; margin-bottom: 8px; line-height: 1.1;
+    }
+    .page-date {
+      font-size: 12px; font-family: var(--mono);
+      color: var(--text-3); margin-bottom: 48px;
+    }
+    h2 {
+      font-size: 18px; font-weight: 700;
+      margin: 40px 0 14px; letter-spacing: -0.3px;
+      padding-top: 40px; border-top: 1px solid var(--border);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    p { font-size: 15px; color: var(--text-2); font-weight: 300; margin-bottom: 16px; line-height: 1.8; }
+    strong { color: var(--text); font-weight: 600; }
+    ul { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 14px; color: var(--text-2); font-weight: 300; line-height: 1.65;
+    }
+    li::before {
+      content: '✦'; color: var(--pink); font-size: 10px;
+      margin-top: 4px; flex-shrink: 0;
+    }
+    .highlight-box {
+      background: rgba(155,93,229,0.06);
+      border: 1px solid rgba(155,93,229,0.18);
+      border-radius: 16px;
+      padding: 22px 24px;
+      font-size: 15px;
+      color: var(--text-2);
+      font-weight: 300;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+    .highlight-box strong { color: #9B5DE5; }
+    .can-box {
+      background: rgba(0,214,143,0.04);
+      border: 1px solid rgba(0,214,143,0.15);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin: 16px 0 24px;
+    }
+    .can-box .box-title {
+      font-size: 12px; font-family: var(--mono);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: #00D68F; margin-bottom: 14px;
+    }
+    .can-box li::before { color: #00D68F; }
+    .cannot-box {
+      background: rgba(255,77,77,0.04);
+      border: 1px solid rgba(255,77,77,0.15);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin: 16px 0 24px;
+    }
+    .cannot-box .box-title {
+      font-size: 12px; font-family: var(--mono);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: #FF4D4D; margin-bottom: 14px;
+    }
+    .cannot-box li::before { color: #FF4D4D; }
+    .example-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin: 16px 0 24px;
+    }
+    .example-block .ex-title {
+      font-size: 11px; font-family: var(--mono);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--text-3); margin-bottom: 12px;
+    }
+    .ex-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      margin-bottom: 10px; font-size: 13px; line-height: 1.6;
+    }
+    .ex-tag {
+      font-size: 10px; font-family: var(--mono);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 3px 8px; border-radius: 6px;
+      white-space: nowrap; margin-top: 2px; flex-shrink: 0;
+    }
+    .ex-tag.ok { background: rgba(0,214,143,0.12); color: #00D68F; border: 1px solid rgba(0,214,143,0.2); }
+    .ex-tag.no { background: rgba(255,77,77,0.1); color: #FF4D4D; border: 1px solid rgba(255,77,77,0.2); }
+    .ex-text { color: var(--text-2); }
+    .alert-box {
+      background: rgba(255,184,0,0.05);
+      border: 1px solid rgba(255,184,0,0.15);
+      border-radius: 14px;
+      padding: 18px 22px;
+      font-size: 14px;
+      color: rgba(255,184,0,0.85);
+      font-weight: 400;
+      line-height: 1.7;
+      margin: 20px 0;
+    }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px; text-align: center;
+      font-size: 12px; color: var(--text-3);
+    }
+    footer a { color: var(--text-2); text-decoration: none; margin: 0 12px; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="logo">
+    <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.35"/>
+      <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+      <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+      <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <b>Scan<span>Crush</span></b>
+  </a>
+  <a href="index.html" class="back-link">← Voltar ao início</a>
+</nav>
+
+<div class="page-wrap">
+  <span class="page-tag">// IA &amp; Limitações</span>
+  <h1>Política de IA e Limitações da Análise</h1>
+  <p class="page-date">Última atualização: maio de 2025</p>
+
+  <div class="highlight-box">
+    <strong>O que esta página é:</strong> Uma explicação honesta e transparente sobre o que a inteligência artificial do ScanCrush faz, o que ela não faz, e por que isso importa para você antes de tomar qualquer decisão com base no resultado.
+  </div>
+
+  <h2>Como a análise funciona</h2>
+  <p>O ScanCrush utiliza um modelo de inteligência artificial para interpretar o conteúdo de prints e mensagens enviados pelo usuário. O processo é:</p>
+  <ul>
+    <li>Você envia imagens (prints) da conversa a ser analisada</li>
+    <li>A IA processa o conteúdo buscando padrões de linguagem, tom, consistência, frequência e nuances comunicativas</li>
+    <li>O sistema gera uma análise textual descrevendo o que foi observado no material enviado</li>
+    <li>O resultado chega até você como uma leitura contextual do recorte apresentado</li>
+  </ul>
+
+  <h2>O que a IA analisa — e o que ela não vê</h2>
+  <p>Esse ponto é o mais importante de entender antes de usar o produto.</p>
+  <p>A IA <strong>analisa exclusivamente o material que você enviou</strong>. Ela não tem acesso a:</p>
+  <ul>
+    <li>Conversas anteriores que não estão no recorte enviado</li>
+    <li>Histórico da relação ou contexto de vida das pessoas envolvidas</li>
+    <li>Linguagem corporal, tom de voz ou contexto presencial</li>
+    <li>O que a outra pessoa estava sentindo, pensando ou passando no momento</li>
+    <li>Fatores externos que podem explicar o comportamento observado</li>
+  </ul>
+
+  <div class="alert-box">
+    ⚠️ Uma mesma mensagem pode ter interpretações completamente diferentes dependendo do contexto. "Preciso de espaço" pode ser frieza, pode ser uma semana difícil no trabalho, pode ser introversão natural. A IA analisa o texto — não a realidade completa por trás dele.
+  </div>
+
+  <h2>O que a IA pode e não pode fazer</h2>
+
+  <div class="can-box">
+    <div class="box-title">✓ A IA pode</div>
+    <ul>
+      <li>Identificar padrões de linguagem e comunicação no recorte enviado</li>
+      <li>Apontar sinais de inconsistência, distância ou engajamento comunicativo</li>
+      <li>Descrever nuances de tom que passam despercebidas na leitura emocional</li>
+      <li>Oferecer uma perspectiva externa e menos emocional sobre o material enviado</li>
+      <li>Sugerir perguntas para reflexão com base no que foi observado</li>
+      <li>Identificar padrões que merecem atenção ou observação continuada</li>
+    </ul>
+  </div>
+
+  <div class="cannot-box">
+    <div class="box-title">✗ A IA não pode</div>
+    <ul>
+      <li>Afirmar com certeza o que a outra pessoa sente ou pensa</li>
+      <li>Diagnosticar transtornos de personalidade, comportamento ou saúde mental</li>
+      <li>Determinar se alguém está mentindo, traindo ou manipulando como fato</li>
+      <li>Fazer previsões sobre o futuro da relação</li>
+      <li>Recomendar que você termine, continue ou tome qualquer decisão específica</li>
+      <li>Substituir o acompanhamento de um psicólogo, terapeuta ou profissional de saúde mental</li>
+      <li>Analisar o que não está no recorte enviado</li>
+    </ul>
+  </div>
+
+  <h2>Linguagem usada nos resultados</h2>
+  <p>A análise usa linguagem propositalmente probabilística e contextual. Veja como reconhecer isso nos resultados:</p>
+
+  <div class="example-block">
+    <div class="ex-title">Exemplos de linguagem correta (usamos isso)</div>
+    <div class="ex-row"><span class="ex-tag ok">ok</span><span class="ex-text">"O recorte enviado sugere um padrão de comunicação intermitente..."</span></div>
+    <div class="ex-row"><span class="ex-tag ok">ok</span><span class="ex-text">"Dentro do contexto apresentado, há indícios de..."</span></div>
+    <div class="ex-row"><span class="ex-tag ok">ok</span><span class="ex-text">"Pode indicar ambivalência comunicativa, embora outros contextos possam explicar isso..."</span></div>
+    <div class="ex-row"><span class="ex-tag ok">ok</span><span class="ex-text">"Vale observar se esse padrão se repete em outros momentos da conversa..."</span></div>
+    <div class="ex-row"><span class="ex-tag ok">ok</span><span class="ex-text">"Não é possível afirmar com certeza a intenção por trás dessa mensagem..."</span></div>
+  </div>
+
+  <div class="example-block">
+    <div class="ex-title">Exemplos de linguagem que NÃO usamos</div>
+    <div class="ex-row"><span class="ex-tag no">não</span><span class="ex-text">"Ele te ama." / "Ela está te usando."</span></div>
+    <div class="ex-row"><span class="ex-tag no">não</span><span class="ex-text">"Você deve terminar." / "Continue investindo."</span></div>
+    <div class="ex-row"><span class="ex-tag no">não</span><span class="ex-text">"Ele é narcisista." / "Ela é psicopata."</span></div>
+    <div class="ex-row"><span class="ex-tag no">não</span><span class="ex-text">"A resposta definitiva é..." / "Agora você sabe a verdade."</span></div>
+    <div class="ex-row"><span class="ex-tag no">não</span><span class="ex-text">"Ele certamente está traindo." / "Pode confiar 100%."</span></div>
+  </div>
+
+  <h2>Casos sensíveis</h2>
+  <p>Se o conteúdo enviado envolver situações que indiquem risco à segurança ou bem-estar, a IA muda o comportamento e prioriza cuidado acima de análise técnica.</p>
+  <p>Em situações envolvendo:</p>
+  <ul>
+    <li>Ameaças, violência, coerção ou chantagem</li>
+    <li>Perseguição ou monitoramento não autorizado</li>
+    <li>Humilhação severa ou abuso emocional</li>
+    <li>Risco de autolesão ou ideação suicida</li>
+    <li>Conteúdo sexual sensível ou não consensual</li>
+    <li>Presença de menores de idade</li>
+  </ul>
+  <p>Nesses casos, o resultado priorizará orientações de segurança e indicação de recursos de apoio, em vez de análise comunicacional.</p>
+
+  <h2>Quanto mais contexto, melhor a leitura</h2>
+  <p>A qualidade da análise depende diretamente do material enviado. Para uma leitura mais completa:</p>
+  <ul>
+    <li>Envie prints que mostrem uma sequência de mensagens, não mensagens isoladas</li>
+    <li>Inclua contexto relevante da conversa, não apenas os trechos que te preocupam</li>
+    <li>Uma única mensagem fora de contexto pode gerar interpretações muito limitadas</li>
+    <li>Conversas mais longas tendem a revelar padrões mais claros</li>
+  </ul>
+
+  <h2>Como usar o resultado com responsabilidade</h2>
+  <p>A análise do ScanCrush é uma ferramenta de reflexão, não uma sentença. Para usar bem:</p>
+  <ul>
+    <li>Leia o resultado como uma perspectiva adicional, não como verdade absoluta</li>
+    <li>Confronte a análise com outros elementos que você conhece da relação</li>
+    <li>Não tome decisões importantes (término, confronto, afastamento) baseado exclusivamente no resultado</li>
+    <li>Se o resultado gerar mais confusão do que clareza, conversar com alguém de confiança e/ou procurar ajuda profissional, pode ajudar mais</li>
+    <li>Para situações emocionalmente complexas ou que causam sofrimento contínuo, considere apoio psicológico profissional</li>
+  </ul>
+
+  <div class="highlight-box">
+    <strong>Perspectiva honesta:</strong> O ScanCrush é útil para ganhar clareza em conversas confusas. Ele é uma análise contextual séria e cuidadosa — mas é limitada ao que você enviou. Use como apoio para reflexão, com a consciência de que a pessoa real é mais complexa do que qualquer conversa pode mostrar.
+  </div>
+
+  <h2>Dúvidas sobre esta política</h2>
+  <p>Se tiver perguntas sobre como a IA funciona ou sobre os resultados da sua análise, entre em contato: <strong>privacidade@scancrush.com</strong></p>
+</div>
+
+<footer>
+  <p>
+    <a href="index.html">Início</a>
+    <a href="privacy.html">Privacidade</a>
+    <a href="terms.html">Termos</a>
+    <a href="ai-policy.html">Política de IA</a>
+  </p>
+  <p style="margin-top:16px">© 2026 ScanCrush. Clareza emocional em conversas confusas.</p>
+</footer>
+
+</body>
+</html>
+

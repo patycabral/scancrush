@@ -1,11 +1,12 @@
 # Nuxt
-.nuxt
-.nitro
-.cache
-dist
-.output
+scancrush/.nuxt
+scancrush/.nitro
+scancrush/.cache
+scancrush/dist
+scancrush/.output
 
-# Node
+# Dependencies
+scancrush/node_modules
 node_modules
 
 # Env
@@ -13,8 +14,20 @@ node_modules
 .env.*
 !.env.example
 
-# Uploads (temporários)
+# Uploads temporários
+scancrush/uploads/
 uploads/
+
+# Brand / assets gerados (binários grandes)
+brand/
+
+# Prints de teste
+Prints_Testes/
+
+# Ferramentas locais
+.agents/
+.claude/
+skills-lock.json
 
 # OS
 .DS_Store
