@@ -262,8 +262,8 @@ CREATE INDEX IF NOT EXISTS idx_sessions_active
 CREATE TABLE IF NOT EXISTS payments (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Plataforma de pagamento.
-  provider     TEXT NOT NULL CHECK (provider IN ('perfectpay', 'stripe')),
+  -- Plataforma de pagamento. Ex: "perfectpay", "Perfect Pay", "stripe"
+  provider     TEXT NOT NULL,
 
   -- ID do pedido PerfectPay. UNIQUE = idempotência garantida.
   order_id     TEXT UNIQUE,
