@@ -584,16 +584,28 @@ onMounted(async () => {
     const validPlans = Object.keys(PLAN_LIMITS)
 
     if (tokenParam) {
-      // Token presente → validar via API (que chama n8n → Supabase)
+      // Token presente → validar direto no webhook n8n (sem proxy Nuxt).
+      // n8n mantém os segredos (Supabase service_role); o webhook em si não é secreto.
       accessToken.value = tokenParam
       sessionStorage.setItem('sc_token', tokenParam)
 
+      const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/validate-token'
+      const PLAN_MAP: Record<string, string> = {
+        'Raio-X do Crush':  'raiox',
+        'Sinais Revelados': 'revealed',
+        raiox:              'raiox',
+        revealed:           'revealed',
+      }
+
       try {
-        const res  = await fetch('/api/validate-token', {
+        const res  = await fetch(VALIDATE_URL, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ token: tokenParam }),
         })
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
         const data = await res.json()
 
         if (!data.valid) {
@@ -603,21 +615,13 @@ onMounted(async () => {
           window.location.href = '/acesso-usado.html'; return
         }
 
-        // Normaliza plan-name do PerfectPay para identificador interno.
-        // A sessão no banco pode ter "Raio-X do Crush" ou "raiox" — ambos funcionam.
-        const PLAN_MAP: Record<string, string> = {
-          'Raio-X do Crush':  'raiox',
-          'Sinais Revelados': 'revealed',
-          raiox:              'raiox',
-          revealed:           'revealed',
-        }
         const plan = PLAN_MAP[data.plan] ?? 'free'
         currentPlan.value = plan
         const maxImages = data.max_images ?? PLAN_LIMITS[plan] ?? 1
         sessionStorage.setItem('sc_plan',       plan)
         sessionStorage.setItem('sc_max_images', String(maxImages))
       } catch {
-        // Falha de rede: permite continuar em free para não bloquear o usuário
+        // WF02 inacessível — mantém token salvo mas não libera plano pago
         currentPlan.value = 'free'
       }
     } else {
