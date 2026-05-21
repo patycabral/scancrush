@@ -274,8 +274,9 @@ CREATE TABLE IF NOT EXISTS payments (
   -- FK para customers.id registrado nesta compra.
   customer_id  UUID REFERENCES customers(id),
 
-  -- Plano interno contratado: revealed | raiox
-  plan         TEXT NOT NULL CHECK (plan IN ('revealed', 'raiox')),
+  -- Plano contratado. Aceita o valor direto do PerfectPay (plan-name).
+  -- Ex: "Raio-X do Crush", "Sinais Revelados", "raiox", "revealed"
+  plan         TEXT NOT NULL,
 
   -- ID do produto na PerfectPay (product-id).
   product_id   TEXT,
