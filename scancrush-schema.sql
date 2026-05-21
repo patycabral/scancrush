@@ -274,10 +274,6 @@ CREATE TABLE IF NOT EXISTS payments (
   -- FK para customers.id registrado nesta compra.
   customer_id  UUID REFERENCES customers(id),
 
-  -- Plano contratado. Aceita o valor direto do PerfectPay (plan-name).
-  -- Ex: "Raio-X do Crush", "Sinais Revelados", "raiox", "revealed"
-  plan         TEXT NOT NULL,
-
   -- ID do produto na PerfectPay (product-id).
   product_id   TEXT,
 
@@ -406,7 +402,7 @@ SELECT
   c.email,
 
   -- Plano mais recente (última compra registrada)
-  (SELECT p.plan FROM payments p
+  (SELECT p.plan_name FROM payments p
    WHERE p.customer_id = c.id
    ORDER BY p.created_at DESC LIMIT 1)              AS latest_plan,
 
