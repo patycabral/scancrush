@@ -603,10 +603,19 @@ onMounted(async () => {
           window.location.href = '/acesso-usado.html'; return
         }
 
-        const plan = data.plan ?? 'free'
-        currentPlan.value = validPlans.includes(plan) ? plan : 'free'
-        sessionStorage.setItem('sc_plan',       currentPlan.value)
-        sessionStorage.setItem('sc_max_images', String(data.max_images ?? PLAN_LIMITS[currentPlan.value] ?? 1))
+        // Normaliza plan-name do PerfectPay para identificador interno.
+        // A sessão no banco pode ter "Raio-X do Crush" ou "raiox" — ambos funcionam.
+        const PLAN_MAP: Record<string, string> = {
+          'Raio-X do Crush':  'raiox',
+          'Sinais Revelados': 'revealed',
+          raiox:              'raiox',
+          revealed:           'revealed',
+        }
+        const plan = PLAN_MAP[data.plan] ?? 'free'
+        currentPlan.value = plan
+        const maxImages = data.max_images ?? PLAN_LIMITS[plan] ?? 1
+        sessionStorage.setItem('sc_plan',       plan)
+        sessionStorage.setItem('sc_max_images', String(maxImages))
       } catch {
         // Falha de rede: permite continuar em free para não bloquear o usuário
         currentPlan.value = 'free'
