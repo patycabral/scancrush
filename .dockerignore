@@ -1,0 +1,15 @@
+scancrush/node_modules
+scancrush/.nuxt
+scancrush/.output
+scancrush/.cache
+scancrush/dist
+node_modules
+.git
+.env
+.env.*
+brand/
+Prints_Testes/
+uploads/
+docs/
+n8n/
+team/
