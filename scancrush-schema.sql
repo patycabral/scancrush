@@ -249,14 +249,14 @@ CREATE INDEX IF NOT EXISTS idx_sessions_active
 --   product-name          → product_name
 --   plan-id               → plan_id
 --   plan-name             → plan_name  (mapeado para plano interno)
---   valor-venda           → amount_cents  (× 100)
+--   valor-venda           → amount            (NUMERIC, ex: 44.90)
 --   payment-method        → payment_method
 --   card-type             → card_type
 --   numero-de-parcelas    → installments
---   valor-parcela         → installment_amount_cents  (× 100)
+--   valor-parcela         → installment_amount (NUMERIC, ex: 44.90)
 --   moeda-compra          → currency
---   perfectpay_fee        → platform_fee_cents  (× 100)
---   my_commission         → commission_cents  (× 100)
+--   perfectpay_fee        → platform_fee       (NUMERIC, ex: 1.45)
+--   my_commission         → commission         (NUMERIC, ex: 3.58)
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS payments (
@@ -293,30 +293,29 @@ CREATE TABLE IF NOT EXISTS payments (
   -- revealed=4 | raiox=10
   max_prints   INTEGER NOT NULL CHECK (max_prints IN (4, 10)),
 
-  -- Valor total pago, em centavos (valor-venda × 100).
-  -- Ex: 503 = R$5,03
-  amount_cents INTEGER,
+  -- Valor total pago em reais (valor-venda). Ex: 44.90
+  amount           NUMERIC(10,2),
 
   -- Moeda (moeda-compra), ex: "BRL".
-  currency     TEXT DEFAULT 'BRL',
+  currency         TEXT DEFAULT 'BRL',
 
-  -- Taxa da plataforma, em centavos (perfectpay_fee × 100).
-  platform_fee_cents INTEGER,
+  -- Taxa da plataforma em reais (perfectpay_fee). Ex: 1.45
+  platform_fee     NUMERIC(10,2),
 
-  -- Comissão líquida, em centavos (my_commission × 100).
-  commission_cents   INTEGER,
+  -- Comissão líquida em reais (my_commission). Ex: 3.58
+  commission       NUMERIC(10,2),
 
   -- Método de pagamento: pix | credit_card | boleto
-  payment_method TEXT,
+  payment_method   TEXT,
 
   -- Bandeira do cartão (card-type): visa | mastercard | none | etc.
-  card_type    TEXT,
+  card_type        TEXT,
 
   -- Número de parcelas (numero-de-parcelas). 1 = à vista.
-  installments INTEGER DEFAULT 1,
+  installments     INTEGER DEFAULT 1,
 
-  -- Valor de cada parcela, em centavos (valor-parcela × 100).
-  installment_amount_cents INTEGER,
+  -- Valor de cada parcela em reais (valor-parcela). Ex: 44.90
+  installment_amount NUMERIC(10,2),
 
   -- Status principal do pagamento (status-venda): approved | pending | cancelled
   status       TEXT NOT NULL DEFAULT 'approved',
