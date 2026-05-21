@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  title: 'Como Saber se o Crush Gosta de Mim? IA Analisa a Conversa | ScanCrush ✓',
+  title: 'Como Saber se o Crush Gosta de Mim? IA Analisa a Conversa | ScanCrush',
   meta: [
     { name: 'description',        content: 'Entenda o que as mensagens do seu crush realmente revelam. Nossa IA interpreta os sinais da conversa e te diz se existe interesse de verdade — sem achismo, sem talvez.' },
     { name: 'keywords',           content: 'como saber se o crush gosta de mim, meu crush gosta de mim, interpretar mensagens do crush, sinais do crush no whatsapp, analisar conversa do crush, análise de conversa com IA' },
