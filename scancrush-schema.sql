@@ -149,8 +149,11 @@ FROM customers;
 --   3. Frontend envia prints → WF03 processa análise
 --   4. WF03 atualiza: score, result_json, model, tokens_*, used=true
 --
--- Campos preenchidos na criação (WF01):
---   order_id, customer_id, user_name, plan, used, expires_at
+-- Campos obrigatórios (WF01 deve fornecer):
+--   order_id, customer_id, plan
+--
+-- Campos opcionais na criação (WF01):
+--   user_name, plan_id, product_name
 --   access_token (gerado automaticamente pelo banco)
 --
 -- Campos preenchidos na análise (WF03):
@@ -161,11 +164,11 @@ FROM customers;
 CREATE TABLE IF NOT EXISTS sessions (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- ID do pedido PerfectPay que originou esta sessão.
-  order_id     TEXT,
+  -- ID do pedido PerfectPay que originou esta sessão. Obrigatório.
+  order_id     TEXT NOT NULL,
 
-  -- FK para customers.id — preenchido na criação pelo WF01.
-  customer_id  UUID REFERENCES customers(id),
+  -- FK para customers.id. Obrigatório.
+  customer_id  UUID NOT NULL REFERENCES customers(id),
 
   -- Token de 64 chars hexadecimais gerado automaticamente pelo banco.
   -- Enviado por e-mail e validado a cada request de análise.
@@ -186,9 +189,17 @@ CREATE TABLE IF NOT EXISTS sessions (
   feelings        TEXT,
   behavior_notes  TEXT,
 
-  -- Plano contratado: revealed | raiox
-  -- revealed = 4 prints | raiox = 10 prints
-  plan         TEXT NOT NULL CHECK (plan IN ('revealed', 'raiox')),
+  -- Plano contratado. Obrigatório.
+  -- Aceita o valor direto do PerfectPay (plan-name) ou identificador interno.
+  -- Ex: "Raio-X do Crush", "Sinais Revelados", "raiox", "revealed"
+  -- WF02 (validate-token) usa este campo para determinar max_images.
+  plan         TEXT NOT NULL,
+
+  -- ID do plano na PerfectPay (plan-id), ex: "PPLQQPF70".
+  plan_id      TEXT,
+
+  -- Nome do produto na PerfectPay (product-name), ex: "ScanCrush".
+  product_name TEXT,
 
   -- ── Tokens do Analista Emocional (etapa de análise, salvo pelo WF03) ─
   -- Estes são os tokens usados pela chamada principal ao Claude/GPT.
@@ -200,7 +211,7 @@ CREATE TABLE IF NOT EXISTS sessions (
                  ) STORED,
 
   -- Modelo de IA usado na análise principal (ex: "claude-opus-4-7").
-  -- NULL na criação (WF01); preenchido ao concluir a análise (WF03).
+  -- Opcional — preenchido ao concluir a análise (WF03).
   model        TEXT,
 
   -- Score de interesse (0–100) retornado pela IA. NULL até a análise.
