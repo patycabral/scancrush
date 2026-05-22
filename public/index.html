@@ -240,34 +240,72 @@
     .nav-mobile-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
     .nav-mobile-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
-    /* ─── MOBILE MENU ────────────────────────────────────────── */
+    /* ─── MOBILE MENU (fullscreen) ──────────────────────────── */
     .nav-mobile-menu {
       display: none;
       position: fixed;
-      top: 68px; left: 0; right: 0;
-      background: rgba(7,7,13,0.97);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border-bottom: 1px solid var(--border);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(7,7,13,0.99);
+      backdrop-filter: blur(48px);
+      -webkit-backdrop-filter: blur(48px);
       flex-direction: column;
-      z-index: 99;
-      padding: 4px 0 12px;
+      z-index: 98;
+      padding: 96px 32px 48px;
+      overflow-y: auto;
     }
     .nav-mobile-menu.open { display: flex; }
-    .nav-mobile-menu a {
-      padding: 16px 24px;
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text-2);
-      border-bottom: 1px solid var(--border-soft);
-      transition: color 0.2s, background 0.2s;
+    .mobile-menu-section {
+      font-size: 10px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-3);
+      margin-bottom: 8px;
+      display: block;
     }
-    .nav-mobile-menu a:hover { color: var(--text); background: rgba(255,255,255,0.03); }
-    .nav-mobile-menu a:last-child { border-bottom: none; }
+    .nav-mobile-menu a {
+      display: block;
+      padding: 17px 0;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-2);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: color 0.2s;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .nav-mobile-menu a:hover, .nav-mobile-menu a:focus { color: var(--text); }
+    .mobile-legal-group {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .mobile-legal-group a {
+      font-size: 13px !important;
+      font-weight: 400 !important;
+      color: var(--text-3) !important;
+      letter-spacing: 0 !important;
+      padding: 9px 0 !important;
+      border-bottom-color: transparent !important;
+    }
+    .mobile-legal-group a:hover { color: var(--text-2) !important; }
+    .mobile-cta-wrap {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
     .nav-mobile-menu .mobile-cta {
-      color: var(--pink);
-      font-weight: 700;
-      padding-top: 20px;
+      display: block;
+      padding: 18px 32px;
+      background: linear-gradient(135deg, var(--pink), #C0004D);
+      color: white !important;
+      font-size: 17px !important;
+      font-weight: 700 !important;
+      border-radius: 100px;
+      text-align: center;
+      border-bottom: none !important;
+      box-shadow: 0 0 40px rgba(255,45,107,0.3);
+      letter-spacing: 0 !important;
     }
 
     /* ─── HERO ───────────────────────────────────────────────────── */
@@ -1135,41 +1173,101 @@
     .chat-card { z-index: 1; }
 
     /* ─── RESPONSIVE ─────────────────────────────────────────────── */
-    @media (max-width: 960px) {
-      .hero-grid { grid-template-columns: 1fr; gap: 44px; }
-      .hero-inner { order: 1; }
-      .hero-visual { order: 2; max-width: 380px; margin: 0 auto; width: 100%; }
-      .chat-card { width: 100%; max-width: 320px; margin: 0 auto; }
-      .how-grid { grid-template-columns: 1fr; }
-      .report-grid { grid-template-columns: 1fr; }
-      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+
+    /* ── Desktop ≥ 970px: untouched ── */
+
+    /* ── Mobile + Tablet < 970px ── */
+    @media (max-width: 969px) {
+
+      /* Nav */
       .nav-links { display: none; }
+      .nav-right { display: none; }
       .nav-mobile-btn { display: flex; }
-      .loop-grid {
-        grid-template-columns: 1fr 1fr;
-        grid-template-areas:
-          "card1 card2"
-          "card6 card3"
-          "center center"
-          "card5 card4";
-      }
-      .loop-wrap::before { display: none; }
-      .ia-cards { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 560px) {
-      .pricing-grid { grid-template-columns: 1fr; max-width: 360px; margin-left: auto; margin-right: auto; }
+
+      /* Hero */
+      .hero { padding: 96px 0 52px; min-height: auto; }
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+      .hero-inner { order: 1; max-width: 100%; }
+      .hero-visual { order: 2; max-width: 360px; margin: 0 auto; width: 100%; }
+      .chat-card { width: 100%; max-width: 320px; margin: 0 auto; }
+      .float-tag { display: none; }
+      .hero h1 { font-size: clamp(30px, 7vw, 46px); letter-spacing: -1.8px; margin-bottom: 20px; }
+      .hero-sub { font-size: 16px; margin-bottom: 36px; line-height: 1.7; }
+      .hero-eyebrow { margin-bottom: 24px; font-size: 11px; }
       .hero-actions { flex-direction: column; align-items: stretch; width: 100%; }
       .btn-primary { justify-content: center; }
-      .float-tag { display: none; }
-      .hero h1 { letter-spacing: -1.8px; }
-      .nav-right .btn-nav { display: none; }
-      .container { padding: 0 18px; }
-      .section-pad { padding: 72px 0; }
-      .hero-visual { max-width: 300px; }
+
+      /* Sections */
+      .section-pad { padding: 80px 0; }
+      .container { padding: 0 20px; }
+      .section-title { font-size: clamp(28px, 5.5vw, 42px); }
+
+      /* How */
+      .how-grid { grid-template-columns: 1fr; gap: 14px; margin-top: 40px; }
+
+      /* Report — copy before mock on mobile */
+      .report-grid { display: flex; flex-direction: column; gap: 40px; margin-top: 40px; }
+      .report-grid .reveal:not(.report-copy) { order: 2; }
+      .report-grid .report-copy { order: 1; }
+
+      /* Pricing */
+      .pricing-grid { grid-template-columns: 1fr; max-width: 460px; margin-left: auto; margin-right: auto; }
+
+      /* IA cards */
+      .ia-cards { grid-template-columns: 1fr; }
+
+      /* Loop — vertical list (no circle) */
+      .loop-wrap { max-width: 560px; }
+      .loop-wrap::before { display: none; }
       .loop-grid {
-        grid-template-columns: 1fr;
-        grid-template-areas: "card1" "card2" "card3" "center" "card4" "card5" "card6";
+        display: flex;
+        flex-direction: column;
+        gap: 0;
       }
+      .loop-center { display: none; }
+      .loop-card {
+        position: relative;
+        padding: 18px 18px 18px 56px;
+        text-align: left;
+        border-radius: 0;
+        border: none;
+        border-bottom: 1px solid var(--border-soft);
+        background: transparent;
+      }
+      .loop-card:last-child { border-bottom: none; }
+      .loop-card:hover { transform: none; background: rgba(255,255,255,0.02); }
+      .loop-ico {
+        position: absolute;
+        left: 12px;
+        top: 16px;
+        font-size: 20px;
+        width: 30px;
+        text-align: center;
+        margin-bottom: 0;
+      }
+      .loop-card h4 { font-size: 14px; margin-bottom: 4px; }
+      .loop-card p { font-size: 13px; }
+
+      /* Footer mobile — logo + tagline + copyright only */
+      .footer-links { display: none; }
+      .footer-row { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+      .footer-tagline { text-align: center; }
+    }
+
+    /* ── Phone only < 480px ── */
+    @media (max-width: 480px) {
+      .container { padding: 0 18px; }
+      .section-pad { padding: 64px 0; }
+      .hero { padding: 88px 0 44px; }
+      .hero h1 { font-size: clamp(28px, 8vw, 38px); letter-spacing: -1.5px; }
+      .hero-visual { max-width: 290px; }
+      .pricing-grid { max-width: 100%; }
+      .loop-wrap { max-width: 100%; }
+      .loop-card { padding: 16px 14px 16px 52px; }
+      .loop-ico { left: 10px; }
+      .how-card { padding: 24px 20px; }
+      .nav-mobile-menu { padding: 88px 24px 40px; }
+      .nav-mobile-menu a { font-size: 20px; }
     }
   </style>
 </head>
@@ -1204,8 +1302,9 @@
 
       <ul class="nav-links">
         <li><a href="#how" data-i18n="nav.how">Como funciona</a></li>
-        <li><a href="#report" data-i18n="nav.report">O que você recebe</a></li>
+        <li><a href="#report">Relatório</a></li>
         <li><a href="#pricing" data-i18n="nav.pricing">Planos</a></li>
+        <li><a href="#faq">FAQ</a></li>
         <li><a href="/blog">Blog</a></li>
       </ul>
 
@@ -1224,13 +1323,21 @@
     </div>
   </div>
 
-  <!-- Mobile dropdown menu -->
+  <!-- Mobile fullscreen menu -->
   <div class="nav-mobile-menu" id="mobile-menu" role="navigation" aria-label="Menu mobile">
+    <span class="mobile-menu-section">// navegação</span>
     <a href="#how">Como funciona</a>
-    <a href="#report">O que você recebe</a>
+    <a href="#report">Relatório</a>
     <a href="#pricing">Planos</a>
+    <a href="#faq">FAQ</a>
     <a href="/blog">Blog</a>
-    <a href="scan.html" class="mobile-cta">Analisar conversa →</a>
+    <div class="mobile-legal-group">
+      <a href="privacy.html">Privacidade</a>
+      <a href="terms.html">Termos</a>
+    </div>
+    <div class="mobile-cta-wrap">
+      <a href="scan.html" class="mobile-cta">Analisar conversa</a>
+    </div>
   </div>
 </nav>
 
@@ -1721,7 +1828,7 @@
         <li><a href="terms.html" data-i18n="footer.terms">Termos</a></li>
       </ul>
     </div>
-    <p class="footer-copy" data-i18n="footer.copy">© 2026 ScanCrush. Clareza emocional em conversas confusas.</p>
+    <p class="footer-copy" data-i18n="footer.copy">© 2026 ScanCrush. Todos os direitos reservados.</p>
   </div>
 </footer>
 
@@ -1734,7 +1841,7 @@
    ══════════════════════════════════════════════════════════ */
 const LANGS = {
   pt: {
-    nav: { how: "Como funciona", report: "O que você recebe", pricing: "Planos", cta: "Analisar conversa" },
+    nav: { how: "Como funciona", report: "Relatório", pricing: "Planos", cta: "Analisar conversa" },
     hero: {
       eyebrow: "Análise emocional de conversas",
       headline: "Talvez os sinais sempre estiveram ali…",
@@ -1819,7 +1926,7 @@ const LANGS = {
       q9: "E se eu não gostar do resultado?", a9: "A análise interpreta os sinais presentes na conversa enviada. Mas emoções, intenções e relações humanas sempre envolvem contexto e subjetividade."
     },
     cta_final: { title: "Você já leu essa conversa várias vezes,", title_accent: "só ainda não viu do jeito certo.", sub: "Você já passou tempo demais tentando entender essa conversa sozinha.", btn: "Ver os sinais da conversa", hint: "Sem cartão de crédito para começar." },
-    footer: { tagline: "Nem sempre os sinais são óbvios.", how: "Como funciona", pricing: "Planos", faq: "Dúvidas", privacy: "Privacidade", terms: "Termos", copy: "© 2026 ScanCrush. Clareza emocional em conversas confusas." }
+    footer: { tagline: "Nem sempre os sinais são óbvios.", how: "Como funciona", pricing: "Planos", faq: "Dúvidas", privacy: "Privacidade", terms: "Termos", copy: "© 2026 ScanCrush. Todos os direitos reservados." }
   },
 
   en: {
