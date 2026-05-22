@@ -234,6 +234,40 @@
       background: var(--text-2);
       border-radius: 2px;
       display: block;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .nav-mobile-btn.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .nav-mobile-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-mobile-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* ─── MOBILE MENU ────────────────────────────────────────── */
+    .nav-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 68px; left: 0; right: 0;
+      background: rgba(7,7,13,0.97);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      z-index: 99;
+      padding: 4px 0 12px;
+    }
+    .nav-mobile-menu.open { display: flex; }
+    .nav-mobile-menu a {
+      padding: 16px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-2);
+      border-bottom: 1px solid var(--border-soft);
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-mobile-menu a:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .nav-mobile-menu a:last-child { border-bottom: none; }
+    .nav-mobile-menu .mobile-cta {
+      color: var(--pink);
+      font-weight: 700;
+      padding-top: 20px;
     }
 
     /* ─── HERO ───────────────────────────────────────────────────── */
@@ -1172,6 +1206,7 @@
         <li><a href="#how" data-i18n="nav.how">Como funciona</a></li>
         <li><a href="#report" data-i18n="nav.report">O que você recebe</a></li>
         <li><a href="#pricing" data-i18n="nav.pricing">Planos</a></li>
+        <li><a href="/blog">Blog</a></li>
       </ul>
 
       <div class="nav-right">
@@ -1183,10 +1218,19 @@
         <a href="scan.html" class="btn-nav" data-i18n="nav.cta">Analisar conversa</a>
       </div>
 
-      <button class="nav-mobile-btn" aria-label="Menu">
+      <button class="nav-mobile-btn" id="mobile-btn" aria-label="Menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
+  </div>
+
+  <!-- Mobile dropdown menu -->
+  <div class="nav-mobile-menu" id="mobile-menu" role="navigation" aria-label="Menu mobile">
+    <a href="#how">Como funciona</a>
+    <a href="#report">O que você recebe</a>
+    <a href="#pricing">Planos</a>
+    <a href="/blog">Blog</a>
+    <a href="scan.html" class="mobile-cta">Analisar conversa →</a>
   </div>
 </nav>
 
@@ -1500,7 +1544,7 @@
           <li><span class="pf-ico">✦</span><span data-i18n="pricing.plan0_item4">1 sinal positivo + 1 de atenção</span></li>
           <li><span class="pf-ico">✦</span><span data-i18n="pricing.plan0_item5">Conclusão inicial</span></li>
         </ul>
-        <button class="btn-price btn-price-free" data-i18n="pricing.plan0_cta">Ver os sinais</button>
+        <a href="scan.html" class="btn-price btn-price-free" style="text-align:center; display:block;" data-i18n="pricing.plan0_cta">Ver os sinais</a>
       </div>
 
       <!-- Plan 1: Sinais Revelados (featured) -->
@@ -1994,6 +2038,27 @@ function toggleFaq(btn) {
   document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
   if (!isOpen) item.classList.add('open');
 }
+
+/* ── Mobile menu ────────────────────────────────────────── */
+const mobileBtn = document.getElementById('mobile-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+
+mobileBtn.addEventListener('click', () => {
+  const isOpen = mobileMenu.classList.toggle('open');
+  mobileBtn.classList.toggle('open', isOpen);
+  mobileBtn.setAttribute('aria-expanded', String(isOpen));
+  if (isOpen) nav.classList.add('scrolled');
+  else if (window.scrollY <= 30) nav.classList.remove('scrolled');
+});
+
+mobileMenu.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    mobileMenu.classList.remove('open');
+    mobileBtn.classList.remove('open');
+    mobileBtn.setAttribute('aria-expanded', 'false');
+    if (window.scrollY <= 30) nav.classList.remove('scrolled');
+  });
+});
 
 /* ── Init ───────────────────────────────────────────────── */
 applyLang(currentLang);
