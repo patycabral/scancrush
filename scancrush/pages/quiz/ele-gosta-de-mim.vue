@@ -124,8 +124,8 @@ function next() {
 }
 function restart() { current.value = 0; answers.value = []; selected.value = null; finished.value = false }
 
-const KIWIFY_URLS = { basic: 'https://pay.kiwify.com.br/lksicGT', revealed: 'https://pay.kiwify.com.br/9er8Nn9', raiox: 'https://pay.kiwify.com.br/ZYqerZF' }
-function goToCheckout(plan: 'basic' | 'revealed' | 'raiox') { if (import.meta.client) window.location.href = KIWIFY_URLS[plan] }
+const CHECKOUT_URLS = { revealed: '#', raiox: '#' }
+function goToCheckout(plan: 'revealed' | 'raiox') { if (import.meta.client) window.location.href = CHECKOUT_URLS[plan] }
 const { t } = useAppI18n()
 const isModalOpen = ref(false)
 function openModal() { isModalOpen.value = true; if (import.meta.client) document.body.style.overflow = 'hidden' }
@@ -213,61 +213,61 @@ if (import.meta.client) window.addEventListener('keydown', (e) => { if (e.key ==
 
     <div class="lp-modal-plans">
 
-      <!-- Plan: Básico -->
+      <!-- Plan 0: Primeiras Impressões (Free) -->
       <div class="lp-plan-card">
-        <div class="lp-plan-name">Básico</div>
-        <div class="lp-plan-price"><span class="lp-curr">R$</span>9</div>
-        <p class="lp-plan-period">pagamento único</p>
-        <p class="lp-plan-desc">Para quem quer entender o que está acontecendo.</p>
+        <div class="lp-plan-name">{{ t.pricing.plan0_name }}</div>
+        <p class="lp-plan-desc">{{ t.pricing.plan0_desc }}</p>
+        <div class="lp-plan-free-tag">{{ t.pricing.plan0_free }}</div>
         <ul class="lp-plan-items">
-          <li>Análise de 1 conversa</li>
-          <li>Score de interesse</li>
-          <li>Padrões identificados</li>
-          <li>Resultado na hora</li>
+          <li>{{ t.pricing.plan0_item1 }}</li>
+          <li>{{ t.pricing.plan0_item2 }}</li>
+          <li>{{ t.pricing.plan0_item3 }}</li>
+          <li>{{ t.pricing.plan0_item4 }}</li>
+          <li>{{ t.pricing.plan0_item5 }}</li>
         </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('basic')">Começar com Básico →</button>
+        <NuxtLink to="/scan" class="lp-btn-plan" style="text-align:center; display:block;" @click="closeModal()">{{ t.pricing.plan0_cta }}</NuxtLink>
       </div>
 
-      <!-- Plan: Revelados (FEATURED) -->
+      <!-- Plan 1: Sinais Revelados (FEATURED) -->
       <div class="lp-plan-card featured">
-        <div class="lp-plan-badge">Mais popular</div>
-        <div class="lp-plan-name">Revelados</div>
-        <p class="lp-plan-hook">O mais escolhido por quem quer certeza</p>
-        <div class="lp-plan-price"><span class="lp-curr">R$</span>19</div>
+        <div class="lp-plan-badge">{{ t.pricing.popular }}</div>
+        <div class="lp-plan-name">{{ t.pricing.plan1_name }}</div>
+        <p class="lp-plan-desc">{{ t.pricing.plan1_desc }}</p>
+        <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan1_price_curr }}</span>{{ t.pricing.plan1_price_num }}</div>
         <p class="lp-plan-period">pagamento único</p>
-        <p class="lp-plan-desc">Análise completa com todos os sinais ocultos.</p>
         <ul class="lp-plan-items">
-          <li class="lp-plan-item-includes">+ Básico</li>
-          <li>Análise de 3 conversas</li>
-          <li>Sinais ocultos revelados</li>
-          <li>Interpretação de padrões</li>
-          <li>Gatilhos emocionais</li>
-          <li>Sugestões de resposta</li>
+          <li>{{ t.pricing.plan1_item1 }}</li>
+          <li>{{ t.pricing.plan1_item2 }}</li>
+          <li>{{ t.pricing.plan1_item3 }}</li>
+          <li>{{ t.pricing.plan1_item4 }}</li>
+          <li>{{ t.pricing.plan1_item5 }}</li>
+          <li>{{ t.pricing.plan1_item6 }}</li>
+          <li>{{ t.pricing.plan1_item7 }}</li>
         </ul>
-        <button class="lp-btn-plan primary" @click="goToCheckout('revealed')">Quero Revelados →</button>
+        <button class="lp-btn-plan primary" @click="goToCheckout('revealed')">{{ t.pricing.plan1_cta }}</button>
       </div>
 
-      <!-- Plan: Raio-X -->
+      <!-- Plan 2: Raio-X do Crush -->
       <div class="lp-plan-card">
-        <div class="lp-plan-name">Raio-X</div>
-        <div class="lp-plan-price"><span class="lp-curr">R$</span>37</div>
+        <div class="lp-plan-name">{{ t.pricing.plan2_name }}</div>
+        <p class="lp-plan-desc">{{ t.pricing.plan2_desc }}</p>
+        <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan2_price_curr }}</span>{{ t.pricing.plan2_price_num }}</div>
         <p class="lp-plan-period">pagamento único</p>
-        <p class="lp-plan-desc">Para quem quer a verdade completa sem filtro.</p>
         <ul class="lp-plan-items">
-          <li class="lp-plan-item-includes">+ Revelados</li>
-          <li>Conversas ilimitadas</li>
-          <li>Análise profunda de perfil</li>
-          <li>Mapa emocional completo</li>
-          <li>Relatório exportável</li>
-          <li>Suporte prioritário</li>
+          <li class="lp-plan-item-includes">{{ t.pricing.plan2_item1 }}</li>
+          <li>{{ t.pricing.plan2_item2 }}</li>
+          <li>{{ t.pricing.plan2_item3 }}</li>
+          <li>{{ t.pricing.plan2_item4 }}</li>
+          <li>{{ t.pricing.plan2_item5 }}</li>
+          <li>{{ t.pricing.plan2_item6 }}</li>
+          <li>{{ t.pricing.plan2_item7 }}</li>
         </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('raiox')">Quero Raio-X →</button>
+        <button class="lp-btn-plan" @click="goToCheckout('raiox')">{{ t.pricing.plan2_cta }}</button>
       </div>
 
     </div>
 
     <p class="lp-modal-guarantee">🔒 Pagamento seguro · acesso imediato · uso único</p>
-    <p class="lp-modal-free-hint">Quer tentar grátis? <NuxtLink to="/scan" class="lp-modal-free-link" @click="closeModal()">Começar com 1 imagem →</NuxtLink></p>
   </div>
 </div>
 </template>

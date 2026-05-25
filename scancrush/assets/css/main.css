@@ -1209,6 +1209,13 @@ footer {
   margin-bottom: 2px;
   line-height: 1;
 }
+.lp-plan-free-tag {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-2);
+  margin-bottom: 10px;
+  line-height: 1;
+}
 .lp-curr {
   font-size: 14px;
   font-weight: 600;

@@ -1,14 +1,13 @@
 <script setup lang="ts">
 const { t } = useAppI18n()
 
-const KIWIFY_URLS = {
-  basic:    'https://pay.kiwify.com.br/lksicGT',
-  revealed: 'https://pay.kiwify.com.br/9er8Nn9',
-  raiox:    'https://pay.kiwify.com.br/ZYqerZF',
+const CHECKOUT_URLS = {
+  revealed: '#',
+  raiox:    '#',
 }
 
-function goToCheckout(plan: 'basic' | 'revealed' | 'raiox') {
-  if (import.meta.client) window.location.href = KIWIFY_URLS[plan]
+function goToCheckout(plan: 'revealed' | 'raiox') {
+  if (import.meta.client) window.location.href = CHECKOUT_URLS[plan]
 }
 
 const isPricesModalOpen = ref(false)
@@ -76,57 +75,60 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <h2 class="lp-modal-title">{{ t.pricing.title }} <span class="grad">{{ t.pricing.title_accent }}</span></h2>
     <div class="lp-modal-plans">
 
+      <!-- Plan 0: Primeiras Impressões (Free) -->
       <div class="lp-plan-card">
+        <div class="lp-plan-name">{{ t.pricing.plan0_name }}</div>
+        <p class="lp-plan-desc">{{ t.pricing.plan0_desc }}</p>
+        <div class="lp-plan-free-tag">{{ t.pricing.plan0_free }}</div>
+        <ul class="lp-plan-items">
+          <li>{{ t.pricing.plan0_item1 }}</li>
+          <li>{{ t.pricing.plan0_item2 }}</li>
+          <li>{{ t.pricing.plan0_item3 }}</li>
+          <li>{{ t.pricing.plan0_item4 }}</li>
+          <li>{{ t.pricing.plan0_item5 }}</li>
+        </ul>
+        <NuxtLink to="/scan" class="lp-btn-plan" style="text-align:center; display:block;" @click="closePricesModal()">{{ t.pricing.plan0_cta }}</NuxtLink>
+      </div>
+
+      <!-- Plan 1: Sinais Revelados (FEATURED) -->
+      <div class="lp-plan-card featured">
+        <div class="lp-plan-badge">{{ t.pricing.popular }}</div>
         <div class="lp-plan-name">{{ t.pricing.plan1_name }}</div>
+        <p class="lp-plan-desc">{{ t.pricing.plan1_desc }}</p>
         <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan1_price_curr }}</span>{{ t.pricing.plan1_price_num }}</div>
         <p class="lp-plan-period">pagamento único</p>
-        <p class="lp-plan-desc">{{ t.pricing.plan1_desc }}</p>
         <ul class="lp-plan-items">
           <li>{{ t.pricing.plan1_item1 }}</li>
           <li>{{ t.pricing.plan1_item2 }}</li>
           <li>{{ t.pricing.plan1_item3 }}</li>
           <li>{{ t.pricing.plan1_item4 }}</li>
+          <li>{{ t.pricing.plan1_item5 }}</li>
+          <li>{{ t.pricing.plan1_item6 }}</li>
+          <li>{{ t.pricing.plan1_item7 }}</li>
         </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('basic')">{{ t.pricing.plan1_cta }}</button>
+        <button class="lp-btn-plan primary" @click="goToCheckout('revealed')">{{ t.pricing.plan1_cta }}</button>
       </div>
 
-      <div class="lp-plan-card featured">
-        <div class="lp-plan-badge">{{ t.pricing.popular }}</div>
+      <!-- Plan 2: Raio-X do Crush -->
+      <div class="lp-plan-card">
         <div class="lp-plan-name">{{ t.pricing.plan2_name }}</div>
-        <p class="lp-plan-hook">{{ t.pricing.plan2_hook }}</p>
+        <p class="lp-plan-desc">{{ t.pricing.plan2_desc }}</p>
         <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan2_price_curr }}</span>{{ t.pricing.plan2_price_num }}</div>
         <p class="lp-plan-period">pagamento único</p>
-        <p class="lp-plan-desc">{{ t.pricing.plan2_desc }}</p>
         <ul class="lp-plan-items">
-          <li class="lp-plan-item-includes">+ {{ t.pricing.plan1_name }}</li>
-          <li>{{ t.pricing.plan2_item1 }}</li>
+          <li class="lp-plan-item-includes">{{ t.pricing.plan2_item1 }}</li>
           <li>{{ t.pricing.plan2_item2 }}</li>
           <li>{{ t.pricing.plan2_item3 }}</li>
           <li>{{ t.pricing.plan2_item4 }}</li>
           <li>{{ t.pricing.plan2_item5 }}</li>
+          <li>{{ t.pricing.plan2_item6 }}</li>
+          <li>{{ t.pricing.plan2_item7 }}</li>
         </ul>
-        <button class="lp-btn-plan primary" @click="goToCheckout('revealed')">{{ t.pricing.plan2_cta }}</button>
-      </div>
-
-      <div class="lp-plan-card">
-        <div class="lp-plan-name">{{ t.pricing.plan3_name }}</div>
-        <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan3_price_curr }}</span>{{ t.pricing.plan3_price_num }}</div>
-        <p class="lp-plan-period">pagamento único</p>
-        <p class="lp-plan-desc">{{ t.pricing.plan3_desc }}</p>
-        <ul class="lp-plan-items">
-          <li class="lp-plan-item-includes">+ {{ t.pricing.plan2_name }}</li>
-          <li>{{ t.pricing.plan3_item1 }}</li>
-          <li>{{ t.pricing.plan3_item2 }}</li>
-          <li>{{ t.pricing.plan3_item3 }}</li>
-          <li>{{ t.pricing.plan3_item4 }}</li>
-          <li>{{ t.pricing.plan3_item5 }}</li>
-        </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('raiox')">{{ t.pricing.plan3_cta }}</button>
+        <button class="lp-btn-plan" @click="goToCheckout('raiox')">{{ t.pricing.plan2_cta }}</button>
       </div>
 
     </div>
     <p class="lp-modal-guarantee">🔒 Pagamento seguro · acesso imediato · uso único</p>
-    <p class="lp-modal-free-hint">Quer tentar grátis? <NuxtLink to="/scan" class="lp-modal-free-link" @click="closePricesModal()">Começar com 1 imagem →</NuxtLink></p>
   </div>
 </div>
 </template>

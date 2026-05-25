@@ -29,7 +29,7 @@ useHead({
     <p class="nf-code">// erro 404</p>
 
     <!-- Heading -->
-    <h1 class="nf-title">Essa página<br><span class="grad">sumiu sem dar visto.</span></h1>
+    <h1 class="nf-title">Página não encontrada</h1>
 
     <p class="nf-sub">Ela não existe, foi movida ou você digitou o endereço errado.<br>Mas a conversa do seu crush ainda tem resposta.</p>
 

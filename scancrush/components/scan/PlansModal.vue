@@ -9,56 +9,71 @@ onMounted(() => {
   onUnmounted(() => window.removeEventListener('keydown', handler))
 })
 
+const CHECKOUT_URLS = {
+  revealed: '#',
+  raiox:    '#',
+}
+
 const plans = computed(() => [
   {
-    key: 'basic',
+    key: 'free',
+    name: t.value.pricing.plan0_name,
+    price: t.value.pricing.plan0_free,
+    desc: t.value.pricing.plan0_desc,
+    items: [
+      t.value.pricing.plan0_item1,
+      t.value.pricing.plan0_item2,
+      t.value.pricing.plan0_item3,
+      t.value.pricing.plan0_item4,
+      t.value.pricing.plan0_item5,
+    ],
+    cta: t.value.pricing.plan0_cta,
+    featured: false,
+  },
+  {
+    key: 'revealed',
     name: t.value.pricing.plan1_name,
-    price: t.value.pricing.plan1_price,
+    price: t.value.pricing.plan1_price_curr + t.value.pricing.plan1_price_num,
+    hook: t.value.pricing.plan1_hook,
     desc: t.value.pricing.plan1_desc,
     items: [
       t.value.pricing.plan1_item1,
       t.value.pricing.plan1_item2,
       t.value.pricing.plan1_item3,
       t.value.pricing.plan1_item4,
+      t.value.pricing.plan1_item5,
+      t.value.pricing.plan1_item6,
+      t.value.pricing.plan1_item7,
     ],
     cta: t.value.pricing.plan1_cta,
-    featured: false,
+    featured: true,
   },
   {
-    key: 'revealed',
+    key: 'raiox',
     name: t.value.pricing.plan2_name,
-    price: t.value.pricing.plan2_price,
-    hook: t.value.pricing.plan2_hook,
+    price: t.value.pricing.plan2_price_curr + t.value.pricing.plan2_price_num,
     desc: t.value.pricing.plan2_desc,
     items: [
       t.value.pricing.plan2_item1,
       t.value.pricing.plan2_item2,
       t.value.pricing.plan2_item3,
       t.value.pricing.plan2_item4,
+      t.value.pricing.plan2_item5,
+      t.value.pricing.plan2_item6,
+      t.value.pricing.plan2_item7,
     ],
     cta: t.value.pricing.plan2_cta,
-    featured: true,
-  },
-  {
-    key: 'xray',
-    name: t.value.pricing.plan3_name,
-    price: t.value.pricing.plan3_price,
-    desc: t.value.pricing.plan3_desc,
-    items: [
-      t.value.pricing.plan3_item1,
-      t.value.pricing.plan3_item2,
-      t.value.pricing.plan3_item3,
-      t.value.pricing.plan3_item4,
-    ],
-    cta: t.value.pricing.plan3_cta,
     featured: false,
   },
 ])
 
 function selectPlan(planKey: string) {
-  // TODO: redirecionar para checkout externo (Kiwify/Stripe)
-  // window.location.href = `https://pay.kiwify.com.br/xxx?plan=${planKey}`
-  console.log('Plano selecionado:', planKey)
+  if (planKey === 'free') {
+    navigateTo('/scan')
+    closeModal()
+    return
+  }
+  if (import.meta.client) window.location.href = CHECKOUT_URLS[planKey as keyof typeof CHECKOUT_URLS]
   closeModal()
 }
 </script>

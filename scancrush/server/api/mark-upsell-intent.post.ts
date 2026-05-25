@@ -2,7 +2,7 @@
  * POST /api/mark-upsell-intent
  * Marca upsell_intent=true na sessão quando o usuário clica no botão
  * de upsell. O WF01 usa esse flag para encontrar a sessão correta
- * quando o pagamento do upsell é confirmado pela Kiwify.
+ * quando o pagamento do upsell é confirmado pela plataforma de pagamentos.
  *
  * Body: { token: string }
  * Response: { ok: true } | { ok: false }

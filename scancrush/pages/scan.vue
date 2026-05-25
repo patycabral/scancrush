@@ -8,13 +8,13 @@ useHead({ title: 'ScanCrush — Analisar conversa' })
 // ════════════════════════════════════════════════════
 const PLAN_LIMITS: Record<string, number> = { free: 1, revealed: 4, raiox: 10 }
 
-const KIWIFY_URLS = {
-  revealed: 'https://pay.kiwify.com.br/dkydgbk',
-  raiox:    'https://pay.kiwify.com.br/V5nE9jP',
+const CHECKOUT_URLS = {
+  revealed: '#',
+  raiox:    '#',
 }
 
 function goToCheckout(plan: 'revealed' | 'raiox') {
-  if (import.meta.client) window.location.href = KIWIFY_URLS[plan]
+  if (import.meta.client) window.location.href = CHECKOUT_URLS[plan]
 }
 
 // LAUNCH_MODE: true = análise gratuita e sem restrições

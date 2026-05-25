@@ -592,6 +592,7 @@
     }
     .loop-card:hover { border-color: rgba(155,93,229,0.3); transform: translateY(-3px); }
     .loop-ico { font-size: 26px; display: block; margin-bottom: 10px; }
+    .loop-step { display: none; }
     .loop-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text); line-height: 1.3; }
     .loop-card p { font-size: 12px; color: var(--text-2); font-weight: 300; line-height: 1.6; margin: 0; }
     .loop-center {
@@ -1187,28 +1188,31 @@
       /* Hero */
       .hero { padding: 96px 0 52px; min-height: auto; }
       .hero-grid { grid-template-columns: 1fr; gap: 40px; }
-      .hero-inner { order: 1; max-width: 100%; }
+      .hero-inner { order: 1; max-width: 100%; text-align: center; }
       .hero-visual { order: 2; max-width: 360px; margin: 0 auto; width: 100%; }
       .chat-card { width: 100%; max-width: 320px; margin: 0 auto; }
       .float-tag { display: none; }
-      .hero h1 { font-size: clamp(30px, 7vw, 46px); letter-spacing: -1.8px; margin-bottom: 20px; }
-      .hero-sub { font-size: 16px; margin-bottom: 36px; line-height: 1.7; }
+      .hero h1 { font-size: clamp(34px, 8vw, 48px); letter-spacing: -2px; margin-bottom: 18px; }
+      .hero-sub { font-size: 14px; margin-bottom: 32px; line-height: 1.7; max-width: 100% !important; text-align: center !important; }
       .hero-eyebrow { margin-bottom: 24px; font-size: 11px; }
-      .hero-actions { flex-direction: column; align-items: stretch; width: 100%; }
-      .btn-primary { justify-content: center; }
+      .hero-actions { flex-direction: column; align-items: center; width: 100%; }
+      .btn-primary { justify-content: center; padding: 13px 28px; font-size: 15px; width: 100%; max-width: 320px; }
 
       /* Sections */
-      .section-pad { padding: 80px 0; }
-      .container { padding: 0 20px; }
-      .section-title { font-size: clamp(28px, 5.5vw, 42px); }
+      .section-pad { padding: 72px 0; }
+      .container { padding: 0 32px; }
+      .section-title { font-size: clamp(24px, 5vw, 36px); }
+      .ia-title { font-size: clamp(22px, 4.5vw, 34px); }
 
       /* How */
       .how-grid { grid-template-columns: 1fr; gap: 14px; margin-top: 40px; }
 
-      /* Report — copy before mock on mobile */
+      /* Report — copy before mock on mobile, centered */
       .report-grid { display: flex; flex-direction: column; gap: 40px; margin-top: 40px; }
       .report-grid .reveal:not(.report-copy) { order: 2; }
-      .report-grid .report-copy { order: 1; }
+      .report-grid .report-copy { order: 1; text-align: center; }
+      .report-copy .feature-list { display: flex; flex-direction: column; text-align: left; margin: 0 auto 32px; }
+      .report-copy .btn-primary { display: block; margin: 0 auto; }
 
       /* Pricing */
       .pricing-grid { grid-template-columns: 1fr; max-width: 460px; margin-left: auto; margin-right: auto; }
@@ -1216,18 +1220,33 @@
       /* IA cards */
       .ia-cards { grid-template-columns: 1fr; }
 
-      /* Loop — vertical list (no circle) */
+      /* Loop — step-by-step timeline */
       .loop-wrap { max-width: 560px; }
       .loop-wrap::before { display: none; }
       .loop-grid {
         display: flex;
         flex-direction: column;
         gap: 0;
+        position: relative;
       }
-      .loop-center { display: none; }
+      /* vertical connector line */
+      .loop-grid::before {
+        content: '';
+        position: absolute;
+        left: 23px;
+        top: 0; bottom: 0;
+        width: 1px;
+        background: linear-gradient(to bottom,
+          transparent 2%,
+          rgba(255,45,107,0.22) 8%,
+          rgba(255,45,107,0.22) 92%,
+          transparent 98%);
+        z-index: 0;
+      }
+      .loop-center { display: none !important; }
       .loop-card {
         position: relative;
-        padding: 18px 18px 18px 56px;
+        padding: 18px 18px 18px 60px;
         text-align: left;
         border-radius: 0;
         border: none;
@@ -1236,35 +1255,58 @@
       }
       .loop-card:last-child { border-bottom: none; }
       .loop-card:hover { transform: none; background: rgba(255,255,255,0.02); }
-      .loop-ico {
+      /* numbered step circle */
+      .loop-step {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         position: absolute;
-        left: 12px;
+        left: 8px;
         top: 16px;
-        font-size: 20px;
         width: 30px;
-        text-align: center;
-        margin-bottom: 0;
+        height: 30px;
+        background: #07070D;
+        border: 1px solid rgba(255,45,107,0.38);
+        border-radius: 50%;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--pink);
+        z-index: 2;
+        flex-shrink: 0;
       }
+      /* hide original emoji */
+      .loop-ico { display: none; }
       .loop-card h4 { font-size: 14px; margin-bottom: 4px; }
       .loop-card p { font-size: 13px; }
 
-      /* Footer mobile — logo + tagline + copyright only */
+      /* FAQ — tighter on mobile */
+      .faq-btn { font-size: 14px; padding: 18px 0; }
+
+      /* CTA final — tighter height */
+      .cta-final { padding: 60px 0; }
+
+      /* Footer mobile — logo + tagline + copyright only, compact */
+      footer { padding: 32px 0; }
       .footer-links { display: none; }
-      .footer-row { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+      .footer-row { flex-direction: column; align-items: center; text-align: center; gap: 8px; }
       .footer-tagline { text-align: center; }
+      .logo { justify-content: center; }
+      .footer-copy { margin-top: 12px; }
     }
 
     /* ── Phone only < 480px ── */
     @media (max-width: 480px) {
-      .container { padding: 0 18px; }
-      .section-pad { padding: 64px 0; }
+      .container { padding: 0 22px; }
+      .section-pad { padding: 56px 0; }
       .hero { padding: 88px 0 44px; }
-      .hero h1 { font-size: clamp(28px, 8vw, 38px); letter-spacing: -1.5px; }
+      .hero h1 { font-size: clamp(30px, 8vw, 38px); letter-spacing: -1.8px; }
+      footer { padding: 28px 0; }
       .hero-visual { max-width: 290px; }
       .pricing-grid { max-width: 100%; }
       .loop-wrap { max-width: 100%; }
       .loop-card { padding: 16px 14px 16px 52px; }
-      .loop-ico { left: 10px; }
+      .loop-step { left: 6px; width: 26px; height: 26px; font-size: 10px; }
       .how-card { padding: 24px 20px; }
       .nav-mobile-menu { padding: 88px 24px 40px; }
       .nav-mobile-menu a { font-size: 20px; }
@@ -1314,7 +1356,7 @@
           <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
           <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
         </div>
-        <a href="scan.html" class="btn-nav" data-i18n="nav.cta">Analisar conversa</a>
+        <a href="#pricing" class="btn-nav" data-i18n="nav.cta">Analisar conversa</a>
       </div>
 
       <button class="nav-mobile-btn" id="mobile-btn" aria-label="Menu" aria-expanded="false">
@@ -1336,7 +1378,7 @@
       <a href="terms.html">Termos</a>
     </div>
     <div class="mobile-cta-wrap">
-      <a href="scan.html" class="mobile-cta">Analisar conversa</a>
+      <a href="#pricing" class="mobile-cta">Analisar conversa</a>
     </div>
   </div>
 </nav>
@@ -1358,11 +1400,11 @@
         </h1>
 
         <p class="hero-sub" data-i18n="hero.sub">
-          Você já releu aquela mensagem várias vezes. Mandou para sua amiga, criaram mil teorias e não chegaram a lugar nenhum. Envie os prints e veja o que os padrões mostram — a análise lê o que a emoção não consegue.
+          Você já releu aquela mensagem várias vezes. Mandou para sua amiga, criaram mil teorias e não chegaram a lugar nenhum. Envie os prints e veja o que os padrões podem indicar — uma leitura contextual para ajudar você a enxergar a conversa com mais clareza.
         </p>
 
         <div class="hero-actions">
-          <a href="scan.html" class="btn-primary">
+          <a href="#pricing" class="btn-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <span data-i18n="hero.cta_primary">Ver os sinais da conversa</span>
           </a>
@@ -1393,11 +1435,11 @@
             </div>
 
             <div class="analysis-badge">
-              <div class="ab-label" data-i18n="hero.badge_label">Sinais identificados</div>
+              <div class="ab-label" data-i18n="hero.badge_label">Sinais observados</div>
               <div class="ab-signals">
-                <div class="ab-signal"><span class="ab-dot r"></span><span data-i18n="hero.signal1">Distância emocional seletiva</span></div>
-                <div class="ab-signal"><span class="ab-dot r"></span><span data-i18n="hero.signal2">Inconsistência afetiva</span></div>
-                <div class="ab-signal"><span class="ab-dot g"></span><span data-i18n="hero.signal3">Demonstra interesse verbal</span></div>
+                <div class="ab-signal"><span class="ab-dot r"></span><span data-i18n="hero.signal1">Sinal de afastamento na conversa</span></div>
+                <div class="ab-signal"><span class="ab-dot r"></span><span data-i18n="hero.signal2">Oscilação no tom das mensagens</span></div>
+                <div class="ab-signal"><span class="ab-dot g"></span><span data-i18n="hero.signal3">Indícios de interesse na fala</span></div>
               </div>
             </div>
           </div>
@@ -1423,32 +1465,38 @@
     <div class="loop-wrap">
       <div class="loop-grid reveal">
         <div class="loop-card" style="grid-area:card1">
+          <span class="loop-step">1</span>
           <span class="loop-ico">📱</span>
           <h4>Você recebe uma mensagem</h4>
           <p>Ela parece normal. Mas alguma coisa na forma como foi escrita não sai da sua cabeça.</p>
         </div>
         <div class="loop-card" style="grid-area:card2">
+          <span class="loop-step">2</span>
           <span class="loop-ico">🔄</span>
           <h4>Relê mais de uma vez</h4>
           <p>Na primeira leitura parecia nada. Na terceira, você começou a imaginar mil possibilidades.</p>
         </div>
         <div class="loop-card" style="grid-area:card3">
+          <span class="loop-step">3</span>
           <span class="loop-ico">📲</span>
           <h4>Manda pro grupo</h4>
           <p>"Foi só educação?" "Ele flertou?" "Eu estou viajando?"</p>
         </div>
         <div class="loop-center" style="grid-area:center"></div>
         <div class="loop-card" style="grid-area:card4">
+          <span class="loop-step">4</span>
           <span class="loop-ico">🤔</span>
           <h4>Cada amigo diz uma coisa</h4>
           <p>E no final você continua mais confusa do que antes.</p>
         </div>
         <div class="loop-card" style="grid-area:card5">
+          <span class="loop-step">5</span>
           <span class="loop-ico">💭</span>
           <h4>Ainda pensa quando dorme</h4>
           <p>Você tenta esquecer. Mas sua cabeça continua voltando para a conversa.</p>
         </div>
         <div class="loop-card" style="grid-area:card6">
+          <span class="loop-step">6</span>
           <span class="loop-ico">❓</span>
           <h4>E ainda não sabe</h4>
           <p>Porque quando a gente gosta de alguém, fica impossível enxergar tudo com clareza.</p>
@@ -1565,7 +1613,7 @@
 
           <div class="rm-flags">
             <div class="rm-flags-label r" data-i18n="mock.flags_red">🚩 Sinais negativos</div>
-            <span class="rm-tag r" data-i18n="mock.flag_r1">🚩 Distância emocional</span>
+            <span class="rm-tag r" data-i18n="mock.flag_r1">🚩 Sinal de afastamento</span>
             <span class="rm-tag r" data-i18n="mock.flag_r2">🚩 Comunicação inconsistente</span>
           </div>
           <div class="rm-flags">
@@ -1604,14 +1652,14 @@
           <li><span class="feat-check">✓</span><span data-i18n="report.item4">Padrões de comportamento</span></li>
           <li><span class="feat-check">✓</span><span data-i18n="report.item5">O que os sinais realmente indicam</span></li>
         </ul>
-        <a href="scan.html" class="btn-primary" data-i18n="report.unlock">Desbloquear relatório completo</a>
+        <a href="#pricing" class="btn-primary" data-i18n="report.unlock">Desbloquear relatório completo</a>
       </div>
     </div>
 
     <!-- Disclaimer dentro da seção do relatório -->
     <div class="disclaimer-bar">
       <div class="disclaimer-inner">
-        <p data-i18n="disclaimer.line1a">⚠️ Esta é uma análise automatizada baseada nas mensagens enviadas.</p>
+        <p data-i18n="disclaimer.line1a">⚠️ Esta é uma análise automatizada, interpretativa e baseada apenas nas mensagens enviadas. O resultado não representa certeza sobre sentimentos ou intenções reais. O acesso é único e não fica disponível posteriormente.</p>
       </div>
     </div>
 
@@ -1786,11 +1834,10 @@
         <span class="grad" data-i18n="cta_final.title_accent">está a um passo.</span>
       </h2>
       <p data-i18n="cta_final.sub">Você já passou tempo demais tentando entender essa conversa sozinha.</p>
-      <a href="scan.html" class="btn-primary" style="font-size:17px;padding:18px 40px">
+      <a href="#pricing" class="btn-primary">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span data-i18n="cta_final.btn">Ver os sinais da conversa</span>
       </a>
-      <p class="cta-hint" data-i18n="cta_final.hint">Sem cartão de crédito para começar.</p>
     </div>
   </div>
 </section>
@@ -1842,7 +1889,7 @@ const LANGS = {
       eyebrow: "Análise emocional de conversas",
       headline: "Talvez os sinais sempre estiveram ali…",
       headline_accent: "você só não tinha percebido (ainda).",
-      sub: "Você já releu aquela mensagem várias vezes. Mandou para sua amiga, criaram mil teorias e não chegaram a lugar nenhum. Envie os prints e veja o que os padrões mostram — a análise lê o que a emoção não consegue.",
+      sub: "Você já releu aquela mensagem várias vezes. Mandou para sua amiga, criaram mil teorias e não chegaram a lugar nenhum. Envie os prints e veja o que os padrões podem indicar — uma leitura contextual para ajudar você a enxergar a conversa com mais clareza.",
       cta_primary: "Ver os sinais da conversa",
       float1: "🚩 2 sinais detectados",
       float2: "✅ análise concluída",
@@ -1851,10 +1898,10 @@ const LANGS = {
       msg2: "tá bom… avisa quando puder falar",
       msg3: "você sabe que gosto de vc né",
       msg4: "só preciso de espaço às vezes",
-      badge_label: "Sinais identificados",
-      signal1: "Distância emocional seletiva",
-      signal2: "Inconsistência afetiva",
-      signal3: "Demonstra interesse verbal"
+      badge_label: "Sinais observados",
+      signal1: "Sinal de afastamento na conversa",
+      signal2: "Oscilação no tom das mensagens",
+      signal3: "Indícios de interesse na fala"
     },
     mock: {
       title: "Relatório de Análise",
@@ -1863,7 +1910,7 @@ const LANGS = {
       bar1: "Baixo", bar2: "Médio", bar3: "Alto",
       verdict: "⚠️ Prossiga com cautela",
       flags_red: "🚩 Sinais de atenção",
-      flag_r1: "🚩 Distância emocional seletiva",
+      flag_r1: "🚩 Sinal de afastamento na conversa",
       flag_r2: "🚩 Comunicação inconsistente",
       flags_green: "✅ Sinais positivos",
       flag_g1: "✅ Interesse verbal presente",
@@ -1873,7 +1920,7 @@ const LANGS = {
       locked_label: "🔒 Padrões de comunicação + análise contextual completa"
     },
     disclaimer: {
-      line1a: "⚠️ Esta é uma análise automatizada baseada nas mensagens enviadas.",
+      line1a: "⚠️ Esta é uma análise automatizada, interpretativa e baseada apenas nas mensagens enviadas. O resultado não representa certeza sobre sentimentos ou intenções reais. O acesso é único e não fica disponível posteriormente.",
       line2: "A análise não representa diagnóstico, aconselhamento psicológico ou verdade absoluta. O acesso é único por compra."
     },
     how: {
