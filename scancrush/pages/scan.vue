@@ -577,20 +577,76 @@ const PLAN_NAMES: Record<string, string> = {
 const planDisplayName = computed(() => PLAN_NAMES[currentPlan.value] ?? 'Gratuito')
 const planImageLimit = computed(() => PLAN_LIMITS[currentPlan.value] ?? 1)
 
-onMounted(() => {
-  if (import.meta.client) {
-    // Plano definido pela página /acesso após validação do token
-    const savedToken = sessionStorage.getItem('sc_token')
-    const savedPlan  = sessionStorage.getItem('sc_plan')
-    const savedMax   = sessionStorage.getItem('sc_max_images')
+// ── Token validation state ──
+const tokenValidating = ref(false)
+const accessError     = ref('')
 
-    if (savedToken && savedPlan && savedMax) {
-      const maxInt = parseInt(savedMax, 10)
-      accessToken.value       = savedToken
-      currentPlan.value       = savedPlan
-      PLAN_LIMITS[savedPlan]  = maxInt
+const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/validate-access-token'
+
+async function validateToken(token: string) {
+  console.log('[scan] validando token:', token)
+  tokenValidating.value = true
+  accessError.value     = ''
+
+  try {
+    const res  = await fetch(VALIDATE_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ token }),
+    })
+    const data = await res.json()
+    console.log('[scan] resposta validate-access-token:', data)
+
+    if (data.success) {
+      const { access } = data
+      accessToken.value          = access.token
+      currentPlan.value          = access.plan
+      PLAN_LIMITS[access.plan]   = access.max_prints
+
+      sessionStorage.setItem('sc_token',      access.token)
+      sessionStorage.setItem('sc_plan',       access.plan)
+      sessionStorage.setItem('sc_max_images', String(access.max_prints))
+      sessionStorage.setItem('sc_plan_name',  access.plan_name)
+      sessionStorage.setItem('sc_access_id',  access.access_id)
+
+      // Remove token da URL sem recarregar
+      const url = new URL(window.location.href)
+      url.searchParams.delete('token')
+      window.history.replaceState({}, '', url.toString())
+    } else {
+      console.log('[scan] token inválido:', data.error)
+      accessError.value = data.error?.message ?? 'Seu link de acesso não é válido ou expirou.'
     }
-    // Sem sessão → plano gratuito (acesso direto à página)
+  } catch (err) {
+    console.error('[scan] erro ao validar token:', err)
+    accessError.value = 'Não foi possível validar seu acesso. Verifique sua conexão e tente novamente.'
+  } finally {
+    tokenValidating.value = false
+  }
+}
+
+onMounted(async () => {
+  if (import.meta.client) {
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlToken  = urlParams.get('token')
+
+    if (urlToken) {
+      // Token na URL → validar agora
+      await validateToken(urlToken)
+    } else {
+      // Sem token na URL → tentar sessionStorage (sessão já validada)
+      const savedToken = sessionStorage.getItem('sc_token')
+      const savedPlan  = sessionStorage.getItem('sc_plan')
+      const savedMax   = sessionStorage.getItem('sc_max_images')
+
+      if (savedToken && savedPlan && savedMax) {
+        const maxInt = parseInt(savedMax, 10)
+        accessToken.value      = savedToken
+        currentPlan.value      = savedPlan
+        PLAN_LIMITS[savedPlan] = maxInt
+      }
+      // Sem sessão → plano gratuito (acesso direto à página)
+    }
   }
   shuffleTags()
   checkAnalysisDone()
@@ -608,6 +664,36 @@ onUnmounted(() => {
 </script>
 
 <template>
+<!-- ══════════════════════════════════════════════════ -->
+<!-- TOKEN VALIDATION OVERLAY -->
+<!-- ══════════════════════════════════════════════════ -->
+<div v-if="tokenValidating || accessError" class="token-overlay">
+  <div class="token-card">
+
+    <!-- Loading -->
+    <template v-if="tokenValidating">
+      <div class="token-spinner"></div>
+      <p class="token-msg">Validando seu acesso…</p>
+    </template>
+
+    <!-- Erro -->
+    <template v-else>
+      <div class="token-icon-err">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="#FF2D6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 8v4m0 4h.01"/>
+        </svg>
+      </div>
+      <p class="token-err-title">Acesso não autorizado</p>
+      <p class="token-err-msg">{{ accessError }}</p>
+      <p class="token-support">Precisa de ajuda? <a href="mailto:suporte@scancrush.com">suporte@scancrush.com</a></p>
+      <NuxtLink to="/" class="token-back">← Voltar para o início</NuxtLink>
+    </template>
+
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════════════════ -->
 <!-- SCREEN 1: Upload -->
 <!-- ══════════════════════════════════════════════════ -->
@@ -2827,4 +2913,83 @@ body::after {
   text-decoration: none;
 }
 .limit-back-link:hover { color: var(--text-2); }
+
+/* ── Token validation overlay ── */
+.token-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+}
+.token-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 48px 40px;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.token-spinner {
+  width: 36px;
+  height: 36px;
+  border: 2.5px solid rgba(255,45,107,0.15);
+  border-top-color: var(--pink);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.token-msg {
+  font-size: 15px;
+  color: var(--text-2);
+}
+.token-icon-err {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255,45,107,0.08);
+  border: 1px solid rgba(255,45,107,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.token-err-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.token-err-msg {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  max-width: 320px;
+}
+.token-support {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 24px;
+}
+.token-support a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.token-back {
+  font-size: 13px;
+  color: var(--text-3);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.token-back:hover { color: var(--text-2); }
 </style>
