@@ -161,7 +161,7 @@ const translations = {
       terms: 'Termos',
       copy: '© 2026 ScanCrush. Análise emocional de conversas.',
     },
-    disclaimer: '⚠️ Esta é uma análise automatizada baseada nas mensagens enviadas.',
+    disclaimer: '⚠️ Esta é uma análise instantânea baseada somente nas mensagens enviadas.',
   },
 
   en: {

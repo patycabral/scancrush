@@ -577,58 +577,20 @@ const PLAN_NAMES: Record<string, string> = {
 const planDisplayName = computed(() => PLAN_NAMES[currentPlan.value] ?? 'Gratuito')
 const planImageLimit = computed(() => PLAN_LIMITS[currentPlan.value] ?? 1)
 
-onMounted(async () => {
+onMounted(() => {
   if (import.meta.client) {
-    const urlParams  = new URLSearchParams(window.location.search)
-    const tokenParam = urlParams.get('token')
-    const validPlans = Object.keys(PLAN_LIMITS)
+    // Plano definido pela página /acesso após validação do token
+    const savedToken = sessionStorage.getItem('sc_token')
+    const savedPlan  = sessionStorage.getItem('sc_plan')
+    const savedMax   = sessionStorage.getItem('sc_max_images')
 
-    if (tokenParam) {
-      // Token presente → validar direto no webhook n8n (sem proxy Nuxt).
-      // n8n mantém os segredos (Supabase service_role); o webhook em si não é secreto.
-      accessToken.value = tokenParam
-      sessionStorage.setItem('sc_token', tokenParam)
-
-      const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/validate-token'
-      const PLAN_MAP: Record<string, string> = {
-        'Raio-X do Crush':  'raiox',
-        'Sinais Revelados': 'revealed',
-        raiox:              'raiox',
-        revealed:           'revealed',
-      }
-
-      try {
-        const res  = await fetch(VALIDATE_URL, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ token: tokenParam }),
-        })
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
-        const data = await res.json()
-
-        if (!data.valid) {
-          window.location.href = '/acesso-invalido.html'; return
-        }
-        if (data.used) {
-          window.location.href = '/acesso-usado.html'; return
-        }
-
-        const plan = PLAN_MAP[data.plan] ?? 'free'
-        currentPlan.value = plan
-        const maxImages = data.max_images ?? PLAN_LIMITS[plan] ?? 1
-        sessionStorage.setItem('sc_plan',       plan)
-        sessionStorage.setItem('sc_max_images', String(maxImages))
-      } catch {
-        // WF02 inacessível — mantém token salvo mas não libera plano pago
-        currentPlan.value = 'free'
-      }
-    } else {
-      // Sem token → plano free (sessão salva ou default)
-      const saved = sessionStorage.getItem('sc_plan')
-      if (saved && validPlans.includes(saved)) currentPlan.value = saved
+    if (savedToken && savedPlan && savedMax) {
+      const maxInt = parseInt(savedMax, 10)
+      accessToken.value       = savedToken
+      currentPlan.value       = savedPlan
+      PLAN_LIMITS[savedPlan]  = maxInt
     }
+    // Sem sessão → plano gratuito (acesso direto à página)
   }
   shuffleTags()
   checkAnalysisDone()

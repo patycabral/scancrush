@@ -39,7 +39,7 @@ onUnmounted(() => {
 
 function redirect() {
   if (token.value) {
-    window.location.href = `/scan?access_token=${token.value}`
+    window.location.href = `/acesso?token=${token.value}`
   }
 }
 </script>
