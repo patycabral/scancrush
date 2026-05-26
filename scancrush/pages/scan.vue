@@ -159,6 +159,7 @@ const selectedTags = ref<string[]>([])
 const userAgeRange  = ref('')
 const crushName     = ref('')
 const crushAgeRange = ref('')
+const termsAccepted = ref(false)
 const showValidationMsg = ref(false)
 const validationMsgHtml = ref('')
 const showAnalysisBlockedMsg = ref(false)
@@ -218,6 +219,7 @@ function validateS2(): boolean {
   const missing: string[] = []
   if (!userAgeRange.value) missing.push('sua <strong>faixa etária</strong>')
   if (selectedTags.value.length === 0) missing.push('pelo menos um <strong>sentimento</strong>')
+  if (currentPlan.value !== 'free' && !termsAccepted.value) missing.push('aceitar os <strong>Termos de Uso</strong>')
 
   if (missing.length) {
     if (missing.length === 1) {
@@ -569,11 +571,12 @@ function resetAll() {
   renderPreviews()
   btnContinueDisabled.value = true
   userName.value = ''
-  userAgeRange.value = ''
-  observations.value = ''
-  selectedTags.value = []
-  crushName.value = ''
+  userAgeRange.value  = ''
+  observations.value  = ''
+  selectedTags.value  = []
+  crushName.value     = ''
   crushAgeRange.value = ''
+  termsAccepted.value = false
   scoreBarWidth.value = '0%'
   showUploadMeta.value = false
   uploadCounterText.value = ''
@@ -945,6 +948,15 @@ onUnmounted(() => {
     <!-- One-time warning -->
     <div class="once-warning">
       Quanto mais contexto você enviar, mais precisa a análise fica.
+    </div>
+
+    <!-- Terms (fluxo pago) -->
+    <div v-if="currentPlan !== 'free'" class="paid-terms-wrap">
+      <p class="paid-terms-notice">A análise será feita exclusivamente com base no conteúdo enviado.</p>
+      <label class="paid-terms-label">
+        <input type="checkbox" v-model="termsAccepted" class="paid-terms-check" />
+        <span>Li e aceito os <a href="/terms.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidade</a></span>
+      </label>
     </div>
 
     <!-- Validation errors -->
@@ -2619,6 +2631,50 @@ body::after {
   margin-bottom: 14px;
   text-align: center;
 }
+
+/* Terms — paid flow */
+.paid-terms-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.paid-terms-notice {
+  font-size: 12px;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.5;
+}
+.paid-terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.55;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+.paid-terms-label:hover { border-color: rgba(255,255,255,0.12); }
+.paid-terms-check {
+  flex-shrink: 0;
+  margin-top: 1px;
+  accent-color: var(--pink);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+.paid-terms-label a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.paid-terms-label a:hover { color: var(--text); }
 
 /* Blocked state after analysis */
 .analysis-blocked-msg {
