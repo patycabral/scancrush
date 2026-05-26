@@ -776,10 +776,10 @@ onUnmounted(() => {
       @dragleave="onDragLeave"
       @drop="onDrop"
     >
-      <input type="file" accept="image/jpeg,image/png,image/webp" multiple @change="onFileChange" />
+      <input type="file" accept="image/jpeg,image/png" multiple @change="onFileChange" />
       <span class="drop-icon">📱</span>
       <p class="drop-text">Arraste os prints aqui<br>ou <strong>clique para selecionar</strong></p>
-      <span class="drop-hint">JPG · PNG · WEBP</span>
+      <span class="drop-hint">JPG · JPEG · PNG</span>
     </div>
 
     <div class="file-previews" v-show="filePreviews.length > 0">
