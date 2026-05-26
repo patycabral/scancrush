@@ -552,9 +552,11 @@ function resetAll() {
   customerId.value = ''
   if (import.meta.client) {
     sessionStorage.removeItem('sc_analysis_done')
-    sessionStorage.removeItem('sc_token')
-    sessionStorage.removeItem('sc_plan')
-    sessionStorage.removeItem('sc_max_images')
+    localStorage.removeItem('sc_token')
+    localStorage.removeItem('sc_plan')
+    localStorage.removeItem('sc_plan_name')
+    localStorage.removeItem('sc_max_images')
+    localStorage.removeItem('sc_expires_at')
   }
   goTo(1)
 }
@@ -583,8 +585,15 @@ const accessError     = ref('')
 
 const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/validate-access-token'
 
+// Mapeia o nome do plano vindo do webhook para a chave interna
+const PLAN_NAME_TO_KEY: Record<string, string> = {
+  'Sinais Revelados': 'revealed',
+  'Raio-X do Crush':  'raiox',
+}
+
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
+
 async function validateToken(token: string) {
-  console.log('[scan] validando token:', token)
   tokenValidating.value = true
   accessError.value     = ''
 
@@ -595,34 +604,57 @@ async function validateToken(token: string) {
       body:    JSON.stringify({ token }),
     })
     const data = await res.json()
-    console.log('[scan] resposta validate-access-token:', data)
 
     if (data.success) {
       const { access } = data
-      accessToken.value          = access.token
-      currentPlan.value          = access.plan
-      PLAN_LIMITS[access.plan]   = access.max_prints
+      const planKey = PLAN_NAME_TO_KEY[access.plan] ?? 'free'
 
-      sessionStorage.setItem('sc_token',      access.token)
-      sessionStorage.setItem('sc_plan',       access.plan)
-      sessionStorage.setItem('sc_max_images', String(access.max_prints))
-      sessionStorage.setItem('sc_plan_name',  access.plan_name)
-      sessionStorage.setItem('sc_access_id',  access.access_id)
+      accessToken.value        = access.token
+      currentPlan.value        = planKey
+      PLAN_LIMITS[planKey]     = access.max_prints
+
+      const expiresAt = String(Date.now() + THIRTY_DAYS_MS)
+      localStorage.setItem('sc_token',      access.token)
+      localStorage.setItem('sc_plan',       planKey)
+      localStorage.setItem('sc_plan_name',  access.plan)
+      localStorage.setItem('sc_max_images', String(access.max_prints))
+      localStorage.setItem('sc_expires_at', expiresAt)
 
       // Remove token da URL sem recarregar
       const url = new URL(window.location.href)
       url.searchParams.delete('token')
       window.history.replaceState({}, '', url.toString())
     } else {
-      console.log('[scan] token inválido:', data.error)
       accessError.value = data.error?.message ?? 'Seu link de acesso não é válido ou expirou.'
     }
-  } catch (err) {
-    console.error('[scan] erro ao validar token:', err)
+  } catch {
     accessError.value = 'Não foi possível validar seu acesso. Verifique sua conexão e tente novamente.'
   } finally {
     tokenValidating.value = false
   }
+}
+
+function loadFromStorage() {
+  const savedToken   = localStorage.getItem('sc_token')
+  const savedPlan    = localStorage.getItem('sc_plan')
+  const savedMax     = localStorage.getItem('sc_max_images')
+  const savedExpires = localStorage.getItem('sc_expires_at')
+
+  if (!savedToken || !savedPlan || !savedMax) return
+  if (savedExpires && Date.now() > Number(savedExpires)) {
+    // Acesso expirado — limpa storage
+    localStorage.removeItem('sc_token')
+    localStorage.removeItem('sc_plan')
+    localStorage.removeItem('sc_plan_name')
+    localStorage.removeItem('sc_max_images')
+    localStorage.removeItem('sc_expires_at')
+    return
+  }
+
+  const maxInt = parseInt(savedMax, 10)
+  accessToken.value      = savedToken
+  currentPlan.value      = savedPlan
+  PLAN_LIMITS[savedPlan] = maxInt
 }
 
 onMounted(async () => {
@@ -631,21 +663,10 @@ onMounted(async () => {
     const urlToken  = urlParams.get('token')
 
     if (urlToken) {
-      // Token na URL → validar agora
       await validateToken(urlToken)
     } else {
-      // Sem token na URL → tentar sessionStorage (sessão já validada)
-      const savedToken = sessionStorage.getItem('sc_token')
-      const savedPlan  = sessionStorage.getItem('sc_plan')
-      const savedMax   = sessionStorage.getItem('sc_max_images')
-
-      if (savedToken && savedPlan && savedMax) {
-        const maxInt = parseInt(savedMax, 10)
-        accessToken.value      = savedToken
-        currentPlan.value      = savedPlan
-        PLAN_LIMITS[savedPlan] = maxInt
-      }
-      // Sem sessão → plano gratuito (acesso direto à página)
+      loadFromStorage()
+      // Sem storage → plano gratuito (acesso direto à página)
     }
   }
   shuffleTags()
