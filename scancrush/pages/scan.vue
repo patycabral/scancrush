@@ -635,21 +635,13 @@ async function validateToken(token: string) {
 }
 
 function loadFromStorage() {
-  const savedToken   = localStorage.getItem('sc_token')
-  const savedPlan    = localStorage.getItem('sc_plan')
-  const savedMax     = localStorage.getItem('sc_max_images')
-  const savedExpires = localStorage.getItem('sc_expires_at')
+  const savedToken = localStorage.getItem('sc_token')
+  const savedPlan  = localStorage.getItem('sc_plan')
+  const savedMax   = localStorage.getItem('sc_max_images')
 
   if (!savedToken || !savedPlan || !savedMax) return
-  if (savedExpires && Date.now() > Number(savedExpires)) {
-    // Acesso expirado — limpa storage
-    localStorage.removeItem('sc_token')
-    localStorage.removeItem('sc_plan')
-    localStorage.removeItem('sc_plan_name')
-    localStorage.removeItem('sc_max_images')
-    localStorage.removeItem('sc_expires_at')
-    return
-  }
+
+  // sc_expires_at salvo para controle futuro — não bloqueia acesso por enquanto
 
   const maxInt = parseInt(savedMax, 10)
   accessToken.value      = savedToken
