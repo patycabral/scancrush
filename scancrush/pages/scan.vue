@@ -156,7 +156,8 @@ const bMonth = ref('')
 const bYear = ref('')
 const observations = ref('')
 const selectedTags = ref<string[]>([])
-const crushName = ref('')
+const userAgeRange  = ref('')
+const crushName     = ref('')
 const crushAgeRange = ref('')
 const showValidationMsg = ref(false)
 const validationMsgHtml = ref('')
@@ -164,10 +165,11 @@ const showAnalysisBlockedMsg = ref(false)
 const showBtnGenerate = ref(true)
 
 const TAGS = [
-  'confusa', 'ansiosa', 'insegura', 'com medo de perder ele',
-  'carente', 'cansada', 'frustrada', 'magoada', 'esperançosa',
-  'apegada', 'me sentindo ignorada', 'parecendo que só eu me esforço',
-  'gostando dele'
+  'animada', 'empolgada', 'feliz', 'curiosa', 'esperançosa', 'confiante',
+  'gostando dele(a)',
+  'confusa', 'ansiosa', 'insegura', 'com medo de perder',
+  'carente', 'frustrada', 'magoada',
+  'me sentindo ignorada', 'parecendo que só eu me esforço',
 ]
 
 // Shuffle tags (Fisher-Yates)
@@ -214,9 +216,7 @@ function checkAnalysisDone() {
 
 function validateS2(): boolean {
   const missing: string[] = []
-  const name = userName.value.trim()
-  if (!name) missing.push('seu <strong>nome</strong>')
-  if (!bDay.value || !bMonth.value || !bYear.value) missing.push('sua <strong>data de nascimento</strong> completa')
+  if (!userAgeRange.value) missing.push('sua <strong>faixa etária</strong>')
   if (selectedTags.value.length === 0) missing.push('pelo menos um <strong>sentimento</strong>')
 
   if (missing.length) {
@@ -273,6 +273,30 @@ function updateLoadingMsg() {
       loadingProgress.value = Math.min(92, loadingProgress.value + step)
     }
   }, 1000)
+}
+
+// ── Image count warning (sent fewer than plan allows) ──
+const showImageCountWarning = ref(false)
+
+function tryProceed() {
+  if (uploadedFiles.value.length === 0) return
+  const limit = getImageLimit()
+  if (limit > 1 && uploadedFiles.value.length < limit) {
+    showImageCountWarning.value = true
+    if (import.meta.client) document.body.style.overflow = 'hidden'
+  } else {
+    openConfirmDialog()
+  }
+}
+
+function closeImageCountWarning() {
+  showImageCountWarning.value = false
+  if (import.meta.client) document.body.style.overflow = ''
+}
+
+function proceedFromWarning() {
+  closeImageCountWarning()
+  openConfirmDialog()
 }
 
 // ── Confirm dialog (pre-send) ──
@@ -406,16 +430,10 @@ async function startAnalysis() {
 
   // Sempre envia todos os campos do formulário, mesmo os vazios (null/empty string).
   // O n8n recebe o payload completo e decide o que salvar no banco.
-  form.append('token',       accessToken.value)
-  form.append('plan',        currentPlan.value)
-  form.append('image_count', String(uploadedFiles.value.length))
-  form.append('user_name',       userName.value.trim())
-
-  const birthDate = (bYear.value && bMonth.value && bDay.value)
-    ? `${bYear.value}-${String(bMonth.value).padStart(2, '0')}-${String(bDay.value).padStart(2, '0')}`
-    : ''
-  form.append('birth_date',      birthDate)
-
+  form.append('token',           accessToken.value)
+  form.append('plan',            currentPlan.value)
+  form.append('image_count',     String(uploadedFiles.value.length))
+  form.append('user_age_range',  userAgeRange.value || 'não informado')
   form.append('crush_name',      crushName.value.trim())
   form.append('crush_age_range', crushAgeRange.value || 'não informado')
   form.append('observations',    observations.value.trim())
@@ -551,9 +569,7 @@ function resetAll() {
   renderPreviews()
   btnContinueDisabled.value = true
   userName.value = ''
-  bDay.value = ''
-  bMonth.value = ''
-  bYear.value = ''
+  userAgeRange.value = ''
   observations.value = ''
   selectedTags.value = []
   crushName.value = ''
@@ -585,6 +601,7 @@ function resetAll() {
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     if (lightboxSrc.value) { closeLightbox(); return }
+    if (showImageCountWarning.value) { closeImageCountWarning(); return }
     if (showConfirmDialog.value) { closeConfirmDialog(); return }
     closeModal()
   }
@@ -816,7 +833,7 @@ onUnmounted(() => {
       <button class="btn-upgrade-inline" @click="openModal()">🔓 Desbloquear análise completa</button>
     </div>
 
-    <button class="btn-main" :disabled="btnContinueDisabled" @click="openConfirmDialog()">
+    <button class="btn-main" :disabled="btnContinueDisabled" @click="tryProceed()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
       Continuar
     </button>
@@ -859,43 +876,17 @@ onUnmounted(() => {
     <!-- Dados pessoais para personalização da IA -->
     <div class="person-fields">
       <div class="field-group">
-        <label class="field-label" for="userName">Seu nome</label>
-        <input
-          class="obs-input"
-          type="text"
-          id="userName"
-          v-model="userName"
-          placeholder="Como você se chama?"
-          autocomplete="given-name"
-        />
-      </div>
-      <div class="field-group">
-        <label class="field-label">Sua data de nascimento</label>
-        <div class="date-picker">
-          <select class="date-select" :class="{ empty: !bDay }" v-model="bDay" aria-label="Dia">
-            <option value="">Dia</option>
-            <option v-for="opt in dayOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-          </select>
-          <select class="date-select" :class="{ empty: !bMonth }" v-model="bMonth" aria-label="Mês">
-            <option value="">Mês</option>
-            <option value="01">Jan</option>
-            <option value="02">Fev</option>
-            <option value="03">Mar</option>
-            <option value="04">Abr</option>
-            <option value="05">Mai</option>
-            <option value="06">Jun</option>
-            <option value="07">Jul</option>
-            <option value="08">Ago</option>
-            <option value="09">Set</option>
-            <option value="10">Out</option>
-            <option value="11">Nov</option>
-            <option value="12">Dez</option>
-          </select>
-          <select class="date-select" :class="{ empty: !bYear }" v-model="bYear" aria-label="Ano">
-            <option value="">Ano</option>
-            <option v-for="opt in yearOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-          </select>
-        </div>
+        <label class="field-label" for="userAgeRange">Sua faixa etária</label>
+        <select class="date-select" id="userAgeRange" :class="{ empty: !userAgeRange }" v-model="userAgeRange" style="flex:1;min-width:0">
+          <option value="">Selecionar</option>
+          <option value="16-20">16 – 20 anos</option>
+          <option value="21-25">21 – 25 anos</option>
+          <option value="26-30">26 – 30 anos</option>
+          <option value="31-35">31 – 35 anos</option>
+          <option value="36-40">36 – 40 anos</option>
+          <option value="41-50">41 – 50 anos</option>
+          <option value="50+">Acima de 50</option>
+        </select>
       </div>
     </div>
 
@@ -931,12 +922,12 @@ onUnmounted(() => {
 
     <div class="person-divider"></div>
 
-    <label class="field-label" style="margin-bottom:12px;display:block">O que você percebeu no comportamento dele(a)?</label>
+    <label class="field-label" style="margin-bottom:12px;display:block">O que mais tem passado pela sua cabeça nessa conversa? <span class="field-optional">(opcional)</span></label>
 
     <textarea
       class="obs-textarea"
       v-model="observations"
-      placeholder="Ex: ele(a) demora para responder, parece distante, some às vezes..."
+      placeholder="Ex: 'ele responde diferente às vezes' · 'parece distante' · 'não sei se estou exagerando' · 'às vezes demonstra interesse e depois some'"
       rows="5"
     ></textarea>
 
@@ -953,7 +944,7 @@ onUnmounted(() => {
 
     <!-- One-time warning -->
     <div class="once-warning">
-      ⚠️ Esta análise será gerada uma única vez. Revise tudo antes de continuar.
+      Quanto mais contexto você enviar, mais precisa a análise fica.
     </div>
 
     <!-- Validation errors -->
@@ -967,8 +958,26 @@ onUnmounted(() => {
 
     <button class="btn-main" v-show="showBtnGenerate" @click="startAnalysis()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Gerar análise
+      Ver os sinais da conversa
     </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- IMAGE COUNT WARNING -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="confirm-overlay" :class="{ open: showImageCountWarning }" @click.self="closeImageCountWarning()">
+  <div class="confirm-card icw-card">
+    <button class="confirm-close" @click="closeImageCountWarning()" aria-label="Fechar">×</button>
+    <h2 class="confirm-title">Você enviou {{ uploadedFiles.length }} {{ uploadedFiles.length === 1 ? 'imagem' : 'imagens' }}</h2>
+    <p class="confirm-sub">Seu plano permite até <strong>{{ planImageLimit }} imagens</strong> para uma análise mais completa.<br><br>Deseja continuar assim mesmo ou adicionar mais imagens?</p>
+    <div class="confirm-actions">
+      <button class="confirm-btn-cancel" @click="closeImageCountWarning()">Adicionar mais imagens</button>
+      <button class="confirm-btn-ok" @click="proceedFromWarning()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Continuar assim mesmo
+      </button>
+    </div>
   </div>
 </div>
 
@@ -979,9 +988,9 @@ onUnmounted(() => {
   <div class="confirm-card">
     <button class="confirm-close" @click="closeConfirmDialog()" aria-label="Fechar">×</button>
 
-    <p class="confirm-eyebrow">// verificar antes de continuar</p>
-    <h2 class="confirm-title">Os prints estão certos?</h2>
-    <p class="confirm-sub">Confirme que <strong>todos são da mesma conversa</strong> e que nenhuma imagem errada entrou. <span class="confirm-sub-hint">Toque na imagem para ampliar.</span></p>
+    <p class="confirm-eyebrow">// revisar antes de continuar</p>
+    <h2 class="confirm-title">Tudo certo com os prints?</h2>
+    <p class="confirm-sub">Confira se os prints estão <strong>na ordem certa</strong> e se nenhuma imagem importante ficou de fora. <span class="confirm-sub-hint">Toque na imagem para ampliar.</span></p>
 
     <div class="confirm-previews">
       <div v-for="preview in filePreviews" :key="preview.idx" class="confirm-thumb-wrap" @click="openLightbox(preview.src)">
@@ -991,7 +1000,7 @@ onUnmounted(() => {
     </div>
 
     <div class="confirm-actions">
-      <button class="confirm-btn-cancel" @click="closeConfirmDialog()">Corrigir imagens</button>
+      <button class="confirm-btn-cancel" @click="closeConfirmDialog()">Revisar prints</button>
       <button class="confirm-btn-ok" @click="closeConfirmDialog(); goTo(2)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
         Sim, continuar
@@ -2759,6 +2768,9 @@ body::after {
   transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
 }
 .confirm-overlay.open .confirm-card { transform: translateY(0); }
+.icw-card .confirm-actions { flex-direction: column; gap: 10px; }
+.icw-card .confirm-btn-cancel,
+.icw-card .confirm-btn-ok { width: 100%; justify-content: center; }
 .confirm-close {
   position: absolute;
   top: 16px;
