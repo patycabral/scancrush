@@ -294,6 +294,26 @@ const lightboxSrc = ref<string | null>(null)
 function openLightbox(src: string) { lightboxSrc.value = src }
 function closeLightbox() { lightboxSrc.value = null }
 
+// ── Drag to reorder previews ──
+const dragPreviewIdx = ref<number | null>(null)
+const dragOverIdx    = ref<number | null>(null)
+
+function onPreviewDragStart(visualIdx: number) {
+  dragPreviewIdx.value = visualIdx
+}
+
+function onPreviewDrop(targetIdx: number) {
+  const src = dragPreviewIdx.value
+  dragPreviewIdx.value = null
+  dragOverIdx.value    = null
+  if (src === null || src === targetIdx) return
+  const files = [...uploadedFiles.value]
+  const [moved] = files.splice(src, 1)
+  files.splice(targetIdx, 0, moved)
+  uploadedFiles.value = files
+  renderPreviews()
+}
+
 // ── Screen 4: Result ──
 const scoreBarWidth = ref('0%')
 // Cover width = inverted scoreBarWidth (dark cover from right that shrinks as score grows)
@@ -745,8 +765,8 @@ onUnmounted(() => {
       ⏳ Plano gratuito · 1 análise a cada 48h
     </p>
 
-    <h1 class="screen-title">Cole a conversa</h1>
-    <p class="screen-subtitle">Envie os prints da conversa para análise</p>
+    <h1 class="screen-title">Envie os prints da conversa</h1>
+    <p class="screen-subtitle">A análise identifica padrões, sinais e intenções com base nas mensagens enviadas.</p>
 
     <div
       class="file-drop-area"
@@ -756,18 +776,30 @@ onUnmounted(() => {
       @dragleave="onDragLeave"
       @drop="onDrop"
     >
-      <input type="file" accept="image/*" multiple @change="onFileChange" />
+      <input type="file" accept="image/jpeg,image/png,image/webp" multiple @change="onFileChange" />
       <span class="drop-icon">📱</span>
       <p class="drop-text">Arraste os prints aqui<br>ou <strong>clique para selecionar</strong></p>
-      <span class="drop-hint">JPG · PNG · WEBP · apenas imagens</span>
+      <span class="drop-hint">JPG · PNG · WEBP</span>
     </div>
 
     <div class="file-previews" v-show="filePreviews.length > 0">
-      <div v-for="preview in filePreviews" :key="preview.idx" class="preview-item">
-        <img class="preview-thumb" :src="preview.src" alt="Preview" />
+      <div
+        v-for="(preview, visualIdx) in filePreviews"
+        :key="preview.idx"
+        class="preview-item"
+        :class="{ 'is-drag-target': dragOverIdx === visualIdx }"
+        draggable="true"
+        @dragstart="onPreviewDragStart(visualIdx)"
+        @dragover.prevent="dragOverIdx = visualIdx"
+        @dragleave="dragOverIdx = null"
+        @drop.prevent="onPreviewDrop(visualIdx)"
+        @dragend="dragOverIdx = null"
+      >
+        <img class="preview-thumb" :src="preview.src" alt="Print" @click="openLightbox(preview.src)" />
         <button class="preview-remove" @click.stop="removeFile(preview.idx)" title="Remover imagem">×</button>
       </div>
     </div>
+    <p class="previews-hint" v-show="filePreviews.length > 0">Toque para ampliar · arraste para reordenar</p>
 
     <!-- Upload counter + progress bar + clear all -->
     <div class="upload-meta" v-show="showUploadMeta">
@@ -1595,6 +1627,24 @@ body::after {
   object-fit: cover;
   border: 1px solid var(--border);
   display: block;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.preview-thumb:hover { opacity: 0.85; }
+.preview-item { cursor: grab; }
+.preview-item:active { cursor: grabbing; }
+.preview-item.is-drag-target .preview-thumb {
+  opacity: 0.4;
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+.previews-hint {
+  width: 100%;
+  text-align: center;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text-3);
+  margin-bottom: 4px;
 }
 .preview-remove {
   position: absolute;
