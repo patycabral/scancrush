@@ -1,5 +1,5 @@
 -- ================================================================
--- ScanCrush — Supabase Schema  (PerfectPay · v2)
+-- ScanCrush — Supabase Schema  (PerfectPay · v3)
 -- Execute no SQL Editor do Supabase
 -- ================================================================
 
@@ -9,7 +9,6 @@
 -- Ordem importa: filhas antes de pai; views antes de tabelas.
 
 DROP VIEW     IF EXISTS customer_token_summary;
-DROP VIEW     IF EXISTS customers_full;
 
 DROP TABLE IF EXISTS messages_history  CASCADE;
 DROP TABLE IF EXISTS payments          CASCADE;
@@ -26,8 +25,6 @@ DROP INDEX IF EXISTS idx_payments_customer;
 DROP INDEX IF EXISTS idx_messages_history_session;
 DROP INDEX IF EXISTS idx_messages_history_customer;
 
--- DROP TRIGGER não é necessário: DROP TABLE ... CASCADE já remove triggers.
-DROP FUNCTION IF EXISTS update_customer_age() CASCADE;
 DROP FUNCTION IF EXISTS cleanup_expired_sessions();
 
 -- Depois cole e execute o restante deste arquivo para recriar tudo.
@@ -35,22 +32,19 @@ DROP FUNCTION IF EXISTS cleanup_expired_sessions();
 
 -- ================================================================
 -- TABELA: customers
--- Perfil do usuário — pagantes (via PerfectPay) e usuários do plano free.
+-- Perfil do comprador — criado por WF01 após pagamento via PerfectPay.
+-- Usuários do plano free não geram registro em customers.
 --
--- Campos preenchidos por fluxo:
---   WF01 (pago via PerfectPay): full_name, first_name, email, mobile,
---                               identification_type, identification_number,
---                               country, ip
---   WF04 (free): nenhum — análise free não cria customer
---
--- birth_date e age: preenchidos somente se o fluxo de análise (WF03)
---   incluir nó de UPDATE com os dados do formulário de scan.
+-- Campos preenchidos por WF01 (webhook PerfectPay):
+--   full_name, first_name, email, mobile,
+--   identification_type, identification_number,
+--   country, ip
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS customers (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Nome completo do comprador (via PerfectPay).
+  -- Nome completo do comprador (via PerfectPay). Obrigatório.
   full_name  TEXT NOT NULL,
 
   -- Primeiro nome. Usado para personalizar e-mails.
@@ -58,14 +52,6 @@ CREATE TABLE IF NOT EXISTS customers (
 
   -- E-mail do comprador (via PerfectPay).
   email      TEXT,
-
-  -- Data de nascimento — coletada pelo formulário de scan.
-  -- Atualmente nenhum fluxo n8n a salva automaticamente.
-  birth_date DATE,
-
-  -- Idade calculada pela trigger trg_customer_age ao INSERT.
-  -- NULL quando birth_date não foi informado.
-  age        INTEGER,
 
   -- Telefone do comprador, ex: +5511999999999
   mobile     TEXT,
@@ -78,7 +64,6 @@ CREATE TABLE IF NOT EXISTS customers (
   identification_type   TEXT,
 
   -- Número do documento (identification-number via PerfectPay).
-  -- Ex: "00000000000"
   -- Armazenar conforme política LGPD.
   identification_number TEXT,
 
@@ -100,65 +85,23 @@ CREATE INDEX IF NOT EXISTS idx_customers_fullname
 
 
 -- ================================================================
--- TRIGGER: trg_customer_age
--- Calcula age a partir de birth_date no momento do INSERT.
--- ================================================================
-
-CREATE OR REPLACE FUNCTION update_customer_age()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NEW.birth_date IS NOT NULL THEN
-    NEW.age := DATE_PART('year', AGE(now()::DATE, NEW.birth_date))::INTEGER;
-  ELSE
-    NEW.age := NULL;
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_customer_age
-  BEFORE INSERT ON customers
-  FOR EACH ROW
-  EXECUTE FUNCTION update_customer_age();
-
-
--- ================================================================
--- VIEW: customers_full
--- Adiciona age_at_analysis: idade do cliente no momento do cadastro
--- (congelada no histórico, diferente da idade atual).
--- ================================================================
-
-CREATE VIEW customers_full
-  WITH (security_invoker = true)
-AS
-SELECT
-  *,
-  DATE_PART('year', AGE(created_at::DATE, birth_date))::INTEGER AS age_at_analysis
-FROM customers;
-
-
--- ================================================================
 -- TABELA: sessions
 -- Token de acesso para UMA análise paga.
 -- Criada por WF01 após pagamento aprovado via PerfectPay.
 -- Lida por WF02 (validate-token) e atualizada por WF03 (analyze).
 --
 -- Ciclo de vida:
---   1. WF01 cria a sessão (used=false, expires_at=now()+6h)
---   2. Frontend valida via WF02 → recebe plan e max_images
---   3. Frontend envia prints → WF03 processa análise
+--   1. WF01 cria a sessão (used=false, expires_at=now()+30d)
+--   2. Frontend valida via WF02 → recebe plan e max_prints
+--   3. Frontend envia prints + formulário → WF03 processa análise
 --   4. WF03 atualiza: score, result_json, model, tokens_*, used=true
 --
--- Campos obrigatórios (WF01 deve fornecer):
+-- Campos obrigatórios na criação (WF01):
 --   order_id, customer_id, plan
 --
--- Campos opcionais na criação (WF01):
---   user_name, plan_id, product_name
---   access_token (gerado automaticamente pelo banco)
---
 -- Campos preenchidos na análise (WF03):
---   crush_name, crush_age_range, feelings, behavior_notes
---   score, result_json, model, tokens_input, tokens_output, used
+--   user_age_range, crush_age_range, feelings, observations,
+--   image_count, score, result_json, model, tokens_*, used=true
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -177,22 +120,32 @@ CREATE TABLE IF NOT EXISTS sessions (
   -- true quando a análise já foi realizada.
   used         BOOLEAN NOT NULL DEFAULT false,
 
-  -- Expiração automática: now() + 6 horas.
-  expires_at   TIMESTAMPTZ NOT NULL DEFAULT now() + INTERVAL '6 hours',
+  -- Expiração: 30 dias após a criação da sessão.
+  expires_at   TIMESTAMPTZ NOT NULL DEFAULT now() + INTERVAL '30 days',
 
   -- Nome do comprador (first_name via PerfectPay).
   user_name    TEXT,
 
-  -- ── Contexto da análise (preenchido quando o usuário envia o formulário)
-  crush_name      TEXT,
+  -- ── Contexto da análise (preenchido pelo WF03 com dados do formulário)
+
+  -- Faixa etária do usuário. Ex: "21-25", "26-30", "não informado"
+  user_age_range  TEXT,
+
+  -- Faixa etária do crush. Ex: "18-20", "null" (não informado)
   crush_age_range TEXT,
+
+  -- Sentimentos selecionados no formulário. Ex: "ansiosa, curiosa"
   feelings        TEXT,
-  behavior_notes  TEXT,
+
+  -- Observações livres digitadas pelo usuário.
+  observations    TEXT,
+
+  -- Quantidade de imagens enviadas para análise.
+  image_count     INTEGER,
 
   -- Plano contratado. Obrigatório.
-  -- Aceita o valor direto do PerfectPay (plan-name) ou identificador interno.
-  -- Ex: "Raio-X do Crush", "Sinais Revelados", "raiox", "revealed"
-  -- WF02 (validate-token) usa este campo para determinar max_images.
+  -- Ex: "revealed", "raiox"
+  -- WF02 usa este campo para determinar max_prints.
   plan         TEXT NOT NULL,
 
   -- ID do plano na PerfectPay (plan-id), ex: "PPLQQPF70".
@@ -202,8 +155,6 @@ CREATE TABLE IF NOT EXISTS sessions (
   product_name TEXT,
 
   -- ── Tokens do Analista Emocional (etapa de análise, salvo pelo WF03) ─
-  -- Estes são os tokens usados pela chamada principal ao Claude/GPT.
-  -- Tokens de OCR ficam em messages_history.
   tokens_input   INTEGER DEFAULT 0,
   tokens_output  INTEGER DEFAULT 0,
   tokens_total   INTEGER GENERATED ALWAYS AS (
@@ -211,7 +162,6 @@ CREATE TABLE IF NOT EXISTS sessions (
                  ) STORED,
 
   -- Modelo de IA usado na análise principal (ex: "claude-opus-4-7").
-  -- Opcional — preenchido ao concluir a análise (WF03).
   model        TEXT,
 
   -- Score de interesse (0–100) retornado pela IA. NULL até a análise.
@@ -248,7 +198,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_active
 --   product-id            → product_id
 --   product-name          → product_name
 --   plan-id               → plan_id
---   plan-name             → plan_name  (mapeado para plano interno)
+--   plan-name             → plan_name
 --   valor-venda           → amount            (NUMERIC, ex: 44.90)
 --   payment-method        → payment_method
 --   card-type             → card_type
@@ -262,7 +212,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_active
 CREATE TABLE IF NOT EXISTS payments (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Plataforma de pagamento. Ex: "perfectpay", "Perfect Pay", "stripe"
+  -- Plataforma de pagamento. Ex: "perfectpay"
   provider     TEXT NOT NULL,
 
   -- ID do pedido PerfectPay. UNIQUE = idempotência garantida.
@@ -473,10 +423,6 @@ DROP POLICY IF EXISTS "deny_all_customers"           ON customers;
 DROP POLICY IF EXISTS "deny_all_sessions"            ON sessions;
 DROP POLICY IF EXISTS "deny_all_payments"            ON payments;
 DROP POLICY IF EXISTS "deny_all_messages_history"    ON messages_history;
-DROP POLICY IF EXISTS "allow_insert_customers"       ON customers;
-DROP POLICY IF EXISTS "allow_insert_sessions"        ON sessions;
-DROP POLICY IF EXISTS "allow_insert_payments"        ON payments;
-DROP POLICY IF EXISTS "allow_insert_messages_history" ON messages_history;
 
 -- Bloquear tudo para anon (todo acesso real é via service_role no n8n)
 CREATE POLICY "deny_all_customers"        ON customers        FOR ALL USING (false);
