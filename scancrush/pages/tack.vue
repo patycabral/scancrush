@@ -1,47 +1,5 @@
 <script setup lang="ts">
-useHead({ title: 'ScanCrush — Preparando seu acesso...' })
-
-const token = ref('')
-const plan  = ref('')
-const seconds = ref(5)
-const progress = ref(0)
-
-let interval: ReturnType<typeof setInterval> | null = null
-
-onMounted(() => {
-  const params = new URLSearchParams(window.location.search)
-  token.value = params.get('token') ?? ''
-  plan.value  = params.get('plan')  ?? ''
-
-  if (!token.value) return
-
-  const total = seconds.value * 1000
-  const step  = 50 // ms
-  let elapsed = 0
-
-  interval = setInterval(() => {
-    elapsed += step
-    progress.value = Math.min((elapsed / total) * 100, 100)
-
-    const remaining = Math.ceil((total - elapsed) / 1000)
-    seconds.value = remaining > 0 ? remaining : 0
-
-    if (elapsed >= total) {
-      clearInterval(interval!)
-      redirect()
-    }
-  }, step)
-})
-
-onUnmounted(() => {
-  if (interval) clearInterval(interval)
-})
-
-function redirect() {
-  if (token.value) {
-    window.location.href = `/scan?token=${token.value}`
-  }
-}
+useHead({ title: 'ScanCrush — Pagamento confirmado' })
 </script>
 
 <template>
@@ -51,25 +9,19 @@ function redirect() {
       <div class="tack-icon">✓</div>
 
       <h1 class="tack-title">Pagamento confirmado.</h1>
-      <p class="tack-sub">Estamos preparando seu acesso…</p>
-      <p class="tack-email-notice">Também enviamos seu link de acesso para o e-mail cadastrado na compra.</p>
-
-      <div class="tack-progress-wrap">
-        <div class="tack-progress-bar" :style="{ width: progress + '%' }"></div>
-      </div>
-
-      <p class="tack-countdown">
-        Redirecionando em <span>{{ seconds }}</span> segundo{{ seconds !== 1 ? 's' : '' }}…
+      <p class="tack-sub">
+        Enviamos o link de acesso ao ScanCrush para o e-mail cadastrado na compra.
+      </p>
+      <p class="tack-hint">
+        Verifique sua caixa de entrada — e também a pasta de spam, caso não encontre.
       </p>
 
-      <button v-if="token" class="tack-btn" @click="redirect()">
-        Se não redirecionar, clique aqui
-      </button>
+      <div class="tack-divider"></div>
 
-      <div v-if="!token" class="tack-error-box">
-        <p class="tack-error">Houve um erro ao processar seu acesso.</p>
-        <p class="tack-error-hint">Entre em contato com o nosso suporte, através do e-mail: suporte@scancrush.com, para que possamos resolver.</p>
-      </div>
+      <p class="tack-support">
+        Algum problema? Fale com a gente:<br/>
+        <a href="mailto:suporte@scancrush.com">suporte@scancrush.com</a>
+      </p>
 
     </div>
   </div>
@@ -113,79 +65,43 @@ function redirect() {
   font-size: 22px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .tack-sub {
   font-size: 14px;
   color: var(--text-2);
-  margin-bottom: 12px;
+  line-height: 1.65;
+  margin-bottom: 10px;
 }
 
-.tack-email-notice {
+.tack-hint {
   font-size: 12px;
   color: var(--text-3);
-  margin-bottom: 32px;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin-bottom: 0;
 }
 
-.tack-progress-wrap {
-  height: 4px;
+.tack-divider {
+  width: 100%;
+  height: 1px;
   background: rgba(255,255,255,0.06);
-  border-radius: 100px;
-  overflow: hidden;
-  margin-bottom: 16px;
+  margin: 28px 0;
 }
 
-.tack-progress-bar {
-  height: 100%;
-  background: var(--pink);
-  border-radius: 100px;
-  transition: width 50ms linear;
-}
-
-.tack-countdown {
-  font-size: 13px;
-  color: var(--text-2);
-  margin-bottom: 28px;
-}
-
-.tack-countdown span {
-  color: var(--text);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.tack-btn {
-  font-size: 13px;
-  color: var(--text-2);
-  background: none;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 100px;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
-}
-
-.tack-btn:hover {
-  color: var(--text);
-  border-color: rgba(255,255,255,0.2);
-}
-
-.tack-error-box {
-  margin-top: 8px;
-  padding: 16px;
-  background: rgba(255,45,107,0.06);
-  border: 1px solid var(--pink-border);
-  border-radius: 10px;
-}
-.tack-error {
-  font-size: 13px;
-  color: var(--pink);
-  margin-bottom: 4px;
-}
-.tack-error-hint {
+.tack-support {
   font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.7;
+}
+
+.tack-support a {
   color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .tack-card { padding: 36px 24px; }
 }
 </style>
