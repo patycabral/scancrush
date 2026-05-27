@@ -52,6 +52,7 @@ function redirect() {
 
       <h1 class="tack-title">Pagamento confirmado.</h1>
       <p class="tack-sub">Estamos preparando seu acesso…</p>
+      <p class="tack-email-notice">Também enviamos seu link de acesso para o e-mail cadastrado na compra.</p>
 
       <div class="tack-progress-wrap">
         <div class="tack-progress-bar" :style="{ width: progress + '%' }"></div>
@@ -118,7 +119,14 @@ function redirect() {
 .tack-sub {
   font-size: 14px;
   color: var(--text-2);
+  margin-bottom: 12px;
+}
+
+.tack-email-notice {
+  font-size: 12px;
+  color: var(--text-3);
   margin-bottom: 32px;
+  line-height: 1.5;
 }
 
 .tack-progress-wrap {
