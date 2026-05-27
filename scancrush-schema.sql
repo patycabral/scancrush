@@ -325,6 +325,9 @@ CREATE TABLE IF NOT EXISTS messages_history (
   -- Índice do print (1 para primeira imagem, 2 para segunda, etc.)
   print_count    INTEGER DEFAULT 0,
 
+  -- Nome original do arquivo enviado pelo usuário. Ex: "screenshot_001.jpg"
+  image_name     TEXT,
+
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
