@@ -308,10 +308,36 @@ function proceedFromWarning() {
 // ── Confirm dialog (pre-send) ──
 const showConfirmDialog = ref(false)
 
+// Scroll state for the confirm previews carousel
+const confirmPreviewsEl   = ref<HTMLElement | null>(null)
+const confirmScrollLeft   = ref(0)
+const confirmCanScrollRight = ref(false)
+
+function onConfirmScroll() {
+  const el = confirmPreviewsEl.value
+  if (!el) return
+  confirmScrollLeft.value     = el.scrollLeft
+  confirmCanScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 2
+}
+
+function scrollConfirm(dir: 1 | -1) {
+  confirmPreviewsEl.value?.scrollBy({ left: dir * 200, behavior: 'smooth' })
+}
+
+function updateConfirmScroll() {
+  nextTick(() => {
+    const el = confirmPreviewsEl.value
+    if (!el) return
+    confirmScrollLeft.value     = 0
+    confirmCanScrollRight.value = el.scrollWidth > el.clientWidth + 2
+  })
+}
+
 function openConfirmDialog() {
   if (uploadedFiles.value.length === 0) return
   showConfirmDialog.value = true
   if (import.meta.client) document.body.style.overflow = 'hidden'
+  updateConfirmScroll()
 }
 
 function closeConfirmDialog() {
@@ -360,45 +386,35 @@ const resultData = ref<any>(null)
 const resultCta  = ref<any>(null)
 const resultRelDyn = ref<any>(null)      // raiox only: relationship_dynamics
 
-// ── Result timer (urgency) ──
-const resultTimerSeconds = ref(15 * 60) // 15 minutos
-const resultTimerDisplay = computed(() => {
-  const m = Math.floor(resultTimerSeconds.value / 60)
-  const s = resultTimerSeconds.value % 60
-  return `${m}:${String(s).padStart(2, '0')}`
-})
-const resultTimerUrgent = computed(() => resultTimerSeconds.value < 3 * 60)
-let resultTimerInterval: ReturnType<typeof setInterval> | null = null
 
-function startResultTimer() {
-  resultTimerSeconds.value = 15 * 60
-  if (resultTimerInterval) clearInterval(resultTimerInterval)
-  resultTimerInterval = setInterval(() => {
-    if (resultTimerSeconds.value > 0) {
-      resultTimerSeconds.value--
-    } else {
-      clearInterval(resultTimerInterval!)
-    }
-  }, 1000)
-}
-
-
-/** Extrai texto de um item que pode ser string ou objeto {label, text, description} */
+/** Extrai texto de um item que pode ser string ou objeto {label, text, description, situation} */
 function txt(item: any): string {
   if (!item) return ''
   if (typeof item === 'string') return item
-  return item.label || item.title || item.text || item.description || ''
+  return item.label || item.title || item.text || item.description || item.situation || ''
+}
+
+/** Extrai subtexto complementar de um item (ex: contradiction de inconsistencies) */
+function txtSub(item: any): string {
+  if (!item || typeof item === 'string') return ''
+  return item.contradiction || item.explanation || item.subtitle || ''
 }
 
 /** Mapeia situation_label.level → texto do pill */
 function verdictText(level: string | null): string {
   const map: Record<string, string> = {
-    cilada:  '🚨 Atenção: sinais preocupantes',
-    atencao: '⚠️ Prossiga com cautela',
-    duvida:  '🤔 Situação ambígua',
-    seguro:  '✅ Sinais positivos',
+    cilada:    '🚨 Atenção: sinais preocupantes',
+    'atenção': '⚠️ Prossiga com cautela',
+    atencao:   '⚠️ Prossiga com cautela',
+    'dúvida':  '🤔 Situação ambígua',
+    duvida:    '🤔 Situação ambígua',
+    seguro:    '✅ Sinais positivos',
   }
   return map[level ?? ''] ?? '— Resultado gerado'
+}
+
+function downloadPdf() {
+  if (import.meta.client) window.print()
 }
 
 function updateNewAnalysisBtn() {
@@ -517,13 +533,21 @@ async function startAnalysis() {
     // ── Sucesso: popular dados do resultado ─────────────────────
     const plan = data.plan ?? currentPlan.value
     resultPlan.value  = plan
+    currentPlan.value = plan   // atualiza isFree para desbloquear conteúdo pago
 
     // data pode chegar como string JSON ou array do n8n — parsear/desempacotar
-    const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? {})
+    const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
     resultData.value  = Array.isArray(rawData) ? (rawData[0] ?? {}) : rawData
     // cta é sempre string de texto — nunca JSON.parse
     resultCta.value   = data.cta ?? null
-    resultRelDyn.value = data.relationship_dynamics ?? null
+
+    // relationship_dynamics: pode vir na raiz (legado) ou normalizado no webhook_response
+    const relDyn = data.relationship_dynamics ?? data.analysis?.executive_summary?.relationship_dynamics ?? null
+    resultRelDyn.value = relDyn ? {
+      'Análise do Usuário (você)': relDyn.user   ?? relDyn['Análise do Usuário (você)'] ?? null,
+      'Análise do(a) Crush':       relDyn.crush  ?? relDyn['Análise do(a) Crush']       ?? null,
+      'Conclusão':                 relDyn.conclusion ?? data.analysis?.executive_summary?.conclusion ?? null,
+    } : null
 
     if (msgInterval) clearInterval(msgInterval)
     if (progressInterval) clearInterval(progressInterval)
@@ -531,7 +555,6 @@ async function startAnalysis() {
     await new Promise(r => setTimeout(r, 400)) // breve flash nos 100% antes de trocar tela
     goTo(4)
     updateNewAnalysisBtn()
-    startResultTimer()
 
     // Animar barra do score após render
     const score = resultData.value?.interest_score ?? 0
@@ -758,7 +781,6 @@ onMounted(async () => {
 onUnmounted(() => {
   if (msgInterval) clearInterval(msgInterval)
   if (progressInterval) clearInterval(progressInterval)
-  if (resultTimerInterval) clearInterval(resultTimerInterval)
   window.removeEventListener('keydown', onKeydown)
   filePreviews.value.forEach(p => URL.revokeObjectURL(p.src))
 })
@@ -1081,14 +1103,21 @@ onUnmounted(() => {
 
     <p class="confirm-eyebrow">// revisar antes de continuar</p>
     <h2 class="confirm-title">Tudo certo com os prints?</h2>
-    <p class="confirm-sub">Confira se os prints estão <strong>na ordem certa</strong> e se nenhuma imagem importante ficou de fora. <span class="confirm-sub-hint">Toque na imagem para ampliar.</span></p>
+    <p class="confirm-sub">Confira se os prints estão <strong>na ordem certa</strong> e se nenhuma imagem importante ficou de fora.</p>
+    <p class="confirm-sub-hint">Toque na imagem para ampliar.</p>
 
-    <div class="confirm-previews">
-      <div v-for="(preview, ci) in filePreviews" :key="preview.idx" class="confirm-thumb-wrap" @click="openLightbox(preview.src)">
-        <img class="confirm-thumb" :src="preview.src" alt="Print" />
-        <span class="confirm-thumb-order">{{ ci + 1 }}</span>
-        <div class="confirm-thumb-zoom">🔍</div>
+    <div class="confirm-previews-wrap">
+      <div class="confirm-fade-left"  v-if="confirmScrollLeft > 0"></div>
+      <button class="confirm-nav-btn confirm-nav-left"  v-if="confirmScrollLeft > 0"  @click="scrollConfirm(-1)" aria-label="Anterior">‹</button>
+      <div class="confirm-previews" ref="confirmPreviewsEl" @scroll="onConfirmScroll">
+        <div v-for="(preview, ci) in filePreviews" :key="preview.idx" class="confirm-thumb-wrap" @click="openLightbox(preview.src)">
+          <img class="confirm-thumb" :src="preview.src" alt="Print" />
+          <span class="confirm-thumb-order">{{ ci + 1 }}</span>
+          <div class="confirm-thumb-zoom">🔍</div>
+        </div>
       </div>
+      <button class="confirm-nav-btn confirm-nav-right" v-if="confirmCanScrollRight" @click="scrollConfirm(1)"  aria-label="Próximo">›</button>
+      <div class="confirm-fade-right" v-if="confirmCanScrollRight"></div>
     </div>
 
     <div class="confirm-actions">
@@ -1148,7 +1177,8 @@ onUnmounted(() => {
 
   <div class="result-notice-wrap" v-if="!isFree">
     <div class="result-notice-card">
-      ⚠️ Não atualize nem feche esta página — o resultado não fica salvo e não poderá ser recuperado.
+      ⚠️ Não atualize nem feche esta página — o resultado não fica salvo.<br>
+      <span style="opacity:0.75;font-size:12px;">Uma cópia foi enviada para o seu e-mail.</span>
     </div>
   </div>
 
@@ -1218,31 +1248,62 @@ onUnmounted(() => {
     </div>
 
     <!-- ── Comportamento (plano pago) ── -->
-    <div v-if="!isFree && resultData?.behavior" class="signals-card">
+    <div v-if="!isFree && (resultData?.behavior || resultData?.user_posture)" class="signals-card">
       <div class="signals-title">Comportamento</div>
-      <div v-if="resultData.behavior.engagement_level" class="behavior-row">
-        <span class="behavior-label">Engajamento</span>
-        <span class="behavior-val">{{ resultData.behavior.engagement_level }}</span>
-      </div>
-      <div v-if="resultData.behavior.consistency" class="behavior-row">
-        <span class="behavior-label">Consistência</span>
-        <span class="behavior-val">{{ resultData.behavior.consistency }}</span>
-      </div>
-      <div v-if="resultData.behavior.response_pattern" class="behavior-row">
-        <span class="behavior-label">Padrão de resposta</span>
-        <span class="behavior-val">{{ resultData.behavior.response_pattern }}</span>
-      </div>
+      <template v-if="resultData?.behavior">
+        <div v-if="resultData.behavior.engagement_level" class="behavior-row">
+          <span class="behavior-label">Engajamento</span>
+          <span class="behavior-val">{{ resultData.behavior.engagement_level }}</span>
+        </div>
+        <div v-if="resultData.behavior.consistency" class="behavior-row">
+          <span class="behavior-label">Consistência</span>
+          <span class="behavior-val">{{ resultData.behavior.consistency }}</span>
+        </div>
+        <div v-if="resultData.behavior.response_pattern" class="behavior-row">
+          <span class="behavior-label">Padrão de resposta</span>
+          <span class="behavior-val">{{ resultData.behavior.response_pattern }}</span>
+        </div>
+      </template>
+      <template v-if="resultData?.user_posture">
+        <div class="behavior-row" style="align-items:flex-start">
+          <span class="behavior-label">Sua postura</span>
+          <span class="behavior-val" style="flex:1">
+            <span style="color:var(--pink);font-weight:500;text-transform:capitalize">{{ resultData.user_posture.level }}</span>
+            <span v-if="resultData.user_posture.explanation" style="display:block;font-size:12px;color:var(--text-3);margin-top:4px;line-height:1.5">{{ resultData.user_posture.explanation }}</span>
+          </span>
+        </div>
+      </template>
     </div>
 
     <!-- ── Highlights / Padrões ocultos / Inconsistências (revealed+) ── -->
-    <template v-if="!isFree && (resultData?.highlights?.length || resultData?.hidden_patterns?.length || resultData?.inconsistencies?.length)">
+    <template v-if="!isFree && (resultData?.highlights?.length || resultData?.hidden_patterns?.length || resultData?.inconsistencies?.length || resultData?.emotional_profile || resultData?.deep_analysis?.length)">
       <div class="signals-card">
         <div class="signals-title">Leitura mais profunda</div>
 
         <template v-if="resultData?.highlights?.length">
           <div class="signal-section-label">Destaques</div>
-          <div v-for="(item, i) in resultData.highlights" :key="'hl'+i" class="signal-item">
-            <span class="sig-dot y"></span>{{ txt(item) }}
+          <div v-for="(item, i) in resultData.highlights" :key="'hl'+i" class="highlight-card">
+            <div class="highlight-quote">"{{ txt(item) }}"</div>
+            <div v-if="txtSub(item)" class="highlight-exp">{{ txtSub(item) }}</div>
+          </div>
+        </template>
+
+        <template v-if="resultData?.inconsistencies?.length">
+          <div class="signal-section-label" style="margin-top:10px">Inconsistências</div>
+          <div v-for="(item, i) in resultData.inconsistencies" :key="'ic'+i" class="signal-item" style="flex-direction:column; align-items:flex-start; gap:2px;">
+            <span style="display:flex; align-items:flex-start; gap:6px;">
+              <span class="sig-dot r" style="margin-top:5px;"></span>
+              <span>{{ txt(item) }}</span>
+            </span>
+            <span v-if="txtSub(item)" style="font-size:11px; color:var(--text-3); padding-left:14px; line-height:1.5;">{{ txtSub(item) }}</span>
+          </div>
+        </template>
+
+        <template v-if="resultData?.emotional_profile">
+          <div class="signal-section-label" style="margin-top:10px">Perfil emocional</div>
+          <div class="highlight-card" style="background:rgba(155,93,229,0.06); border-color:rgba(155,93,229,0.15)">
+            <div class="highlight-quote" style="color:var(--purple);font-style:normal;font-weight:500">{{ resultData.emotional_profile.type }}</div>
+            <div v-if="resultData.emotional_profile.description" class="highlight-exp">{{ resultData.emotional_profile.description }}</div>
           </div>
         </template>
 
@@ -1252,13 +1313,16 @@ onUnmounted(() => {
             <span class="sig-dot r"></span>{{ txt(item) }}
           </div>
         </template>
+      </div>
+    </template>
 
-        <template v-if="resultData?.inconsistencies?.length">
-          <div class="signal-section-label" style="margin-top:10px">Inconsistências</div>
-          <div v-for="(item, i) in resultData.inconsistencies" :key="'ic'+i" class="signal-item">
-            <span class="sig-dot r"></span>{{ txt(item) }}
-          </div>
-        </template>
+    <!-- ── Análise aprofundada (raiox only) ── -->
+    <template v-if="!isFree && resultData?.deep_analysis?.length">
+      <div class="signals-card">
+        <div class="signals-title">Análise aprofundada</div>
+        <div v-for="(paragraph, i) in resultData.deep_analysis" :key="'da'+i" class="deep-paragraph">
+          {{ paragraph }}
+        </div>
       </div>
     </template>
 
@@ -1278,17 +1342,23 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- ── Score explanation (revealed+) ── -->
-    <div v-if="!isFree && resultData?.score_explanation?.reason" class="result-summary-card">
-      <p class="result-summary-text" style="font-size:13px;opacity:0.8">
-        {{ resultData.score_explanation.reason }}
-      </p>
+    <!-- ── Veredicto final (plano pago) ── -->
+    <div v-if="!isFree && resultData?.final_verdict" class="final-verdict-card">
+      <p class="final-verdict-text">{{ resultData.final_verdict }}</p>
     </div>
 
     <!-- ── Mensagem final (plano pago) ── -->
     <p v-if="!isFree && resultData?.final_message" class="result-final-msg">
       {{ resultData.final_message }}
     </p>
+
+    <!-- ── Download PDF (plano pago) ── -->
+    <div v-if="!isFree" class="pdf-btn-wrap">
+      <button class="btn-pdf" @click="downloadPdf()">
+        ⬇ Baixar resultado em PDF
+      </button>
+      <p class="pdf-hint">O PDF abre a janela de impressão do seu navegador — selecione "Salvar como PDF".</p>
+    </div>
 
     <!-- ── Resultado gratuito ── -->
     <template v-if="isFree">
@@ -1324,10 +1394,6 @@ onUnmounted(() => {
       </button>
     </template>
 
-    <div v-if="!isFree" class="result-timer" :class="{ urgent: resultTimerUrgent }">
-      <span class="result-timer-icon">⏳</span>
-      <span>Este relatório some em <strong>{{ resultTimerDisplay }}</strong></span>
-    </div>
 
   </div>
 </div>
@@ -2173,29 +2239,6 @@ body::after {
   width: 100%;
 }
 
-/* ── RESULT TIMER ── */
-.result-timer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-3);
-  font-family: var(--mono);
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.02);
-  margin-top: 8px;
-  transition: all 0.4s;
-}
-.result-timer strong { color: var(--text-2); }
-.result-timer.urgent {
-  border-color: rgba(255,77,77,0.3);
-  background: rgba(255,77,77,0.06);
-  color: var(--danger);
-}
-.result-timer.urgent strong { color: var(--danger); }
 
 /* ── RESULT SCREEN ── */
 .result-body {
@@ -3042,6 +3085,107 @@ body::after {
   line-height: 1.6;
 }
 
+/* ── HIGHLIGHT CARDS ── */
+.highlight-card {
+  background: rgba(255,184,0,0.04);
+  border: 1px solid rgba(255,184,0,0.15);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.highlight-card:last-child { margin-bottom: 0; }
+.highlight-quote {
+  font-size: 13px;
+  font-style: italic;
+  color: #FFB800;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.highlight-exp {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.6;
+}
+
+/* ── DEEP ANALYSIS PARAGRAPHS ── */
+.deep-paragraph {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.7;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.deep-paragraph:last-child { border-bottom: none; }
+
+/* ── FINAL VERDICT CARD ── */
+.final-verdict-card {
+  width: 100%;
+  background: rgba(255,45,107,0.05);
+  border: 1px solid rgba(255,45,107,0.2);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+.final-verdict-text {
+  font-size: 14px;
+  color: var(--text-1);
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ── PDF DOWNLOAD BUTTON ── */
+.pdf-btn-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.btn-pdf {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text-3);
+  border-radius: 10px;
+  padding: 11px 22px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-pdf:hover {
+  border-color: rgba(255,255,255,0.35);
+  color: var(--text-2);
+}
+.pdf-hint {
+  font-size: 11px;
+  color: var(--text-3);
+  text-align: center;
+  margin: 0;
+  opacity: 0.7;
+}
+
+/* ── PRINT STYLES ── */
+@media print {
+  .screen { display: none !important; }
+  .screen.active { display: block !important; }
+  .screen-header,
+  .result-notice-wrap,
+  .free-upgrade-card,
+  .locked-card,
+  .cta-result-card,
+  .pdf-btn-wrap,
+  .btn-new-analysis,
+  .header-action { display: none !important; }
+  body { background: #fff !important; color: #111 !important; }
+  .result-body { padding: 16px !important; }
+  .score-card, .signals-card, .result-summary-card,
+  .highlight-card, .final-verdict-card {
+    border: 1px solid #ddd !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+}
+
 /* ── CONFIRM DIALOG ── */
 .confirm-overlay {
   position: fixed;
@@ -3118,18 +3262,62 @@ body::after {
   font-size: 13px;
   color: var(--text-2);
   line-height: 1.7;
-  margin-bottom: 24px;
+  margin-bottom: 6px;
 }
 .confirm-sub strong { color: var(--text); }
+.confirm-sub-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-3);
+  margin-bottom: 20px;
+}
+.confirm-previews-wrap {
+  position: relative;
+  margin-bottom: 24px;
+}
 .confirm-previews {
   display: flex;
   gap: 10px;
   overflow-x: auto;
   padding-bottom: 4px;
-  margin-bottom: 24px;
   scrollbar-width: none;
 }
 .confirm-previews::-webkit-scrollbar { display: none; }
+.confirm-fade-left,
+.confirm-fade-right {
+  position: absolute;
+  top: 0;
+  bottom: 4px;
+  width: 48px;
+  pointer-events: none;
+  z-index: 1;
+}
+.confirm-fade-left  { left: 0;  background: linear-gradient(to right, var(--surface), transparent); }
+.confirm-fade-right { right: 0; background: linear-gradient(to left,  var(--surface), transparent); }
+.confirm-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(20,20,30,0.85);
+  backdrop-filter: blur(6px);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.confirm-nav-btn:hover { background: rgba(255,45,107,0.15); border-color: var(--pink-border); }
+.confirm-nav-left  { left: 4px; }
+.confirm-nav-right { right: 4px; }
 .confirm-thumb-wrap {
   flex-shrink: 0;
   width: 80px;
