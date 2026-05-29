@@ -73,6 +73,8 @@ function handleFiles(newFiles: FileList | File[]) {
   const limit = getImageLimit()
   const imgs = Array.from(newFiles).filter(f => f.type.startsWith('image/'))
   if (!imgs.length) return
+  // iOS returns files in reverse selection order when selecting multiple at once; restore intended order
+  if (imgs.length > 1) imgs.reverse()
 
   const slots = limit - uploadedFiles.value.length
   if (slots <= 0) { updateUploadUI(); return }
@@ -168,23 +170,13 @@ const showAnalysisBlockedMsg = ref(false)
 const showBtnGenerate = ref(true)
 
 const TAGS = [
-  'animada', 'empolgada', 'feliz', 'curiosa', 'esperançosa', 'confiante',
-  'gostando dele(a)',
-  'confusa', 'ansiosa', 'insegura', 'com medo de perder',
-  'carente', 'frustrada', 'magoada',
-  'me sentindo ignorada', 'parecendo que só eu me esforço',
+  'animada', 'feliz', 'confusa', 'ansiosa',
+  'carente', 'curiosa', 'magoada', 'insegura',
+  'frustrada', 'empolgada', 'confiante',
+  'esperançosa', 'gostando dele(a)',
+  'com medo de perder', 'me sentindo ignorada',
+  'parecendo que só eu me esforço',
 ]
-
-// Shuffle tags (Fisher-Yates)
-const shuffledTags = ref<string[]>([])
-function shuffleTags() {
-  const arr = [...TAGS]
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[arr[i], arr[j]] = [arr[j], arr[i]]
-  }
-  shuffledTags.value = arr
-}
 
 function toggleTag(tag: string) {
   const idx = selectedTags.value.indexOf(tag)
@@ -381,10 +373,11 @@ const btnNewAnalysisText = ref('Nova análise')
 const btnNewAnalysisStyle = ref({})
 
 // Dados do resultado vindos do webhook
-const resultPlan = ref('')
-const resultData = ref<any>(null)
-const resultCta  = ref<any>(null)
-const resultRelDyn = ref<any>(null)      // raiox only: relationship_dynamics
+const resultPlan     = ref('')
+const resultData     = ref<any>(null)
+const resultCta      = ref<any>(null)
+const resultRelDyn   = ref<any>(null)
+const resultUserName = ref<string>('')   // nome da usuária para normalização de texto
 
 
 /** Extrai texto de um item que pode ser string ou objeto {label, text, description, situation} */
@@ -399,6 +392,54 @@ function txtSub(item: any): string {
   if (!item || typeof item === 'string') return ''
   return item.contradiction || item.explanation || item.subtitle || ''
 }
+
+/** Normaliza texto da IA: CRUSH → Crush, nome da usuária → você */
+function norm(text: string): string {
+  if (!text) return text
+  let t = text.replace(/\bCRUSH\b/g, 'Crush')
+  if (resultUserName.value) {
+    const firstName = resultUserName.value.split(' ')[0]
+    if (firstName && firstName.toLowerCase() !== 'você') {
+      try {
+        const escaped = firstName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        t = t
+          .replace(new RegExp(`\\b${escaped}\\b`, 'g'), 'você')
+          .replace(/\bvocê ocupa\b/gi, 'Você ocupa')
+          .replace(/\bvocê sustenta\b/gi, 'Você sustenta')
+          .replace(/\bvocê inicia\b/gi, 'Você inicia')
+      } catch { /* segurança: não quebra se regex falhar */ }
+    }
+  }
+  return t
+}
+
+/** Mapeia user_posture.level → nomenclatura neutra */
+const postureLevelMap: Record<string, string> = {
+  'carente':    'Alta busca por conexão',
+  'emocionado': 'Investimento emocional elevado',
+  'emocionada': 'Investimento emocional elevado',
+  'ansioso':    'Alta ansiedade emocional',
+  'ansiosa':    'Alta ansiedade emocional',
+  'inseguro':   'Busca por validação',
+  'insegura':   'Busca por validação',
+  'investido':  'Alto investimento afetivo',
+  'investida':  'Alto investimento afetivo',
+}
+function postureLabel(level: string): string {
+  return postureLevelMap[level?.toLowerCase()] ?? level
+}
+
+/** key_patterns achatados para Resumo Executivo */
+const allKeyPatterns = computed(() => {
+  const res: { text: string; kind: 'pos' | 'neg' }[] = []
+  for (const item of resultData.value?.key_patterns?.positive ?? []) {
+    res.push({ text: txt(item), kind: 'pos' })
+  }
+  for (const item of resultData.value?.key_patterns?.negative ?? []) {
+    res.push({ text: txt(item), kind: 'neg' })
+  }
+  return res.slice(0, 5)
+})
 
 /** Mapeia situation_label.level → texto do pill */
 function verdictText(level: string | null): string {
@@ -535,6 +576,8 @@ async function startAnalysis() {
     resultPlan.value  = plan
     currentPlan.value = plan   // atualiza isFree para desbloquear conteúdo pago
 
+    resultUserName.value = data.user_name ?? ''
+
     // data pode chegar como string JSON ou array do n8n — parsear/desempacotar
     const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
     resultData.value  = Array.isArray(rawData) ? (rawData[0] ?? {}) : rawData
@@ -585,13 +628,9 @@ function handleOverlayClick(e: MouseEvent) {
   if ((e.target as HTMLElement).classList.contains('modal-overlay')) closeModal()
 }
 
-// ── Handle "Nova análise" / "Fazer upgrade" ──
+// ── Handle "Fazer nova análise" — sempre abre modal de planos ──
 function handleNewAnalysis() {
-  if (currentPlan.value === 'free') {
-    openModal()
-  } else {
-    resetAll()
-  }
+  openModal()
 }
 
 function resetAll() {
@@ -656,8 +695,8 @@ const uploadSubtitle = computed(() => isFree.value
   : 'A análise identifica padrões, sinais e intenções com base nas mensagens enviadas.')
 const dropMainText   = computed(() => isFree.value ? 'Envie 1 print da conversa' : 'Arraste os prints aqui')
 const obsQuestion    = computed(() => isFree.value
-  ? 'Tem algo nessa conversa que está te deixando em dúvida?'
-  : 'Tem algo nessa conversa que está te confundindo ou chamando atenção?')
+  ? 'O que te deixou em dúvida nessa conversa?'
+  : 'O que mais está te incomodando nessa conversa?')
 const obsPlaceholder = computed(() => isFree.value
   ? 'Ex: "às vezes demonstra interesse e depois some" · "não sei se estou exagerando" · "parece diferente comigo"'
   : 'Ex: \'ele responde diferente às vezes\' · \'parece distante\' · \'não sei se estou exagerando\' · \'às vezes demonstra interesse e depois some\'')
@@ -772,7 +811,6 @@ onMounted(async () => {
 
   console.log('[ScanCrush] onMounted → estado final | plano:', currentPlan.value, '| limite:', getImageLimit())
 
-  shuffleTags()
   checkAnalysisDone()
   updateUploadUI()
   window.addEventListener('keydown', onKeydown)
@@ -1023,7 +1061,7 @@ onUnmounted(() => {
     <span class="tag-label">Como você tem se sentido nessa situação?</span>
     <div class="tag-group">
       <div
-        v-for="tag in shuffledTags"
+        v-for="tag in TAGS"
         :key="tag"
         class="obs-tag"
         :class="{ selected: selectedTags.includes(tag) }"
@@ -1161,7 +1199,7 @@ onUnmounted(() => {
 </div>
 
 <!-- ══════════════════════════════════════════════════ -->
-<!-- SCREEN 4: Result -->
+<!-- SCREEN 4: Result                               -->
 <!-- ══════════════════════════════════════════════════ -->
 <div class="screen" :class="{ active: currentScreen === 4 }">
   <header class="screen-header">
@@ -1172,198 +1210,64 @@ onUnmounted(() => {
       </svg>
       <span class="logo-word">Scan<span>Crush</span></span>
     </NuxtLink>
-    <button class="header-action" :style="btnNewAnalysisStyle" @click="handleNewAnalysis()">{{ btnNewAnalysisText }}</button>
+    <button class="header-action" @click="handleNewAnalysis()">Fazer nova análise</button>
   </header>
 
+  <!-- ── Banner ── -->
   <div class="result-notice-wrap" v-if="!isFree">
-    <div class="result-notice-card">
-      ⚠️ Não atualize nem feche esta página — o resultado não fica salvo.<br>
-      <span style="opacity:0.75;font-size:12px;">Uma cópia foi enviada para o seu e-mail.</span>
+    <div class="result-notice-card result-notice-ok">
+      <span class="notice-check">✓</span>
+      <div class="notice-body">
+        <strong>Seu resultado foi gerado com sucesso.</strong>
+        Uma cópia completa foi enviada para o seu e-mail. Você também pode baixar o PDF ao final desta página.
+        <span class="notice-sub">Evite fechar esta aba antes de concluir sua leitura.</span>
+      </div>
     </div>
   </div>
 
   <div class="result-body">
 
-    <!-- ── Cabeçalho gratuito ── -->
+    <!-- ① FREE: label de contexto ── -->
     <div v-if="isFree" class="free-result-intro">
-      <div class="free-result-label">LEITURA INICIAL DA CONVERSA</div>
+      <div class="free-result-label">Leitura inicial da conversa</div>
     </div>
 
-    <!-- ── Score (plano pago) ── -->
-    <div v-if="!isFree" class="score-card">
-      <div class="score-label">Padrão de resposta</div>
+    <!-- ② Score + Veredicto — FREE e pago ── -->
+    <div class="score-card">
+      <div class="score-label">Nível de engajamento observado</div>
       <div class="score-row">
         <div class="score-num">{{ resultData?.interest_score ?? '—' }}<sup>/100</sup></div>
         <div style="flex:1">
           <div class="score-bar-track">
-            <!-- dark cover shrinks from right as score increases -->
             <div class="score-bar-cover" :style="{ width: scoreBarCoverWidth }"></div>
           </div>
           <div class="score-bar-labels">
-            <span>Baixo</span>
-            <span>Médio</span>
-            <span>Alto</span>
+            <span>Baixo</span><span>Médio</span><span>Alto</span>
           </div>
         </div>
       </div>
       <div class="verdict-pill">{{ verdictText(resultData?.situation_label?.level) }}</div>
     </div>
 
-    <!-- ── Resumo ── -->
-    <div v-if="!isFree && resultData?.summary" class="result-summary-card">
-      <p class="result-summary-text">{{ resultData.summary }}</p>
+    <!-- ③ O que este resultado significa (summary) — FREE e pago ── -->
+    <div v-if="resultData?.summary" class="res-card">
+      <div class="res-label">O que este resultado significa</div>
+      <p class="res-body">{{ norm(resultData.summary) }}</p>
     </div>
 
-    <!-- ── Padrões principais (plano pago) ── -->
-    <div v-if="!isFree && resultData?.key_patterns" class="signals-card">
-      <div class="signals-title">Padrões identificados</div>
-
-      <template v-if="resultData.key_patterns.positive?.length">
-        <div class="signal-section-label">Positivos</div>
-        <div v-for="(item, i) in resultData.key_patterns.positive" :key="'kp+'+i" class="signal-item">
-          <span class="sig-dot g"></span>{{ txt(item) }}
-        </div>
-      </template>
-
-      <template v-if="resultData.key_patterns.negative?.length">
-        <div class="signal-section-label" style="margin-top:10px">Negativos</div>
-        <div v-for="(item, i) in resultData.key_patterns.negative" :key="'kp-'+i" class="signal-item">
-          <span class="sig-dot r"></span>{{ txt(item) }}
-        </div>
-      </template>
-    </div>
-
-    <!-- ── Sinais (plano pago) ── -->
-    <div v-if="!isFree && resultData?.signals" class="signals-card">
-      <div class="signals-title">Sinais na conversa</div>
-      <div v-for="(item, i) in resultData.signals.positive ?? []" :key="'sp'+i" class="signal-item">
-        <span class="sig-dot g"></span>{{ txt(item) }}
-      </div>
-      <div v-for="(item, i) in resultData.signals.negative ?? []" :key="'sn'+i" class="signal-item">
-        <span class="sig-dot r"></span>{{ txt(item) }}
-      </div>
-      <div v-for="(item, i) in resultData.signals.neutral ?? []" :key="'snu'+i" class="signal-item">
-        <span class="sig-dot y"></span>{{ txt(item) }}
-      </div>
-    </div>
-
-    <!-- ── Comportamento (plano pago) ── -->
-    <div v-if="!isFree && (resultData?.behavior || resultData?.user_posture)" class="signals-card">
-      <div class="signals-title">Comportamento</div>
-      <template v-if="resultData?.behavior">
-        <div v-if="resultData.behavior.engagement_level" class="behavior-row">
-          <span class="behavior-label">Engajamento</span>
-          <span class="behavior-val">{{ resultData.behavior.engagement_level }}</span>
-        </div>
-        <div v-if="resultData.behavior.consistency" class="behavior-row">
-          <span class="behavior-label">Consistência</span>
-          <span class="behavior-val">{{ resultData.behavior.consistency }}</span>
-        </div>
-        <div v-if="resultData.behavior.response_pattern" class="behavior-row">
-          <span class="behavior-label">Padrão de resposta</span>
-          <span class="behavior-val">{{ resultData.behavior.response_pattern }}</span>
-        </div>
-      </template>
-      <template v-if="resultData?.user_posture">
-        <div class="behavior-row" style="align-items:flex-start">
-          <span class="behavior-label">Sua postura</span>
-          <span class="behavior-val" style="flex:1">
-            <span style="color:var(--pink);font-weight:500;text-transform:capitalize">{{ resultData.user_posture.level }}</span>
-            <span v-if="resultData.user_posture.explanation" style="display:block;font-size:12px;color:var(--text-3);margin-top:4px;line-height:1.5">{{ resultData.user_posture.explanation }}</span>
-          </span>
-        </div>
-      </template>
-    </div>
-
-    <!-- ── Highlights / Padrões ocultos / Inconsistências (revealed+) ── -->
-    <template v-if="!isFree && (resultData?.highlights?.length || resultData?.hidden_patterns?.length || resultData?.inconsistencies?.length || resultData?.emotional_profile || resultData?.deep_analysis?.length)">
-      <div class="signals-card">
-        <div class="signals-title">Leitura mais profunda</div>
-
-        <template v-if="resultData?.highlights?.length">
-          <div class="signal-section-label">Destaques</div>
-          <div v-for="(item, i) in resultData.highlights" :key="'hl'+i" class="highlight-card">
-            <div class="highlight-quote">"{{ txt(item) }}"</div>
-            <div v-if="txtSub(item)" class="highlight-exp">{{ txtSub(item) }}</div>
-          </div>
-        </template>
-
-        <template v-if="resultData?.inconsistencies?.length">
-          <div class="signal-section-label" style="margin-top:10px">Inconsistências</div>
-          <div v-for="(item, i) in resultData.inconsistencies" :key="'ic'+i" class="signal-item" style="flex-direction:column; align-items:flex-start; gap:2px;">
-            <span style="display:flex; align-items:flex-start; gap:6px;">
-              <span class="sig-dot r" style="margin-top:5px;"></span>
-              <span>{{ txt(item) }}</span>
-            </span>
-            <span v-if="txtSub(item)" style="font-size:11px; color:var(--text-3); padding-left:14px; line-height:1.5;">{{ txtSub(item) }}</span>
-          </div>
-        </template>
-
-        <template v-if="resultData?.emotional_profile">
-          <div class="signal-section-label" style="margin-top:10px">Perfil emocional</div>
-          <div class="highlight-card" style="background:rgba(155,93,229,0.06); border-color:rgba(155,93,229,0.15)">
-            <div class="highlight-quote" style="color:var(--purple);font-style:normal;font-weight:500">{{ resultData.emotional_profile.type }}</div>
-            <div v-if="resultData.emotional_profile.description" class="highlight-exp">{{ resultData.emotional_profile.description }}</div>
-          </div>
-        </template>
-
-        <template v-if="resultData?.hidden_patterns?.length">
-          <div class="signal-section-label" style="margin-top:10px">Padrões ocultos</div>
-          <div v-for="(item, i) in resultData.hidden_patterns" :key="'hp'+i" class="signal-item">
-            <span class="sig-dot r"></span>{{ txt(item) }}
-          </div>
-        </template>
-      </div>
-    </template>
-
-    <!-- ── Análise aprofundada (raiox only) ── -->
-    <template v-if="!isFree && resultData?.deep_analysis?.length">
-      <div class="signals-card">
-        <div class="signals-title">Análise aprofundada</div>
-        <div v-for="(paragraph, i) in resultData.deep_analysis" :key="'da'+i" class="deep-paragraph">
-          {{ paragraph }}
-        </div>
-      </div>
-    </template>
-
-    <!-- ── Dinâmica do relacionamento (raiox only) ── -->
-    <div v-if="resultRelDyn" class="signals-card">
-      <div class="signals-title">Dinâmica do relacionamento</div>
-      <div v-if="resultRelDyn['Análise do Usuário (você)']" class="behavior-row">
-        <span class="behavior-label">Você</span>
-        <span class="behavior-val">{{ resultRelDyn['Análise do Usuário (você)'] }}</span>
-      </div>
-      <div v-if="resultRelDyn['Análise do(a) Crush']" class="behavior-row">
-        <span class="behavior-label">Crush</span>
-        <span class="behavior-val">{{ resultRelDyn['Análise do(a) Crush'] }}</span>
-      </div>
-      <div v-if="resultRelDyn['Conclusão']" class="result-conclusion">
-        {{ resultRelDyn['Conclusão'] }}
-      </div>
-    </div>
-
-    <!-- ── Veredicto final (plano pago) ── -->
-    <div v-if="!isFree && resultData?.final_verdict" class="final-verdict-card">
-      <p class="final-verdict-text">{{ resultData.final_verdict }}</p>
-    </div>
-
-    <!-- ── Mensagem final (plano pago) ── -->
-    <p v-if="!isFree && resultData?.final_message" class="result-final-msg">
-      {{ resultData.final_message }}
-    </p>
-
-    <!-- ── Download PDF (plano pago) ── -->
-    <div v-if="!isFree" class="pdf-btn-wrap">
-      <button class="btn-pdf" @click="downloadPdf()">
-        ⬇ Baixar resultado em PDF
-      </button>
-      <p class="pdf-hint">O PDF abre a janela de impressão do seu navegador — selecione "Salvar como PDF".</p>
-    </div>
-
-    <!-- ── Resultado gratuito ── -->
+    <!-- ④ FREE: sinais limitados + gate de upgrade ── -->
     <template v-if="isFree">
+      <div v-if="resultData?.signals" class="res-card">
+        <div class="res-label">Sinais na conversa</div>
+        <div v-if="resultData.signals.positive?.[0]" class="signal-item">
+          <span class="sig-dot g"></span>{{ norm(txt(resultData.signals.positive[0])) }}
+        </div>
+        <div v-if="resultData.signals.negative?.[0]" class="signal-item">
+          <span class="sig-dot r"></span>{{ norm(txt(resultData.signals.negative[0])) }}
+        </div>
+      </div>
       <div class="free-insight-card">
-        <p class="free-insight-text">{{ resultData?.final_message }}</p>
+        <p class="free-insight-text">{{ norm(resultData?.final_message ?? '') }}</p>
       </div>
       <p class="free-upgrade-hint">✨ A versão completa revela padrões que não aparecem em uma leitura inicial.</p>
       <div class="free-upgrade-card">
@@ -1373,29 +1277,153 @@ onUnmounted(() => {
       </div>
     </template>
 
-    <!-- ── Seção bloqueada (plano pago) ── -->
-    <div v-if="!isFree && resultCta" class="locked-card">
-      <div class="locked-blur">
-        Perfil emocional completo, padrões de comportamento profundo, e a conclusão final sobre o que essa pessoa realmente demonstra — o que ela sente versus o que ela faz. A análise completa revela o que está por trás do padrão identificado...
-      </div>
-      <div class="locked-overlay">
-        <p class="locked-label">🔒 Análise completa bloqueada</p>
-        <button class="locked-sub-btn" @click="openModal()">Ver análise completa →</button>
-      </div>
-    </div>
+    <!-- ── CONTEÚDO PAGO ──────────────────────────── -->
+    <template v-if="!isFree">
 
-    <!-- ── CTA de upgrade (plano pago) ── -->
-    <template v-if="!isFree && resultCta">
-      <div class="cta-result-card">
-        <p class="cta-result-sub">{{ typeof resultCta === 'string' ? resultCta : (resultCta.subtitle ?? '') }}</p>
+      <!-- ⑤ Resumo Executivo (key_patterns como chips) ── -->
+      <div v-if="allKeyPatterns.length" class="res-card">
+        <div class="res-label">Resumo Executivo</div>
+        <div class="exec-chips">
+          <span v-for="(kp, i) in allKeyPatterns" :key="'kp'+i"
+                :class="['exec-chip', kp.kind]">
+            {{ norm(kp.text) }}
+          </span>
+        </div>
       </div>
-      <button class="btn-unlock" @click="openModal()">
-        🔍 Analisar mais conversas
-      </button>
+
+      <!-- ⑥ Sinais na Conversa ── -->
+      <div v-if="resultData?.signals" class="res-card">
+        <div class="res-label">Sinais na Conversa</div>
+        <div v-for="(item, i) in resultData.signals.positive ?? []" :key="'sp'+i" class="signal-item">
+          <span class="sig-dot g"></span>{{ norm(txt(item)) }}
+        </div>
+        <div v-for="(item, i) in resultData.signals.negative ?? []" :key="'sn'+i" class="signal-item">
+          <span class="sig-dot r"></span>{{ norm(txt(item)) }}
+        </div>
+        <div v-for="(item, i) in resultData.signals.neutral ?? []" :key="'snu'+i" class="signal-item">
+          <span class="sig-dot y"></span>{{ norm(txt(item)) }}
+        </div>
+      </div>
+
+      <!-- ⑦ Trechos Mais Reveladores (highlights) ── -->
+      <div v-if="resultData?.highlights?.length" class="res-card">
+        <div class="res-label">Trechos Mais Reveladores</div>
+        <div v-for="(item, i) in resultData.highlights" :key="'hl'+i" class="highlight-card">
+          <div class="highlight-quote">"{{ norm(txt(item)) }}"</div>
+          <div v-if="txtSub(item)" class="highlight-exp">{{ norm(txtSub(item)) }}</div>
+        </div>
+      </div>
+
+      <!-- ⑧ Contradições Identificadas (inconsistencies) ── -->
+      <div v-if="resultData?.inconsistencies?.length" class="res-card contradiction-card">
+        <div class="res-label">Contradições Identificadas</div>
+        <div v-for="(item, i) in resultData.inconsistencies" :key="'ic'+i" class="contradiction-item">
+          <div class="contradiction-title">{{ norm(txt(item)) }}</div>
+          <div v-if="txtSub(item)" class="contradiction-sub">{{ norm(txtSub(item)) }}</div>
+        </div>
+      </div>
+
+      <!-- ⑨ Comportamento do Crush ── -->
+      <div v-if="resultData?.behavior" class="res-card">
+        <div class="res-label">Comportamento do Crush</div>
+        <div v-if="resultData.behavior.engagement_level" class="behavior-row">
+          <span class="behavior-label">Engajamento</span>
+          <span class="behavior-val">{{ norm(resultData.behavior.engagement_level) }}</span>
+        </div>
+        <div v-if="resultData.behavior.consistency" class="behavior-row">
+          <span class="behavior-label">Consistência</span>
+          <span class="behavior-val">{{ norm(resultData.behavior.consistency) }}</span>
+        </div>
+        <div v-if="resultData.behavior.response_pattern" class="behavior-row res-behavior-pattern">
+          <span class="behavior-label">Padrão</span>
+          <span class="behavior-val">{{ norm(resultData.behavior.response_pattern) }}</span>
+        </div>
+      </div>
+
+      <!-- ⑩ Seu Comportamento (user_posture + emotional_profile) ── -->
+      <div v-if="resultData?.user_posture || resultData?.emotional_profile" class="res-card">
+        <div class="res-label">Seu Comportamento</div>
+        <template v-if="resultData?.user_posture">
+          <div class="behavior-row" style="align-items:flex-start">
+            <span class="behavior-label">Sua postura</span>
+            <span class="behavior-val" style="flex:1">
+              <span class="posture-badge">{{ postureLabel(resultData.user_posture.level) }}</span>
+              <span v-if="resultData.user_posture.explanation" class="posture-exp">{{ norm(resultData.user_posture.explanation) }}</span>
+            </span>
+          </div>
+        </template>
+        <template v-if="resultData?.emotional_profile">
+          <div class="behavior-row" style="align-items:flex-start; margin-top:12px">
+            <span class="behavior-label">Perfil</span>
+            <span class="behavior-val" style="flex:1">
+              <span class="emotional-type">{{ norm(resultData.emotional_profile.type) }}</span>
+              <span v-if="resultData.emotional_profile.description" class="emotional-desc">{{ norm(resultData.emotional_profile.description) }}</span>
+            </span>
+          </div>
+        </template>
+      </div>
+
+      <!-- ⑪ Dinâmica da Relação ── -->
+      <div v-if="resultRelDyn" class="res-card">
+        <div class="res-label">Dinâmica da Relação</div>
+        <div v-if="resultRelDyn['Análise do Usuário (você)']" class="behavior-row" style="align-items:flex-start">
+          <span class="behavior-label">Você</span>
+          <span class="behavior-val">{{ norm(resultRelDyn['Análise do Usuário (você)']) }}</span>
+        </div>
+        <div v-if="resultRelDyn['Análise do(a) Crush']" class="behavior-row" style="align-items:flex-start; margin-top:10px">
+          <span class="behavior-label">Crush</span>
+          <span class="behavior-val">{{ norm(resultRelDyn['Análise do(a) Crush']) }}</span>
+        </div>
+        <div v-if="resultRelDyn['Conclusão']" class="dynamics-conclusion">
+          {{ norm(resultRelDyn['Conclusão']) }}
+        </div>
+      </div>
+
+      <!-- ⑫ Análise Aprofundada (raiox only) ── -->
+      <div v-if="resultData?.deep_analysis?.length" class="res-card">
+        <div class="res-label">Análise Aprofundada</div>
+        <div v-for="(paragraph, i) in resultData.deep_analysis" :key="'da'+i" class="deep-paragraph">
+          {{ norm(paragraph) }}
+        </div>
+      </div>
+
+      <!-- ⑬ Conclusão da Análise ── -->
+      <div v-if="resultData?.final_verdict" class="res-card conclusion-card">
+        <div class="res-label">Conclusão da Análise</div>
+        <p class="conclusion-text">{{ norm(resultData.final_verdict) }}</p>
+      </div>
+
+      <!-- ⑭ Para Você (mensagem final) ── -->
+      <div v-if="resultData?.final_message" class="for-you-card">
+        <div class="for-you-label">Para Você</div>
+        <p class="for-you-text">{{ norm(resultData.final_message) }}</p>
+      </div>
+
+      <!-- ⑮ Download PDF ── -->
+      <div class="pdf-btn-wrap">
+        <button class="btn-pdf-primary" @click="downloadPdf()">
+          ⬇ Baixar resultado em PDF
+        </button>
+        <p class="pdf-hint">Selecione "Salvar como PDF" na janela de impressão do navegador.</p>
+      </div>
+
     </template>
-
+    <!-- ── fim conteúdo pago ── -->
 
   </div>
+
+  <!-- ⑯ Footer ── -->
+  <footer class="result-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">Scan<span>Crush</span></div>
+      <nav class="footer-links">
+        <a href="/terms.html" target="_blank">Termos de Uso</a>
+        <a href="/privacy.html" target="_blank">Privacidade</a>
+        <a href="mailto:contato@scancrush.app">Contato</a>
+      </nav>
+      <p class="footer-copy">© 2026 ScanCrush · Este relatório é gerado por IA e representa observações sobre padrões comportamentais. Não constitui diagnóstico psicológico.</p>
+    </div>
+  </footer>
 </div>
 
 <!-- ══════════════════════════════════════════════════ -->
@@ -2226,17 +2254,44 @@ body::after {
   justify-content: center;
 }
 .result-notice-card {
-  border-radius: 12px;
-  padding: 14px 20px;
+  border-radius: 14px;
+  padding: 14px 18px;
   font-size: 13px;
   font-weight: 300;
   line-height: 1.6;
-  text-align: center;
-  background: rgba(255, 184, 0, 0.05);
-  border: 1px solid rgba(255, 184, 0, 0.2);
-  color: #FFB800;
   max-width: 560px;
   width: 100%;
+}
+.result-notice-ok {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(0,214,143,0.05);
+  border: 1px solid rgba(0,214,143,0.2);
+  color: var(--text-2);
+}
+.notice-check {
+  font-size: 15px;
+  color: var(--safe);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.notice-body strong {
+  color: var(--text);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+.notice-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 4px;
 }
 
 
@@ -2332,6 +2387,168 @@ body::after {
   letter-spacing: 0.02em;
 }
 
+/* ── RES-CARD: card base universal para result ── */
+.res-card {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+}
+.res-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-2);
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.res-body {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── EXEC CHIPS (Resumo Executivo) ── */
+.exec-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.exec-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+.exec-chip.pos {
+  background: rgba(0,214,143,0.07);
+  border: 1px solid rgba(0,214,143,0.2);
+  color: var(--safe);
+}
+.exec-chip.neg {
+  background: rgba(255,45,107,0.06);
+  border: 1px solid rgba(255,45,107,0.18);
+  color: #ff6b8e;
+}
+
+/* ── CONTRADICTIONS CARD ── */
+.contradiction-card {
+  background: rgba(155,93,229,0.04);
+  border-color: rgba(155,93,229,0.2);
+}
+.contradiction-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.contradiction-item:last-child { border-bottom: none; padding-bottom: 0; }
+.contradiction-item:first-child { padding-top: 0; }
+.contradiction-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.contradiction-sub {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.65;
+}
+
+/* ── POSTURE ── */
+.posture-badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pink);
+  margin-bottom: 4px;
+}
+.posture-exp {
+  display: block;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-top: 4px;
+}
+.emotional-type {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--purple);
+  margin-bottom: 4px;
+}
+.emotional-desc {
+  display: block;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.65;
+}
+
+/* ── DYNAMICS CONCLUSION ── */
+.dynamics-conclusion {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.75;
+}
+
+/* ── CONCLUSÃO DA ANÁLISE ── */
+.conclusion-card {
+  background: rgba(255,45,107,0.04);
+  border-color: rgba(255,45,107,0.18);
+}
+.conclusion-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.7;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ── PARA VOCÊ ── */
+.for-you-card {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(155,93,229,0.08), rgba(255,45,107,0.05));
+  border: 1px solid rgba(155,93,229,0.22);
+  border-radius: 18px;
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.for-you-card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 15%; right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(155,93,229,0.5), transparent);
+}
+.for-you-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--purple);
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.for-you-text {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.8;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ── SIGNALS CARD (mantido para compatibilidade) ── */
 .signals-card {
   width: 100%;
   background: var(--card);
@@ -2340,11 +2557,12 @@ body::after {
   padding: 22px;
 }
 .signals-title {
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-3);
+  letter-spacing: 0.1em;
+  color: var(--text-2);
+  font-weight: 500;
   margin-bottom: 14px;
 }
 .signal-item {
@@ -3039,7 +3257,12 @@ body::after {
 .behavior-val {
   font-size: 13px;
   color: var(--text-2);
-  line-height: 1.5;
+  line-height: 1.6;
+}
+.res-behavior-pattern .behavior-val {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.65;
 }
 .result-conclusion {
   margin-top: 14px;
@@ -3047,8 +3270,7 @@ body::after {
   border-top: 1px solid var(--border);
   font-size: 14px;
   color: var(--text);
-  line-height: 1.7;
-  font-style: italic;
+  line-height: 1.75;
 }
 .cta-result-card {
   background: linear-gradient(135deg, rgba(255,45,107,0.08), rgba(155,93,229,0.06));
@@ -3095,27 +3317,29 @@ body::after {
 }
 .highlight-card:last-child { margin-bottom: 0; }
 .highlight-quote {
-  font-size: 13px;
+  font-size: 14px;
   font-style: italic;
   color: #FFB800;
-  line-height: 1.5;
-  margin-bottom: 6px;
+  line-height: 1.55;
+  margin-bottom: 8px;
+  font-weight: 400;
 }
 .highlight-exp {
-  font-size: 12px;
-  color: var(--text-3);
-  line-height: 1.6;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.65;
 }
 
 /* ── DEEP ANALYSIS PARAGRAPHS ── */
 .deep-paragraph {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-2);
-  line-height: 1.7;
-  padding: 10px 0;
+  line-height: 1.75;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
 }
-.deep-paragraph:last-child { border-bottom: none; }
+.deep-paragraph:last-child { border-bottom: none; padding-bottom: 0; }
+.deep-paragraph:first-child { padding-top: 0; }
 
 /* ── FINAL VERDICT CARD ── */
 .final-verdict-card {
@@ -3139,27 +3363,75 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-top: 8px;
 }
-.btn-pdf {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: var(--text-3);
-  border-radius: 10px;
-  padding: 11px 22px;
-  font-size: 13px;
+.btn-pdf-primary {
+  width: 100%;
+  padding: 17px;
+  background: linear-gradient(135deg, var(--purple), #6B2FBA);
+  color: white;
+  border-radius: 100px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--font);
+  border: none;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: all 0.25s;
+  box-shadow: 0 0 40px rgba(155,93,229,0.35);
+  letter-spacing: 0.01em;
 }
-.btn-pdf:hover {
-  border-color: rgba(255,255,255,0.35);
-  color: var(--text-2);
+.btn-pdf-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 60px rgba(155,93,229,0.5);
 }
 .pdf-hint {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-3);
   text-align: center;
+  margin: 0;
+}
+
+/* ── FOOTER ── */
+.result-footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 24px;
+  margin-top: 16px;
+}
+.footer-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+.footer-brand {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text-2);
+}
+.footer-brand span { color: var(--pink); }
+.footer-links {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.footer-links a {
+  font-size: 12px;
+  color: var(--text-3);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--text-2); }
+.footer-copy {
+  font-size: 11px;
+  color: var(--text-3);
+  line-height: 1.6;
+  max-width: 440px;
   margin: 0;
   opacity: 0.7;
 }
@@ -3171,19 +3443,20 @@ body::after {
   .screen-header,
   .result-notice-wrap,
   .free-upgrade-card,
-  .locked-card,
-  .cta-result-card,
   .pdf-btn-wrap,
-  .btn-new-analysis,
-  .header-action { display: none !important; }
+  .header-action,
+  .result-footer { display: none !important; }
   body { background: #fff !important; color: #111 !important; }
   .result-body { padding: 16px !important; }
-  .score-card, .signals-card, .result-summary-card,
-  .highlight-card, .final-verdict-card {
+  .score-card, .res-card, .highlight-card,
+  .conclusion-card, .for-you-card, .contradiction-card {
     border: 1px solid #ddd !important;
     background: #fff !important;
     box-shadow: none !important;
   }
+  .res-label, .for-you-label { color: #555 !important; }
+  .highlight-quote, .posture-badge, .emotional-type { color: #333 !important; }
+  .exec-chip { border: 1px solid #ccc !important; color: #333 !important; background: #f5f5f5 !important; }
 }
 
 /* ── CONFIRM DIALOG ── */
