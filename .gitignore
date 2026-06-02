@@ -32,3 +32,12 @@ skills-lock.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Privado — nunca commitar
+n8n/
+docs/
+team/
+QA-DOCUMENTO.md
+pulse-cartography-philosophy.md
+package.json
+package-lock.json
