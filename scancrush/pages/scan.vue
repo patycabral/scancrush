@@ -377,7 +377,9 @@ const resultPlan     = ref('')
 const resultData     = ref<any>(null)
 const resultCta      = ref<any>(null)
 const resultRelDyn   = ref<any>(null)
-const resultUserName = ref<string>('')   // nome da usuária para normalização de texto
+const resultUserName  = ref<string>('')   // nome da usuária para normalização de texto
+const resultUserEmail = ref<string>('')   // e-mail do comprador — atribuição no PDF (anti-compartilhamento)
+const resultProtocol  = ref<string>('')   // ID/protocolo da análise (legitimidade no PDF)
 
 
 /** Extrai texto de um item que pode ser string ou objeto {label, text, description, situation} */
@@ -457,6 +459,20 @@ function verdictText(level: string | null): string {
 function downloadPdf() {
   if (import.meta.client) window.print()
 }
+
+// ── PDF premium: data formatada + geometria do medidor de score ──
+const analysisDateFormatted = computed(() => {
+  try {
+    return new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+  } catch { return '' }
+})
+/** score limitado a 0–100 para o medidor */
+const scoreValue = computed(() => {
+  const s = Number(resultData.value?.interest_score)
+  return Number.isFinite(s) ? Math.max(0, Math.min(100, s)) : 0
+})
+/** posição X do marcador no SVG do score (viewBox 0 0 500 –, trilho 30→470) */
+const scoreMarkerX = computed(() => 30 + (scoreValue.value / 100) * 440)
 
 function updateNewAnalysisBtn() {
   if (currentPlan.value === 'free') {
@@ -576,7 +592,9 @@ async function startAnalysis() {
     resultPlan.value  = plan
     currentPlan.value = plan   // atualiza isFree para desbloquear conteúdo pago
 
-    resultUserName.value = data.user_name ?? ''
+    resultUserName.value  = data.user_name ?? ''
+    resultUserEmail.value = data.user_email ?? ''
+    resultProtocol.value  = data.protocol ?? ''
 
     // data pode chegar como string JSON ou array do n8n — parsear/desempacotar
     const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
@@ -1399,12 +1417,26 @@ onUnmounted(() => {
         <p class="for-you-text">{{ norm(resultData.final_message) }}</p>
       </div>
 
-      <!-- ⑮ Download PDF ── -->
-      <div class="pdf-btn-wrap">
+      <!-- ⑮ Sobre esta análise (encerramento em dois níveis) ── -->
+      <div class="about-analysis-card">
+        <div class="about-label">Sobre esta análise</div>
+        <p class="about-emotional">Você talvez já sentisse parte disso. Agora consegue enxergar o padrão com mais clareza.</p>
+        <p class="about-text">Esta leitura foi gerada exclusivamente a partir do recorte enviado. O resultado não representa uma verdade absoluta sobre sentimentos, intenções ou personalidade. Trata-se de uma interpretação contextual baseada nos padrões observados nas mensagens analisadas.</p>
+        <div class="about-sign">
+          <span class="about-sign-brand">Scan<span>Crush</span></span>
+          <span class="about-sign-slogan">Nem sempre os sinais são óbvios.</span>
+        </div>
+      </div>
+
+      <!-- ⑯ Download PDF (card de valor) ── -->
+      <div class="pdf-download-card">
+        <div class="pdf-download-title">Seu relatório completo, para guardar</div>
+        <p class="pdf-download-desc">Baixe sua análise em PDF — formatada para leitura, envio e consulta quando quiser.</p>
         <button class="btn-pdf-primary" @click="downloadPdf()">
-          ⬇ Baixar resultado em PDF
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar relatório em PDF
         </button>
-        <p class="pdf-hint">Selecione "Salvar como PDF" na janela de impressão do navegador.</p>
+        <p class="pdf-hint">Na janela de impressão, escolha "Salvar como PDF" como destino.</p>
       </div>
 
     </template>
@@ -1419,11 +1451,207 @@ onUnmounted(() => {
       <nav class="footer-links">
         <a href="/terms.html" target="_blank">Termos de Uso</a>
         <a href="/privacy.html" target="_blank">Privacidade</a>
-        <a href="mailto:contato@scancrush.app">Contato</a>
+        <a href="mailto:contato@scancrush.com">Contato</a>
       </nav>
       <p class="footer-copy">© 2026 ScanCrush · Este relatório é gerado por IA e representa observações sobre padrões comportamentais. Não constitui diagnóstico psicológico.</p>
     </div>
   </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PDF DOCUMENT (print-only, identidade própria light) -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="pdf-doc" v-if="!isFree && resultData">
+
+  <!-- ── PÁGINA 1: CAPA ── -->
+  <section class="pdf-cover">
+    <div class="pdf-cover-strip"></div>
+
+    <!-- Marca d'água sutil de identidade -->
+    <svg class="pdf-cover-watermark" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="0.8" stroke-dasharray="4 2.5"/>
+      <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="0.9"/>
+      <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+    </svg>
+
+    <div class="pdf-cover-top">
+      <div class="pdf-logo">
+        <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.4"/>
+          <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+          <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+          <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="pdf-logo-word">Scan<span>Crush</span></span>
+      </div>
+      <p class="pdf-cover-slogan">Nem sempre os sinais são óbvios.</p>
+    </div>
+
+    <div class="pdf-cover-center">
+      <p class="pdf-cover-eyebrow">Relatório de análise comportamental</p>
+      <h1 class="pdf-cover-title">RAIO-X DO CRUSH</h1>
+      <p class="pdf-cover-subtitle">Análise comportamental baseada exclusivamente no recorte enviado.</p>
+
+      <!-- Score teaser (compacto): número + classificação -->
+      <div class="pdf-cover-score">
+        <div class="pdf-cover-score-num">{{ resultData?.interest_score ?? '—' }}<span>/100</span></div>
+        <div class="pdf-verdict-pill">{{ verdictText(resultData?.situation_label?.level) }}</div>
+      </div>
+    </div>
+
+    <div class="pdf-cover-foot">
+      <p class="pdf-cover-protocol" v-if="resultProtocol">Análise <strong>{{ resultProtocol }}</strong> · {{ analysisDateFormatted }}</p>
+      <p class="pdf-cover-protocol" v-else>{{ analysisDateFormatted }}</p>
+      <p v-if="resultUserEmail" class="pdf-cover-owner">Análise realizada exclusivamente para <strong>{{ resultUserEmail }}</strong></p>
+      <p class="pdf-cover-meta">scancrush.com</p>
+    </div>
+  </section>
+
+  <!-- Rodapé fixo: repete em todas as páginas na impressão (atribuição/anti-compartilhamento) -->
+  <div v-if="resultUserEmail" class="pdf-running-foot">
+    Análise exclusiva de {{ resultUserEmail }} · ScanCrush · scancrush.com
+  </div>
+
+  <!-- ── PÁGINA 2+: RELATÓRIO ── -->
+  <section class="pdf-report">
+
+    <!-- Medidor completo do score (movido da capa) -->
+    <div class="pdf-block pdf-block--score">
+      <div class="pdf-block-label">Nível de engajamento observado</div>
+      <div class="pdf-score-block">
+        <div class="pdf-score-num">{{ resultData?.interest_score ?? '—' }}<span>/100</span></div>
+        <svg class="pdf-score-svg" viewBox="0 0 500 56" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="pdfScoreGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"  stop-color="#FF2D6B"/>
+              <stop offset="25%" stop-color="#FF4D4D"/>
+              <stop offset="50%" stop-color="#FF8C00"/>
+              <stop offset="75%" stop-color="#FFB800"/>
+              <stop offset="100%" stop-color="#00D68F"/>
+            </linearGradient>
+          </defs>
+          <rect x="30" y="28" width="440" height="14" rx="7" fill="url(#pdfScoreGrad)"/>
+          <g :transform="`translate(${scoreMarkerX}, 0)`">
+            <polygon points="0,20 -7,8 7,8" fill="#1a1a2e"/>
+            <circle cx="0" cy="35" r="6" fill="#fff" stroke="#1a1a2e" stroke-width="2.5"/>
+          </g>
+        </svg>
+        <div class="pdf-score-scale"><span>Baixo</span><span>Médio</span><span>Alto</span></div>
+        <div class="pdf-verdict-pill">{{ verdictText(resultData?.situation_label?.level) }}</div>
+      </div>
+    </div>
+
+    <div v-if="resultData?.summary" class="pdf-block">
+      <div class="pdf-block-label">O que este resultado significa</div>
+      <p class="pdf-p">{{ norm(resultData.summary) }}</p>
+    </div>
+
+    <div v-if="allKeyPatterns.length" class="pdf-block">
+      <div class="pdf-block-label">Resumo Executivo</div>
+      <div class="pdf-chips">
+        <span v-for="(kp, i) in allKeyPatterns" :key="'pkp'+i" :class="['pdf-chip', kp.kind]">{{ norm(kp.text) }}</span>
+      </div>
+    </div>
+
+    <div v-if="resultData?.signals" class="pdf-block">
+      <div class="pdf-block-label">Sinais na Conversa</div>
+      <div v-for="(item, i) in resultData.signals.positive ?? []" :key="'psp'+i" class="pdf-signal">
+        <span class="pdf-dot g"></span>{{ norm(txt(item)) }}
+      </div>
+      <div v-for="(item, i) in resultData.signals.negative ?? []" :key="'psn'+i" class="pdf-signal">
+        <span class="pdf-dot r"></span>{{ norm(txt(item)) }}
+      </div>
+      <div v-for="(item, i) in resultData.signals.neutral ?? []" :key="'psnu'+i" class="pdf-signal">
+        <span class="pdf-dot y"></span>{{ norm(txt(item)) }}
+      </div>
+    </div>
+
+    <div v-if="resultData?.highlights?.length" class="pdf-block">
+      <div class="pdf-block-label">Trechos Mais Reveladores</div>
+      <div v-for="(item, i) in resultData.highlights" :key="'phl'+i" class="pdf-highlight">
+        <div class="pdf-quote">"{{ norm(txt(item)) }}"</div>
+        <div v-if="txtSub(item)" class="pdf-quote-exp">{{ norm(txtSub(item)) }}</div>
+      </div>
+    </div>
+
+    <div v-if="resultData?.inconsistencies?.length" class="pdf-block">
+      <div class="pdf-block-label">Contradições Identificadas</div>
+      <div v-for="(item, i) in resultData.inconsistencies" :key="'pic'+i" class="pdf-contradiction">
+        <div class="pdf-contradiction-title">{{ norm(txt(item)) }}</div>
+        <div v-if="txtSub(item)" class="pdf-contradiction-sub">{{ norm(txtSub(item)) }}</div>
+      </div>
+    </div>
+
+    <div v-if="resultData?.behavior" class="pdf-block">
+      <div class="pdf-block-label">Comportamento do Crush</div>
+      <div v-if="resultData.behavior.engagement_level" class="pdf-row">
+        <span class="pdf-row-label">Engajamento</span><span class="pdf-row-val">{{ norm(resultData.behavior.engagement_level) }}</span>
+      </div>
+      <div v-if="resultData.behavior.consistency" class="pdf-row">
+        <span class="pdf-row-label">Consistência</span><span class="pdf-row-val">{{ norm(resultData.behavior.consistency) }}</span>
+      </div>
+      <div v-if="resultData.behavior.response_pattern" class="pdf-row">
+        <span class="pdf-row-label">Padrão</span><span class="pdf-row-val">{{ norm(resultData.behavior.response_pattern) }}</span>
+      </div>
+    </div>
+
+    <div v-if="resultData?.user_posture || resultData?.emotional_profile" class="pdf-block">
+      <div class="pdf-block-label">Seu Comportamento</div>
+      <div v-if="resultData?.user_posture" class="pdf-row">
+        <span class="pdf-row-label">Sua postura</span>
+        <span class="pdf-row-val"><strong class="pdf-accent-pink">{{ postureLabel(resultData.user_posture.level) }}</strong><span v-if="resultData.user_posture.explanation" class="pdf-row-sub">{{ norm(resultData.user_posture.explanation) }}</span></span>
+      </div>
+      <div v-if="resultData?.emotional_profile" class="pdf-row">
+        <span class="pdf-row-label">Perfil</span>
+        <span class="pdf-row-val"><strong class="pdf-accent-purple">{{ norm(resultData.emotional_profile.type) }}</strong><span v-if="resultData.emotional_profile.description" class="pdf-row-sub">{{ norm(resultData.emotional_profile.description) }}</span></span>
+      </div>
+    </div>
+
+    <div v-if="resultRelDyn" class="pdf-block">
+      <div class="pdf-block-label">Dinâmica da Relação</div>
+      <div v-if="resultRelDyn['Análise do Usuário (você)']" class="pdf-row">
+        <span class="pdf-row-label">Você</span><span class="pdf-row-val">{{ norm(resultRelDyn['Análise do Usuário (você)']) }}</span>
+      </div>
+      <div v-if="resultRelDyn['Análise do(a) Crush']" class="pdf-row">
+        <span class="pdf-row-label">Crush</span><span class="pdf-row-val">{{ norm(resultRelDyn['Análise do(a) Crush']) }}</span>
+      </div>
+      <p v-if="resultRelDyn['Conclusão']" class="pdf-conclusion">{{ norm(resultRelDyn['Conclusão']) }}</p>
+    </div>
+
+    <div v-if="resultData?.deep_analysis?.length" class="pdf-block">
+      <div class="pdf-block-label">Análise Aprofundada</div>
+      <p v-for="(paragraph, i) in resultData.deep_analysis" :key="'pda'+i" class="pdf-p">{{ norm(paragraph) }}</p>
+    </div>
+
+    <div v-if="resultData?.final_verdict" class="pdf-block pdf-block--verdict">
+      <div class="pdf-block-label">Conclusão da Análise</div>
+      <p class="pdf-p">{{ norm(resultData.final_verdict) }}</p>
+    </div>
+
+    <div v-if="resultData?.final_message" class="pdf-block pdf-block--foryou">
+      <div class="pdf-block-label">Para Você</div>
+      <p class="pdf-p">{{ norm(resultData.final_message) }}</p>
+    </div>
+
+    <!-- Encerramento (dois níveis: emocional + institucional) -->
+    <div class="pdf-about">
+      <div class="pdf-block-label">Sobre esta análise</div>
+      <p class="pdf-about-emotional">Você talvez já sentisse parte disso. Agora consegue enxergar o padrão com mais clareza.</p>
+      <p class="pdf-about-legal">Esta leitura foi gerada exclusivamente a partir do recorte enviado. O resultado não representa uma verdade absoluta sobre sentimentos, intenções ou personalidade. Trata-se de uma interpretação contextual baseada nos padrões observados nas mensagens analisadas.</p>
+      <div class="pdf-about-sign">
+        <span class="pdf-about-brand">Scan<span>Crush</span></span>
+        <span class="pdf-about-slogan">Nem sempre os sinais são óbvios.</span>
+      </div>
+    </div>
+
+    <footer class="pdf-footer">
+      <p>© 2026 ScanCrush. Todos os direitos reservados.</p>
+      <p class="pdf-footer-site">scancrush.com</p>
+    </footer>
+  </section>
 </div>
 
 <!-- ══════════════════════════════════════════════════ -->
@@ -3357,19 +3585,92 @@ body::after {
   font-weight: 400;
 }
 
-/* ── PDF DOWNLOAD BUTTON ── */
-.pdf-btn-wrap {
+/* ── SOBRE ESTA ANÁLISE (encerramento web) ── */
+.about-analysis-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 22px 20px;
+  background: linear-gradient(160deg, rgba(255,45,107,0.04), rgba(155,93,229,0.03));
+}
+.about-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+.about-emotional {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.7;
+  font-weight: 600;
+  margin: 0 0 14px;
+  letter-spacing: -0.1px;
+}
+.about-text {
+  font-size: 12.5px;
+  color: var(--text-3);
+  line-height: 1.7;
+  margin: 0 0 18px;
+}
+.about-sign {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.about-sign-brand {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.about-sign-brand span { color: var(--pink); }
+.about-sign-slogan {
+  font-size: 12px;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+/* ── PDF DOWNLOAD — CARD DE VALOR ── */
+.pdf-download-card {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  text-align: center;
+  gap: 8px;
+  padding: 26px 22px 22px;
   margin-top: 8px;
+  border: 1px solid var(--pink-border);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse 80% 120% at 50% 0%, rgba(255,45,107,0.08), transparent 70%),
+    var(--card);
+}
+.pdf-download-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.pdf-download-desc {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.6;
+  max-width: 360px;
+  margin: 0 0 8px;
 }
 .btn-pdf-primary {
   width: 100%;
-  padding: 17px;
-  background: linear-gradient(135deg, var(--purple), #6B2FBA);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--pink), #C0004D);
   color: white;
   border-radius: 100px;
   font-size: 16px;
@@ -3378,12 +3679,12 @@ body::after {
   border: none;
   cursor: pointer;
   transition: all 0.25s;
-  box-shadow: 0 0 40px rgba(155,93,229,0.35);
+  box-shadow: var(--glow-pink);
   letter-spacing: 0.01em;
 }
 .btn-pdf-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 60px rgba(155,93,229,0.5);
+  box-shadow: 0 0 60px rgba(255,45,107,0.5), 0 0 110px rgba(255,45,107,0.15);
 }
 .pdf-hint {
   font-size: 12px;
@@ -3436,27 +3737,368 @@ body::after {
   opacity: 0.7;
 }
 
-/* ── PRINT STYLES ── */
+/* ════════════════════════════════════════════════════ */
+/* PDF DOCUMENT — identidade própria, light premium       */
+/* Oculto na tela; renderizado apenas na impressão.       */
+/* ════════════════════════════════════════════════════ */
+.pdf-doc {
+  display: none;
+  --pdf-ink:    #1a1a2e;
+  --pdf-body:   #3a3a52;
+  --pdf-muted:  #6a6a82;
+  --pdf-faint:  #9a9ab0;
+  --pdf-line:   #eaeaf1;
+  --pdf-card:   #ffffff;
+  --pdf-soft:   #f7f7fb;
+  --pdf-pink:   #FF2D6B;
+  --pdf-purple: #9B5DE5;
+  --pdf-green:  #00A36C;
+  --pdf-amber:  #E08A00;
+  font-family: var(--font);
+  color: var(--pdf-body);
+}
+
+/* ---- CAPA ---- */
+.pdf-cover {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 6mm 2mm 4mm;
+  text-align: center;
+  overflow: hidden;
+}
+/* Faixa superior com gradiente de marca */
+.pdf-cover-strip {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #FF2D6B, #9B5DE5);
+}
+/* Marca d'água do símbolo — discreta */
+.pdf-cover-watermark {
+  position: absolute;
+  width: 150mm;
+  height: 150mm;
+  right: -45mm;
+  bottom: -40mm;
+  opacity: 0.04;
+  pointer-events: none;
+}
+.pdf-cover-top { padding-top: 8mm; position: relative; }
+.pdf-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+.pdf-logo-word {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--pdf-ink);
+}
+.pdf-logo-word span { color: var(--pdf-pink); }
+.pdf-cover-slogan {
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--pdf-muted);
+  letter-spacing: 0.01em;
+}
+.pdf-cover-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14mm 0;
+  position: relative;
+}
+.pdf-cover-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pdf-faint);
+  margin: 0 0 14px;
+}
+.pdf-cover-title {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: var(--pdf-ink);
+  margin: 0;
+  line-height: 1.05;
+}
+.pdf-cover-subtitle {
+  font-size: 14px;
+  color: var(--pdf-muted);
+  max-width: 360px;
+  line-height: 1.6;
+  margin: 16px auto 0;
+}
+/* Score teaser compacto na capa */
+.pdf-cover-score {
+  margin-top: 14mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.pdf-cover-score-num {
+  font-size: 46px;
+  font-weight: 800;
+  color: var(--pdf-ink);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+.pdf-cover-score-num span { font-size: 16px; color: var(--pdf-faint); font-weight: 700; }
+.pdf-cover-protocol {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pdf-muted);
+  margin: 0 0 6px;
+}
+.pdf-cover-protocol strong { color: var(--pdf-ink); }
+.pdf-score-block {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  text-align: center;
+}
+.pdf-block--score { text-align: center; }
+.pdf-score-num {
+  font-size: 60px;
+  font-weight: 800;
+  color: var(--pdf-ink);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+.pdf-score-num span { font-size: 20px; color: var(--pdf-faint); font-weight: 700; }
+.pdf-score-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pdf-faint);
+  margin: 8px 0 14px;
+}
+.pdf-score-svg { width: 100%; height: auto; display: block; }
+.pdf-score-scale {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--pdf-faint);
+}
+.pdf-verdict-pill {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 9px 22px;
+  border-radius: 100px;
+  background: rgba(255,45,107,0.08);
+  border: 1px solid rgba(255,45,107,0.28);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--pdf-ink);
+}
+.pdf-cover-foot {
+  padding-top: 6mm;
+}
+.pdf-cover-owner {
+  font-size: 11px;
+  color: var(--pdf-muted);
+  margin: 0 0 4px;
+}
+.pdf-cover-owner strong { color: var(--pdf-pink); }
+.pdf-cover-meta {
+  font-size: 10px;
+  color: var(--pdf-faint);
+  margin: 0;
+}
+/* Rodapé fixo — repete em cada página impressa */
+.pdf-running-foot {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.04em;
+  color: var(--pdf-faint);
+}
+
+/* ---- RELATÓRIO ---- */
+.pdf-report { padding: 2mm; }
+.pdf-block {
+  border: 1px solid var(--pdf-line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  background: var(--pdf-card);
+}
+.pdf-block--verdict { border-left: 3px solid var(--pdf-pink); }
+.pdf-block--foryou  { border-left: 3px solid var(--pdf-purple); background: var(--pdf-soft); }
+.pdf-block-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pdf-faint);
+  margin-bottom: 12px;
+}
+.pdf-p {
+  font-size: 13px;
+  color: var(--pdf-body);
+  line-height: 1.75;
+  margin: 0 0 10px;
+}
+.pdf-p:last-child { margin-bottom: 0; }
+.pdf-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.pdf-chip {
+  font-size: 12px;
+  padding: 5px 13px;
+  border-radius: 100px;
+  border: 1px solid;
+}
+.pdf-chip.pos { color: var(--pdf-green); border-color: rgba(0,163,108,0.4); background: rgba(0,163,108,0.07); }
+.pdf-chip.neg { color: var(--pdf-pink);  border-color: rgba(255,45,107,0.4); background: rgba(255,45,107,0.06); }
+.pdf-signal {
+  position: relative;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--pdf-body);
+  line-height: 1.65;
+  margin-bottom: 7px;
+}
+.pdf-dot {
+  position: absolute;
+  left: 0; top: 7px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+}
+.pdf-dot.g { background: var(--pdf-green); }
+.pdf-dot.r { background: var(--pdf-pink); }
+.pdf-dot.y { background: var(--pdf-amber); }
+.pdf-highlight {
+  padding: 13px 15px;
+  background: var(--pdf-soft);
+  border-left: 2px solid var(--pdf-purple);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+.pdf-quote {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--pdf-ink);
+  line-height: 1.55;
+  margin-bottom: 6px;
+}
+.pdf-quote-exp { font-size: 12.5px; color: var(--pdf-muted); line-height: 1.6; }
+.pdf-contradiction {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--pdf-line);
+}
+.pdf-contradiction:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.pdf-contradiction-title { font-size: 13.5px; font-weight: 600; color: var(--pdf-ink); line-height: 1.5; }
+.pdf-contradiction-sub { font-size: 12.5px; color: var(--pdf-muted); line-height: 1.6; margin-top: 4px; }
+.pdf-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.pdf-row:last-child { margin-bottom: 0; }
+.pdf-row-label {
+  flex: 0 0 92px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pdf-faint);
+  padding-top: 2px;
+}
+.pdf-row-val { flex: 1; font-size: 13px; color: var(--pdf-body); line-height: 1.6; }
+.pdf-row-sub { display: block; font-size: 12px; color: var(--pdf-muted); margin-top: 3px; }
+.pdf-accent-pink { color: var(--pdf-pink); }
+.pdf-accent-purple { color: var(--pdf-purple); }
+.pdf-conclusion {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--pdf-line);
+  font-size: 13.5px;
+  color: var(--pdf-ink);
+  line-height: 1.7;
+}
+
+/* ---- Encerramento + footer ---- */
+.pdf-about {
+  margin-top: 4px;
+  padding: 22px;
+  border-radius: 14px;
+  background: var(--pdf-soft);
+  border: 1px solid var(--pdf-line);
+}
+.pdf-about-emotional {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pdf-ink);
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+.pdf-about-legal {
+  font-size: 11.5px;
+  color: var(--pdf-faint);
+  line-height: 1.7;
+  margin: 0;
+}
+.pdf-about-sign {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--pdf-line);
+}
+.pdf-about-brand { font-size: 15px; font-weight: 800; color: var(--pdf-ink); }
+.pdf-about-brand span { color: var(--pdf-pink); }
+.pdf-about-slogan { font-size: 12px; font-style: italic; color: var(--pdf-muted); }
+.pdf-footer {
+  text-align: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--pdf-line);
+}
+.pdf-footer p { margin: 0; font-size: 11px; color: var(--pdf-faint); }
+.pdf-footer-site { margin-top: 4px !important; color: var(--pdf-pink) !important; font-weight: 600; }
+
+/* ════════════════════════════════════════════════════ */
+/* PRINT — exibe somente o documento PDF                  */
+/* ════════════════════════════════════════════════════ */
 @media print {
-  .screen { display: none !important; }
-  .screen.active { display: block !important; }
-  .screen-header,
-  .result-notice-wrap,
-  .free-upgrade-card,
-  .pdf-btn-wrap,
-  .header-action,
-  .result-footer { display: none !important; }
-  body { background: #fff !important; color: #111 !important; }
-  .result-body { padding: 16px !important; }
-  .score-card, .res-card, .highlight-card,
-  .conclusion-card, .for-you-card, .contradiction-card {
-    border: 1px solid #ddd !important;
-    background: #fff !important;
-    box-shadow: none !important;
+  @page { size: A4; margin: 12mm; }
+  html, body { background: #fff !important; }
+  body::before, body::after { display: none !important; }
+  .screen,
+  .token-overlay,
+  .modal-overlay,
+  .confirm-overlay,
+  .lightbox-overlay { display: none !important; }
+
+  .pdf-doc {
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  .res-label, .for-you-label { color: #555 !important; }
-  .highlight-quote, .posture-badge, .emotional-type { color: #333 !important; }
-  .exec-chip { border: 1px solid #ccc !important; color: #333 !important; background: #f5f5f5 !important; }
+  .pdf-cover { min-height: 240mm; page-break-after: always; }
+  .pdf-report { padding-bottom: 10mm; }
+  .pdf-block, .pdf-highlight, .pdf-about, .pdf-score-block { page-break-inside: avoid; }
+  .pdf-running-foot { display: block !important; }
 }
 
 /* ── CONFIRM DIALOG ── */
