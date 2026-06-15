@@ -73,58 +73,66 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <button class="lp-modal-close" @click="closePricesModal()" aria-label="Fechar">×</button>
     <p class="lp-modal-eyebrow">// {{ t.pricing.tag }}</p>
     <h2 class="lp-modal-title">{{ t.pricing.title }} <span class="grad">{{ t.pricing.title_accent }}</span></h2>
-    <div class="lp-modal-plans">
+    <!-- Espelho exato da seção de planos (#b-pricing) -->
+    <div class="lp-modal-plans" style="margin-top:20px">
 
       <!-- Plan 0: Primeiras Impressões (Free) -->
-      <div class="lp-plan-card">
-        <div class="lp-plan-name">{{ t.pricing.plan0_name }}</div>
-        <p class="lp-plan-desc">{{ t.pricing.plan0_desc }}</p>
-        <div class="lp-plan-free-tag">{{ t.pricing.plan0_free }}</div>
-        <ul class="lp-plan-items">
-          <li>{{ t.pricing.plan0_item1 }}</li>
-          <li>{{ t.pricing.plan0_item2 }}</li>
-          <li>{{ t.pricing.plan0_item3 }}</li>
-          <li>{{ t.pricing.plan0_item4 }}</li>
-          <li>{{ t.pricing.plan0_item5 }}</li>
+      <div class="price-card">
+        <div class="price-name">{{ t.pricing.plan0_name }}</div>
+        <p class="price-desc">{{ t.pricing.plan0_desc }}</p>
+        <div class="price-free-tag">{{ t.pricing.plan0_free }}</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item1 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item2 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item3 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item4 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item5 }}</span></li>
         </ul>
-        <NuxtLink to="/scan" class="lp-btn-plan" style="text-align:center; display:block;" @click="closePricesModal()">{{ t.pricing.plan0_cta }}</NuxtLink>
+        <NuxtLink to="/scan" class="btn-price btn-price-free" @click="closePricesModal()">{{ t.pricing.plan0_cta }}</NuxtLink>
       </div>
 
       <!-- Plan 1: Sinais Revelados (FEATURED) -->
-      <div class="lp-plan-card featured">
-        <div class="lp-plan-badge">{{ t.pricing.popular }}</div>
-        <div class="lp-plan-name">{{ t.pricing.plan1_name }}</div>
-        <p class="lp-plan-desc">{{ t.pricing.plan1_desc }}</p>
-        <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan1_price_curr }}</span>{{ t.pricing.plan1_price_num }}</div>
-        <p class="lp-plan-period">pagamento único</p>
-        <ul class="lp-plan-items">
-          <li>{{ t.pricing.plan1_item1 }}</li>
-          <li>{{ t.pricing.plan1_item2 }}</li>
-          <li>{{ t.pricing.plan1_item3 }}</li>
-          <li>{{ t.pricing.plan1_item4 }}</li>
-          <li>{{ t.pricing.plan1_item5 }}</li>
-          <li>{{ t.pricing.plan1_item6 }}</li>
-          <li>{{ t.pricing.plan1_item7 }}</li>
+      <div class="price-card featured">
+        <div class="popular-badge">{{ t.pricing.popular }}</div>
+        <div class="price-name">{{ t.pricing.plan1_name }}</div>
+        <p class="price-desc">{{ t.pricing.plan1_desc }}</p>
+        <div class="price-amount">
+          <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan1_price_curr }}</span>
+          <span class="price-num">{{ t.pricing.plan1_price_num }}</span>
+        </div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item1 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item2 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item3 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item4 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item5 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item6 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item7 }}</span></li>
         </ul>
-        <button class="lp-btn-plan primary" @click="goToCheckout('revealed')">{{ t.pricing.plan1_cta }}</button>
+        <button class="btn-price btn-price-featured" @click="goToCheckout('revealed')">{{ t.pricing.plan1_cta }}</button>
       </div>
 
       <!-- Plan 2: Raio-X do Crush -->
-      <div class="lp-plan-card">
-        <div class="lp-plan-name">{{ t.pricing.plan2_name }}</div>
-        <p class="lp-plan-desc">{{ t.pricing.plan2_desc }}</p>
-        <div class="lp-plan-price"><span class="lp-curr">{{ t.pricing.plan2_price_curr }}</span>{{ t.pricing.plan2_price_num }}</div>
-        <p class="lp-plan-period">pagamento único</p>
-        <ul class="lp-plan-items">
-          <li class="lp-plan-item-includes">{{ t.pricing.plan2_item1 }}</li>
-          <li>{{ t.pricing.plan2_item2 }}</li>
-          <li>{{ t.pricing.plan2_item3 }}</li>
-          <li>{{ t.pricing.plan2_item4 }}</li>
-          <li>{{ t.pricing.plan2_item5 }}</li>
-          <li>{{ t.pricing.plan2_item6 }}</li>
-          <li>{{ t.pricing.plan2_item7 }}</li>
+      <div class="price-card">
+        <div class="price-name">{{ t.pricing.plan2_name }}</div>
+        <p class="price-desc">{{ t.pricing.plan2_desc }}</p>
+        <div class="price-amount">
+          <span class="price-curr">{{ t.pricing.plan2_price_curr }}</span>
+          <span class="price-num">{{ t.pricing.plan2_price_num }}</span>
+        </div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li class="pf-includes">+ {{ t.pricing.plan1_name }}</li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item2 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item3 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item4 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item5 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item6 }}</span></li>
+          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item7 }}</span></li>
         </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('raiox')">{{ t.pricing.plan2_cta }}</button>
+        <button class="btn-price btn-price-paid" @click="goToCheckout('raiox')">{{ t.pricing.plan2_cta }}</button>
       </div>
 
     </div>
