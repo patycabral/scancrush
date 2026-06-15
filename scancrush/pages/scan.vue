@@ -395,7 +395,7 @@ function txtSub(item: any): string {
   return item.contradiction || item.explanation || item.subtitle || ''
 }
 
-/** Normaliza texto da IA: CRUSH → Crush, nome da usuária → você */
+/** Normaliza texto da IA: CRUSH → Crush, nome da usuária → você (sem forçar maiúscula no meio da frase) */
 function norm(text: string): string {
   if (!text) return text
   let t = text.replace(/\bCRUSH\b/g, 'Crush')
@@ -404,14 +404,13 @@ function norm(text: string): string {
     if (firstName && firstName.toLowerCase() !== 'você') {
       try {
         const escaped = firstName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        t = t
-          .replace(new RegExp(`\\b${escaped}\\b`, 'g'), 'você')
-          .replace(/\bvocê ocupa\b/gi, 'Você ocupa')
-          .replace(/\bvocê sustenta\b/gi, 'Você sustenta')
-          .replace(/\bvocê inicia\b/gi, 'Você inicia')
+        // substitui o nome por "você" minúsculo — sem capitalizar no meio da frase
+        t = t.replace(new RegExp(`\\b${escaped}\\b`, 'g'), 'você')
       } catch { /* segurança: não quebra se regex falhar */ }
     }
   }
+  // "Você" com maiúscula APENAS no início do texto (começo de frase)
+  t = t.replace(/^(\s*)você\b/, '$1Você')
   return t
 }
 
@@ -1464,7 +1463,18 @@ onUnmounted(() => {
   <!-- ⑯ Footer ── -->
   <footer class="result-footer">
     <div class="footer-inner">
-      <div class="footer-brand">Scan<span>Crush</span></div>
+      <div class="footer-brand">
+        <svg width="18" height="18" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.35"/>
+          <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+          <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+          <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="footer-brand-word">Scan<span>Crush</span></span>
+      </div>
       <nav class="footer-links">
         <a href="/terms.html" target="_blank">Termos de Uso</a>
         <a href="/privacy.html" target="_blank">Privacidade</a>
@@ -3734,12 +3744,16 @@ body::after {
   text-align: center;
 }
 .footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.3px;
   color: var(--text-2);
 }
-.footer-brand span { color: var(--pink); }
+.footer-brand svg { filter: drop-shadow(0 0 6px var(--pink)); }
+.footer-brand-word span { color: var(--pink); }
 .footer-links {
   display: flex;
   gap: 20px;
