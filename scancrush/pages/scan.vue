@@ -448,6 +448,23 @@ const allKeyPatterns = computed(() => {
   return res.slice(0, 5)
 })
 
+/** deep_analysis normalizado: aceita strings (legado) e objetos {tone,title,text} */
+const deepAnalysisItems = computed(() => {
+  const arr = resultData.value?.deep_analysis ?? []
+  const toneMap: Record<string, string> = {
+    positivo: 'positivo', negativo: 'negativo',
+    atencao: 'atencao', 'atenção': 'atencao', neutro: 'atencao',
+  }
+  return arr.map((item: any) => {
+    if (typeof item === 'string') return { tone: '', title: '', text: item }
+    return {
+      tone:  toneMap[(item.tone || '').toLowerCase()] ?? '',
+      title: item.title || '',
+      text:  item.text || txt(item),
+    }
+  })
+})
+
 /** Mapeia situation_label.level → texto do pill */
 function verdictText(level: string | null): string {
   const map: Record<string, string> = {
@@ -1403,10 +1420,11 @@ onUnmounted(() => {
       </div>
 
       <!-- ⑫ Análise Aprofundada (raiox only) ── -->
-      <div v-if="resultData?.deep_analysis?.length" class="res-card">
+      <div v-if="deepAnalysisItems.length" class="res-card">
         <div class="res-label">Análise Aprofundada</div>
-        <div v-for="(paragraph, i) in resultData.deep_analysis" :key="'da'+i" class="deep-paragraph">
-          {{ norm(paragraph) }}
+        <div v-for="(item, i) in deepAnalysisItems" :key="'da'+i" class="deep-paragraph">
+          <div v-if="item.title" class="deep-title" :class="item.tone">{{ item.title }}</div>
+          <p class="deep-text">{{ norm(item.text) }}</p>
         </div>
       </div>
 
@@ -1648,9 +1666,12 @@ onUnmounted(() => {
       <p v-if="resultRelDyn['Conclusão']" class="pdf-conclusion">{{ norm(resultRelDyn['Conclusão']) }}</p>
     </div>
 
-    <div v-if="resultData?.deep_analysis?.length" class="pdf-block">
+    <div v-if="deepAnalysisItems.length" class="pdf-block">
       <div class="pdf-block-label">Análise Aprofundada</div>
-      <p v-for="(paragraph, i) in resultData.deep_analysis" :key="'pda'+i" class="pdf-p">{{ norm(paragraph) }}</p>
+      <div v-for="(item, i) in deepAnalysisItems" :key="'pda'+i" class="pdf-deep-item">
+        <div v-if="item.title" class="pdf-deep-title" :class="item.tone">{{ item.title }}</div>
+        <p class="pdf-p">{{ norm(item.text) }}</p>
+      </div>
     </div>
 
     <div v-if="resultData?.final_verdict" class="pdf-block pdf-block--verdict">
@@ -3589,14 +3610,28 @@ body::after {
 
 /* ── DEEP ANALYSIS PARAGRAPHS ── */
 .deep-paragraph {
-  font-size: 14px;
-  color: var(--text-2);
-  line-height: 1.75;
-  padding: 12px 0;
+  padding: 14px 0;
   border-bottom: 1px solid var(--border);
 }
 .deep-paragraph:last-child { border-bottom: none; padding-bottom: 0; }
 .deep-paragraph:first-child { padding-top: 0; }
+.deep-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+.deep-title.positivo { color: var(--safe); }
+.deep-title.negativo { color: #ff6b8e; }
+.deep-title.atencao  { color: var(--amber); }
+.deep-text {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.75;
+  margin: 0;
+}
 
 /* ── FINAL VERDICT CARD ── */
 .final-verdict-card {
@@ -3998,6 +4033,18 @@ body::after {
   margin: 0 0 10px;
 }
 .pdf-p:last-child { margin-bottom: 0; }
+.pdf-deep-item + .pdf-deep-item { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--pdf-line); }
+.pdf-deep-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.pdf-deep-title.positivo { color: var(--pdf-green); }
+.pdf-deep-title.negativo { color: var(--pdf-pink); }
+.pdf-deep-title.atencao  { color: var(--pdf-amber); }
 .pdf-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .pdf-chip {
   font-size: 12px;
