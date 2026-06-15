@@ -415,6 +415,12 @@ function norm(text: string): string {
   return t
 }
 
+/** Primeira letra maiúscula (valores curtos: engajamento, postura, consistência) */
+function capFirst(text: string): string {
+  if (!text) return text
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
 /** Mapeia user_posture.level → nomenclatura neutra */
 const postureLevelMap: Record<string, string> = {
   'carente':    'Alta busca por conexão',
@@ -1346,15 +1352,15 @@ onUnmounted(() => {
         <div class="res-label">Comportamento do Crush</div>
         <div v-if="resultData.behavior.engagement_level" class="behavior-row">
           <span class="behavior-label">Engajamento</span>
-          <span class="behavior-val">{{ norm(resultData.behavior.engagement_level) }}</span>
+          <span class="behavior-val">{{ capFirst(norm(resultData.behavior.engagement_level)) }}</span>
         </div>
         <div v-if="resultData.behavior.consistency" class="behavior-row">
           <span class="behavior-label">Consistência</span>
-          <span class="behavior-val">{{ norm(resultData.behavior.consistency) }}</span>
+          <span class="behavior-val">{{ capFirst(norm(resultData.behavior.consistency)) }}</span>
         </div>
         <div v-if="resultData.behavior.response_pattern" class="behavior-row res-behavior-pattern">
           <span class="behavior-label">Padrão</span>
-          <span class="behavior-val">{{ norm(resultData.behavior.response_pattern) }}</span>
+          <span class="behavior-val">{{ capFirst(norm(resultData.behavior.response_pattern)) }}</span>
         </div>
       </div>
 
@@ -1365,7 +1371,7 @@ onUnmounted(() => {
           <div class="behavior-row" style="align-items:flex-start">
             <span class="behavior-label">Sua postura</span>
             <span class="behavior-val" style="flex:1">
-              <span class="posture-badge">{{ postureLabel(resultData.user_posture.level) }}</span>
+              <span class="posture-badge">{{ capFirst(postureLabel(resultData.user_posture.level)) }}</span>
               <span v-if="resultData.user_posture.explanation" class="posture-exp">{{ norm(resultData.user_posture.explanation) }}</span>
             </span>
           </div>
@@ -1374,7 +1380,7 @@ onUnmounted(() => {
           <div class="behavior-row" style="align-items:flex-start; margin-top:12px">
             <span class="behavior-label">Perfil</span>
             <span class="behavior-val" style="flex:1">
-              <span class="emotional-type">{{ norm(resultData.emotional_profile.type) }}</span>
+              <span class="emotional-type">{{ capFirst(norm(resultData.emotional_profile.type)) }}</span>
               <span v-if="resultData.emotional_profile.description" class="emotional-desc">{{ norm(resultData.emotional_profile.description) }}</span>
             </span>
           </div>
@@ -1423,7 +1429,18 @@ onUnmounted(() => {
         <p class="about-emotional">Você talvez já sentisse parte disso. Agora consegue enxergar o padrão com mais clareza.</p>
         <p class="about-text">Esta leitura foi gerada exclusivamente a partir do recorte enviado. O resultado não representa uma verdade absoluta sobre sentimentos, intenções ou personalidade. Trata-se de uma interpretação contextual baseada nos padrões observados nas mensagens analisadas.</p>
         <div class="about-sign">
-          <span class="about-sign-brand">Scan<span>Crush</span></span>
+          <span class="about-sign-brand">
+            <svg width="18" height="18" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.35"/>
+              <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+              <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+              <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span class="about-sign-word">Scan<span>Crush</span></span>
+          </span>
           <span class="about-sign-slogan">Nem sempre os sinais são óbvios.</span>
         </div>
       </div>
@@ -2492,11 +2509,13 @@ body::after {
 }
 .result-notice-ok {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   gap: 12px;
   background: rgba(0,214,143,0.05);
   border: 1px solid rgba(0,214,143,0.2);
   color: var(--text-2);
+  text-align: center;
 }
 .notice-check {
   font-size: 15px;
@@ -3617,17 +3636,23 @@ body::after {
 .about-sign {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }
 .about-sign-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.3px;
   color: var(--text);
 }
-.about-sign-brand span { color: var(--pink); }
+.about-sign-brand svg { filter: drop-shadow(0 0 6px var(--pink)); }
+.about-sign-word span { color: var(--pink); }
 .about-sign-slogan {
   font-size: 12px;
   color: var(--text-3);
