@@ -496,6 +496,15 @@ const scoreValue = computed(() => {
 /** posição X do marcador no SVG do score (viewBox 0 0 500 –, trilho 30→470) */
 const scoreMarkerX = computed(() => 30 + (scoreValue.value / 100) * 440)
 
+/** cobertura (da direita) da barra de reciprocidade — encolhe conforme o score */
+const recipScore = computed(() => {
+  const s = Number(resultData.value?.reciprocity?.score)
+  return Number.isFinite(s) ? Math.max(0, Math.min(100, s)) : 0
+})
+const recipCoverWidth = computed(() => `${100 - recipScore.value}%`)
+/** posição X do marcador da reciprocidade no SVG do PDF (trilho 30→470) */
+const recipMarkerX = computed(() => 30 + (recipScore.value / 100) * 440)
+
 function updateNewAnalysisBtn() {
   if (currentPlan.value === 'free') {
     btnNewAnalysisText.value = 'Fazer upgrade'
@@ -1403,6 +1412,28 @@ onUnmounted(() => {
         </template>
       </div>
 
+      <!-- ⑩b Nível de Reciprocidade ── -->
+      <div v-if="resultData?.reciprocity" class="res-card">
+        <div class="res-label">Nível de Reciprocidade</div>
+        <div v-if="resultData.reciprocity.score != null" class="recip-score-row">
+          <div class="recip-score-num">{{ resultData.reciprocity.score }}<sup>/100</sup></div>
+          <div class="recip-bar-wrap">
+            <div class="recip-bar-track"><div class="recip-bar-cover" :style="{ width: recipCoverWidth }"></div></div>
+            <div class="recip-bar-labels"><span>Unilateral</span><span>Equilibrado</span></div>
+          </div>
+        </div>
+        <div v-if="resultData.reciprocity.metrics?.length" class="recip-metrics">
+          <div v-for="(m, i) in resultData.reciprocity.metrics" :key="'rm'+i" class="recip-metric">
+            <span class="recip-metric-label">{{ norm(m.label) }}</span>
+            <span class="recip-metric-vals">
+              <span class="recip-val user"><b>Você</b> {{ m.user }}</span>
+              <span class="recip-val crush"><b>Crush</b> {{ m.crush }}</span>
+            </span>
+          </div>
+        </div>
+        <p v-if="resultData.reciprocity.summary" class="recip-summary">{{ norm(resultData.reciprocity.summary) }}</p>
+      </div>
+
       <!-- ⑪ Dinâmica da Relação ── -->
       <div v-if="resultRelDyn" class="res-card">
         <div class="res-label">Dinâmica da Relação</div>
@@ -1653,6 +1684,35 @@ onUnmounted(() => {
         <span class="pdf-row-label">Perfil</span>
         <span class="pdf-row-val"><strong class="pdf-accent-purple">{{ norm(resultData.emotional_profile.type) }}</strong><span v-if="resultData.emotional_profile.description" class="pdf-row-sub">{{ norm(resultData.emotional_profile.description) }}</span></span>
       </div>
+    </div>
+
+    <div v-if="resultData?.reciprocity" class="pdf-block">
+      <div class="pdf-block-label">Nível de Reciprocidade</div>
+      <div v-if="resultData.reciprocity.score != null" class="pdf-recip-head">
+        <span class="pdf-recip-num">{{ resultData.reciprocity.score }}<span>/100</span></span>
+        <svg class="pdf-recip-svg" viewBox="0 0 500 44" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="pdfRecipGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"  stop-color="#FF2D6B"/>
+              <stop offset="25%" stop-color="#FF4D4D"/>
+              <stop offset="50%" stop-color="#FF8C00"/>
+              <stop offset="75%" stop-color="#FFB800"/>
+              <stop offset="100%" stop-color="#00D68F"/>
+            </linearGradient>
+          </defs>
+          <rect x="30" y="20" width="440" height="12" rx="6" fill="url(#pdfRecipGrad)"/>
+          <g :transform="`translate(${recipMarkerX}, 0)`">
+            <polygon points="0,14 -6,4 6,4" fill="#1a1a2e"/>
+            <circle cx="0" cy="26" r="5" fill="#fff" stroke="#1a1a2e" stroke-width="2"/>
+          </g>
+        </svg>
+      </div>
+      <div v-if="resultData.reciprocity.score != null" class="pdf-recip-scale"><span>Unilateral</span><span>Equilibrado</span></div>
+      <div v-for="(m, i) in resultData.reciprocity.metrics ?? []" :key="'prm'+i" class="pdf-recip-metric">
+        <span class="pdf-recip-mlabel">{{ norm(m.label) }}</span>
+        <span class="pdf-recip-mvals"><span class="u">Você {{ m.user }}</span><span class="c">Crush {{ m.crush }}</span></span>
+      </div>
+      <p v-if="resultData.reciprocity.summary" class="pdf-recip-summary">{{ norm(resultData.reciprocity.summary) }}</p>
     </div>
 
     <div v-if="resultRelDyn" class="pdf-block">
@@ -2715,6 +2775,41 @@ body::after {
   border: 1px solid rgba(255,45,107,0.18);
   color: #ff6b8e;
 }
+
+/* ── NÍVEL DE RECIPROCIDADE ── */
+.recip-score-row { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 18px; }
+.recip-score-num { font-size: 40px; font-weight: 800; line-height: 1; color: var(--text); letter-spacing: -1.5px; }
+.recip-score-num sup { font-size: 14px; color: var(--text-2); letter-spacing: 0; }
+.recip-bar-wrap { flex: 1; }
+.recip-bar-track {
+  height: 8px;
+  background: linear-gradient(90deg, #FF4D4D 0%, #FF8800 18%, #FFB800 45%, #a8dd63 72%, #00D68F 100%);
+  border-radius: 100px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 6px;
+}
+.recip-bar-cover { position: absolute; top: 0; right: 0; bottom: 0; background: var(--card); border-radius: 0 100px 100px 0; }
+.recip-bar-labels { display: flex; justify-content: space-between; font-size: 9px; font-family: var(--mono); color: var(--text-3); }
+.recip-metrics { display: flex; flex-direction: column; }
+.recip-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.recip-metric:last-child { border-bottom: none; padding-bottom: 0; }
+.recip-metric:first-child { padding-top: 0; }
+.recip-metric-label { font-size: 13px; color: var(--text-2); }
+.recip-metric-vals { display: flex; gap: 14px; flex-shrink: 0; }
+.recip-val { font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.recip-val b { font-weight: 700; margin-right: 5px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+.recip-val.user b { color: var(--pink); }
+.recip-val.crush b { color: var(--text-3); }
+.recip-summary { font-size: 13px; color: var(--text-2); line-height: 1.65; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
 
 /* ── CONTRADICTIONS CARD ── */
 .contradiction-card {
@@ -4045,6 +4140,20 @@ body::after {
 .pdf-deep-title.positivo { color: var(--pdf-green); }
 .pdf-deep-title.negativo { color: var(--pdf-pink); }
 .pdf-deep-title.atencao  { color: var(--pdf-amber); }
+
+/* ── PDF: Nível de Reciprocidade ── */
+.pdf-recip-head { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
+.pdf-recip-num { font-size: 30px; font-weight: 800; color: var(--pdf-ink); letter-spacing: -1px; line-height: 1; flex-shrink: 0; }
+.pdf-recip-num span { font-size: 13px; color: var(--pdf-faint); font-weight: 700; }
+.pdf-recip-svg { flex: 1; height: auto; }
+.pdf-recip-scale { display: flex; justify-content: space-between; font-size: 9px; color: var(--pdf-faint); margin: 0 0 12px; padding: 0 4px; }
+.pdf-recip-metric { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--pdf-line); }
+.pdf-recip-metric:last-of-type { border-bottom: none; }
+.pdf-recip-mlabel { font-size: 12.5px; color: var(--pdf-body); }
+.pdf-recip-mvals { display: flex; gap: 16px; flex-shrink: 0; }
+.pdf-recip-mvals .u { font-size: 11.5px; color: var(--pdf-pink); font-weight: 600; }
+.pdf-recip-mvals .c { font-size: 11.5px; color: var(--pdf-muted); }
+.pdf-recip-summary { font-size: 12.5px; color: var(--pdf-body); line-height: 1.65; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--pdf-line); }
 .pdf-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .pdf-chip {
   font-size: 12px;
