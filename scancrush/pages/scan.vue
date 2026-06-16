@@ -1585,16 +1585,16 @@ onUnmounted(() => {
     </div>
 
     <div class="pdf-cover-foot">
-      <p class="pdf-cover-protocol" v-if="resultProtocol">Análise <strong>{{ resultProtocol }}</strong> · {{ analysisDateFormatted }}</p>
-      <p class="pdf-cover-protocol" v-else>{{ analysisDateFormatted }}</p>
-      <p v-if="resultUserEmail" class="pdf-cover-owner">Análise realizada exclusivamente para <strong>{{ resultUserEmail }}</strong></p>
-      <p class="pdf-cover-meta">scancrush.com</p>
+      <p class="pdf-cover-protocol" v-if="resultProtocol">Protocolo: <strong>{{ resultProtocol }}</strong></p>
+      <p v-if="resultUserEmail" class="pdf-cover-owner">Gerado para: <strong>{{ resultUserEmail }}</strong></p>
+      <p class="pdf-cover-meta">{{ analysisDateFormatted }} · scancrush.com</p>
     </div>
   </section>
 
   <!-- Rodapé fixo: repete em todas as páginas na impressão (atribuição/anti-compartilhamento) -->
-  <div v-if="resultUserEmail" class="pdf-running-foot">
-    Análise exclusiva de {{ resultUserEmail }} · ScanCrush · scancrush.com
+  <div class="pdf-running-foot">
+    <template v-if="resultUserEmail">Gerado para: {{ resultUserEmail }} · scancrush.com</template>
+    <template v-else>scancrush.com</template>
   </div>
 
   <!-- ── PÁGINA 2+: RELATÓRIO ── -->
