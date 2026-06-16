@@ -1471,6 +1471,12 @@ onUnmounted(() => {
         <p class="for-you-text">{{ norm(resultData.final_message) }}</p>
       </div>
 
+      <!-- ⑭b Limites da leitura ── -->
+      <div v-if="resultData?.limits" class="res-card limits-card">
+        <div class="res-label">Limites da leitura</div>
+        <p class="limits-text">{{ norm(resultData.limits) }}</p>
+      </div>
+
       <!-- ⑮ Sobre esta análise (encerramento em dois níveis) ── -->
       <div class="about-analysis-card">
         <div class="about-label">Sobre esta análise</div>
@@ -1742,6 +1748,11 @@ onUnmounted(() => {
     <div v-if="resultData?.final_message" class="pdf-block pdf-block--foryou">
       <div class="pdf-block-label">Para Você</div>
       <p class="pdf-p">{{ norm(resultData.final_message) }}</p>
+    </div>
+
+    <div v-if="resultData?.limits" class="pdf-block pdf-block--limits">
+      <div class="pdf-block-label">Limites da leitura</div>
+      <p class="pdf-p">{{ norm(resultData.limits) }}</p>
     </div>
 
     <!-- Encerramento (dois níveis: emocional + institucional) -->
@@ -3744,6 +3755,10 @@ body::after {
   font-weight: 400;
 }
 
+/* ── LIMITES DA LEITURA ── */
+.limits-card { background: transparent; border-color: var(--border); }
+.limits-text { font-size: 13px; color: var(--text-3); line-height: 1.7; margin: 0; }
+
 /* ── SOBRE ESTA ANÁLISE (encerramento web) ── */
 .about-analysis-card {
   border: 1px solid var(--border);
@@ -4113,6 +4128,8 @@ body::after {
 }
 .pdf-block--verdict { border-left: 3px solid var(--pdf-pink); }
 .pdf-block--foryou  { border-left: 3px solid var(--pdf-purple); background: var(--pdf-soft); }
+.pdf-block--limits  { background: var(--pdf-soft); }
+.pdf-block--limits .pdf-p { color: var(--pdf-faint); font-size: 12px; }
 .pdf-block-label {
   font-family: var(--mono);
   font-size: 10px;
