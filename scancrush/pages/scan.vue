@@ -505,6 +505,22 @@ const recipCoverWidth = computed(() => `${100 - recipScore.value}%`)
 /** posição X do marcador da reciprocidade no SVG do PDF (trilho 30→470) */
 const recipMarkerX = computed(() => 30 + (recipScore.value / 100) * 440)
 
+/** Métricas de reciprocidade com proporção Você×Crush calculada (placar) */
+const recipMetrics = computed(() => {
+  return (resultData.value?.reciprocity?.metrics ?? []).map((m: any) => {
+    const pu = parseFloat(String(m?.user ?? '').replace(/[^\d.]/g, ''))
+    const pc = parseFloat(String(m?.crush ?? '').replace(/[^\d.]/g, ''))
+    let u: number | null = null, c: number | null = null
+    if (Number.isFinite(pu) && Number.isFinite(pc) && pu + pc > 0) {
+      const t = pu + pc
+      u = Math.round((pu / t) * 100); c = 100 - u
+    } else if (Number.isFinite(pu) && pu >= 0 && pu <= 100) {
+      u = Math.round(pu); c = 100 - u
+    }
+    return { label: m?.label ?? '', user: m?.user ?? '', crush: m?.crush ?? '', u, c }
+  })
+})
+
 function updateNewAnalysisBtn() {
   if (currentPlan.value === 'free') {
     btnNewAnalysisText.value = 'Fazer upgrade'
@@ -1422,13 +1438,20 @@ onUnmounted(() => {
             <div class="recip-bar-labels"><span>Unilateral</span><span>Equilibrado</span></div>
           </div>
         </div>
-        <div v-if="resultData.reciprocity.metrics?.length" class="recip-metrics">
-          <div v-for="(m, i) in resultData.reciprocity.metrics" :key="'rm'+i" class="recip-metric">
-            <span class="recip-metric-label">{{ norm(m.label) }}</span>
-            <span class="recip-metric-vals">
-              <span class="recip-val user"><b>Você</b> {{ m.user }}</span>
-              <span class="recip-val crush"><b>Crush</b> {{ m.crush }}</span>
-            </span>
+        <div v-if="recipMetrics.length" class="recip-metrics">
+          <div v-for="(m, i) in recipMetrics" :key="'rm'+i" class="recip-metric">
+            <div class="recip-metric-label">{{ norm(m.label) }}</div>
+            <div class="recip-row">
+              <span class="recip-end user">Você <b>{{ m.user }}</b></span>
+              <div class="recip-bar2">
+                <template v-if="m.u != null">
+                  <div class="recip-bar2-user" :style="{ width: m.u + '%' }"></div>
+                  <div class="recip-bar2-crush" :style="{ width: m.c + '%' }"></div>
+                </template>
+                <div v-else class="recip-bar2-empty"></div>
+              </div>
+              <span class="recip-end crush"><b>{{ m.crush }}</b> Crush</span>
+            </div>
           </div>
         </div>
         <p v-if="resultData.reciprocity.summary" class="recip-summary">{{ norm(resultData.reciprocity.summary) }}</p>
@@ -1714,9 +1737,19 @@ onUnmounted(() => {
         </svg>
       </div>
       <div v-if="resultData.reciprocity.score != null" class="pdf-recip-scale"><span>Unilateral</span><span>Equilibrado</span></div>
-      <div v-for="(m, i) in resultData.reciprocity.metrics ?? []" :key="'prm'+i" class="pdf-recip-metric">
-        <span class="pdf-recip-mlabel">{{ norm(m.label) }}</span>
-        <span class="pdf-recip-mvals"><span class="u">Você {{ m.user }}</span><span class="c">Crush {{ m.crush }}</span></span>
+      <div v-for="(m, i) in recipMetrics" :key="'prm'+i" class="pdf-recip-metric">
+        <div class="pdf-recip-mlabel">{{ norm(m.label) }}</div>
+        <div class="pdf-recip-row">
+          <span class="pdf-recip-end u">Você <b>{{ m.user }}</b></span>
+          <div class="pdf-recip-bar2">
+            <template v-if="m.u != null">
+              <div class="pdf-recip-bar2-u" :style="{ width: m.u + '%' }"></div>
+              <div class="pdf-recip-bar2-c" :style="{ width: m.c + '%' }"></div>
+            </template>
+            <div v-else class="pdf-recip-bar2-empty"></div>
+          </div>
+          <span class="pdf-recip-end c"><b>{{ m.crush }}</b> Crush</span>
+        </div>
       </div>
       <p v-if="resultData.reciprocity.summary" class="pdf-recip-summary">{{ norm(resultData.reciprocity.summary) }}</p>
     </div>
@@ -2803,23 +2836,19 @@ body::after {
 .recip-bar-cover { position: absolute; top: 0; right: 0; bottom: 0; background: var(--card); border-radius: 0 100px 100px 0; }
 .recip-bar-labels { display: flex; justify-content: space-between; font-size: 9px; font-family: var(--mono); color: var(--text-3); }
 .recip-metrics { display: flex; flex-direction: column; }
-.recip-metric {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-}
+.recip-metric { padding: 12px 0; border-bottom: 1px solid var(--border); }
 .recip-metric:last-child { border-bottom: none; padding-bottom: 0; }
 .recip-metric:first-child { padding-top: 0; }
-.recip-metric-label { font-size: 13px; color: var(--text-2); }
-.recip-metric-vals { display: flex; gap: 14px; flex-shrink: 0; }
-.recip-val { font-size: 12px; color: var(--text-2); white-space: nowrap; }
-.recip-val b { font-weight: 700; margin-right: 5px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
-.recip-val.user b { color: var(--pink); }
-.recip-val.crush b { color: var(--text-3); }
+.recip-metric-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 9px; }
+.recip-row { display: flex; align-items: center; gap: 10px; }
+.recip-end { font-size: 12px; color: var(--text-2); white-space: nowrap; }
+.recip-end b { font-weight: 800; }
+.recip-end.user b { color: var(--pink); }
+.recip-end.crush b { color: var(--text); }
+.recip-bar2 { flex: 1; min-width: 60px; height: 10px; border-radius: 100px; overflow: hidden; display: flex; background: rgba(255,255,255,0.05); }
+.recip-bar2-user { background: linear-gradient(90deg, var(--pink), #ff6b8e); height: 100%; }
+.recip-bar2-crush { background: rgba(255,255,255,0.14); height: 100%; }
+.recip-bar2-empty { width: 100%; background: rgba(255,255,255,0.06); height: 100%; }
 .recip-summary { font-size: 13px; color: var(--text-2); line-height: 1.65; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
 
 /* ── CONTRADICTIONS CARD ── */
@@ -4164,12 +4193,18 @@ body::after {
 .pdf-recip-num span { font-size: 13px; color: var(--pdf-faint); font-weight: 700; }
 .pdf-recip-svg { flex: 1; height: auto; }
 .pdf-recip-scale { display: flex; justify-content: space-between; font-size: 9px; color: var(--pdf-faint); margin: 0 0 12px; padding: 0 4px; }
-.pdf-recip-metric { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--pdf-line); }
+.pdf-recip-metric { padding: 9px 0; border-bottom: 1px solid var(--pdf-line); }
 .pdf-recip-metric:last-of-type { border-bottom: none; }
-.pdf-recip-mlabel { font-size: 12.5px; color: var(--pdf-body); }
-.pdf-recip-mvals { display: flex; gap: 16px; flex-shrink: 0; }
-.pdf-recip-mvals .u { font-size: 11.5px; color: var(--pdf-pink); font-weight: 600; }
-.pdf-recip-mvals .c { font-size: 11.5px; color: var(--pdf-muted); }
+.pdf-recip-mlabel { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pdf-faint); margin-bottom: 6px; }
+.pdf-recip-row { display: flex; align-items: center; gap: 9px; }
+.pdf-recip-end { font-size: 11px; color: var(--pdf-muted); white-space: nowrap; }
+.pdf-recip-end b { font-weight: 800; }
+.pdf-recip-end.u b { color: var(--pdf-pink); }
+.pdf-recip-end.c b { color: var(--pdf-ink); }
+.pdf-recip-bar2 { flex: 1; min-width: 50px; height: 9px; border-radius: 100px; overflow: hidden; display: flex; background: #ececf2; }
+.pdf-recip-bar2-u { background: var(--pdf-pink); height: 100%; }
+.pdf-recip-bar2-c { background: #cfcfdb; height: 100%; }
+.pdf-recip-bar2-empty { width: 100%; background: #ececf2; height: 100%; }
 .pdf-recip-summary { font-size: 12.5px; color: var(--pdf-body); line-height: 1.65; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--pdf-line); }
 .pdf-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .pdf-chip {
