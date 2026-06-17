@@ -769,10 +769,57 @@ const obsPlaceholder = computed(() => isFree.value
 // ── Token validation state ──
 const route           = useRoute()
 // Inicializa como true se já há token na URL — evita flash de conteúdo antes do overlay aparecer
-const tokenValidating = ref(!!route.query.token)
+const tokenValidating = ref(!!route.query.token || !!route.query.r)
 const accessError     = ref('')
 
 const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/validate-access-token'
+const PRINT_RESULT_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/print-result'
+
+// Modo visualização (link do e-mail): reabre o resultado já gerado, somente leitura.
+// Valida token + protocolo + e-mail no n8n antes de devolver o result_json salvo.
+async function loadSharedResult(token: string, protocol: string, email: string) {
+  tokenValidating.value = true
+  accessError.value = ''
+  try {
+    const res = await fetch(PRINT_RESULT_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ token, protocol, email }),
+    })
+    const data = await res.json()
+
+    if (!data?.success) {
+      accessError.value = data?.error?.message ?? 'Não foi possível abrir este relatório. O link pode estar incorreto.'
+      return
+    }
+
+    const plan = data.plan ?? 'raiox'
+    resultPlan.value      = plan
+    currentPlan.value     = plan
+    resultUserName.value  = data.user_name ?? ''
+    resultUserEmail.value = data.user_email ?? ''
+    resultProtocol.value  = data.protocol ?? protocol ?? ''
+
+    const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
+    resultData.value = Array.isArray(rawData) ? (rawData[0] ?? {}) : rawData
+    resultCta.value  = data.cta ?? null
+
+    const relDyn = resultData.value?.executive_summary?.relationship_dynamics ?? null
+    resultRelDyn.value = relDyn ? {
+      'Análise do Usuário (você)': relDyn.user ?? null,
+      'Análise do(a) Crush':       relDyn.crush ?? null,
+      'Conclusão':                 relDyn.conclusion ?? resultData.value?.executive_summary?.conclusion ?? null,
+    } : null
+
+    goTo(4)
+    const score = resultData.value?.interest_score ?? 0
+    setTimeout(() => { scoreBarWidth.value = `${Math.min(score, 100)}%` }, 100)
+  } catch {
+    accessError.value = 'Não foi possível abrir este relatório. Verifique sua conexão e tente novamente.'
+  } finally {
+    tokenValidating.value = false
+  }
+}
 
 // Mapeia o nome do plano vindo do webhook para a chave interna
 const PLAN_NAME_TO_KEY: Record<string, string> = {
@@ -866,7 +913,12 @@ onMounted(async () => {
   console.log('[ScanCrush] onMounted → token encontrado:', urlToken ?? '(nenhum)')
   console.log('[ScanCrush] onMounted → modo detectado:', urlToken ? 'tokenizado (pago)' : 'gratuito/storage')
 
-  if (urlToken) {
+  const reportToken = route.query.r as string | undefined
+
+  if (reportToken) {
+    // Link do e-mail: abre o relatório já gerado em modo visualização
+    await loadSharedResult(reportToken, (route.query.p as string) ?? '', (route.query.e as string) ?? '')
+  } else if (urlToken) {
     // Token na URL: sempre valida no webhook, nunca cai em free por falha
     await validateToken(urlToken)
   } else {
