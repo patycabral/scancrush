@@ -1339,9 +1339,8 @@ onUnmounted(() => {
   <!-- ── Banner ── -->
   <div class="result-notice-wrap" v-if="!isFree">
     <div class="result-notice-card result-notice-ok">
-      <span class="notice-check">✓</span>
       <div class="notice-body">
-        <strong>Seu resultado foi gerado com sucesso.</strong>
+        <strong><span class="notice-check">✓</span> Seu resultado foi gerado com sucesso.</strong>
         Uma cópia completa foi enviada para o seu e-mail. Você também pode baixar o PDF ao final desta página.
         <span class="notice-sub">Evite fechar esta aba antes de concluir sua leitura.</span>
       </div>
@@ -2711,10 +2710,8 @@ body::after {
   text-align: center;
 }
 .notice-check {
-  font-size: 15px;
   color: var(--safe);
-  flex-shrink: 0;
-  margin-top: 1px;
+  margin-right: 6px;
 }
 .notice-body {
   display: flex;
