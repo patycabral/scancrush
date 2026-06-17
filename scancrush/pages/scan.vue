@@ -784,7 +784,8 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
     const res = await fetch(PRINT_RESULT_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ token, protocol, email }),
+      // n8n lê body.protocolo (Set "Recebe Vars do webhook")
+      body:    JSON.stringify({ token, protocolo: protocol, email }),
     })
     const data = await res.json()
 
@@ -814,6 +815,11 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
     goTo(4)
     const score = resultData.value?.interest_score ?? 0
     setTimeout(() => { scoreBarWidth.value = `${Math.min(score, 100)}%` }, 100)
+
+    // Veio do botão "Baixar PDF" do e-mail (?dl=1) → abre a janela de impressão
+    if (import.meta.client && route.query.dl) {
+      setTimeout(() => downloadPdf(), 1200)
+    }
   } catch {
     accessError.value = 'Não foi possível abrir este relatório. Verifique sua conexão e tente novamente.'
   } finally {
