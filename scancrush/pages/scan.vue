@@ -1851,7 +1851,18 @@ onUnmounted(() => {
       <p class="pdf-about-emotional">Você talvez já sentisse parte disso. Agora consegue enxergar o padrão com mais clareza.</p>
       <p class="pdf-about-legal">Esta leitura foi gerada exclusivamente a partir do recorte enviado. O resultado não representa uma verdade absoluta sobre sentimentos, intenções ou personalidade. Trata-se de uma interpretação contextual baseada nos padrões observados nas mensagens analisadas.</p>
       <div class="pdf-about-sign">
-        <span class="pdf-about-brand">Scan<span>Crush</span></span>
+        <span class="pdf-about-brand">
+          <svg width="16" height="16" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="12" stroke="#FF2D6B" stroke-width="1.2" stroke-dasharray="4 2.5" opacity="0.4"/>
+            <circle cx="14" cy="14" r="7.5" stroke="#FF2D6B" stroke-width="1.4"/>
+            <circle cx="14" cy="14" r="3" fill="#FF2D6B"/>
+            <line x1="14" y1="2" x2="14" y2="5.5" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14" y1="22.5" x2="14" y2="26" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="2" y1="14" x2="5.5" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="22.5" y1="14" x2="26" y2="14" stroke="#FF2D6B" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span class="pdf-about-word">Scan<span>Crush</span></span>
+        </span>
         <span class="pdf-about-slogan">Nem sempre os sinais são óbvios.</span>
       </div>
     </div>
@@ -2895,14 +2906,14 @@ body::after {
 .recip-metric:last-child { border-bottom: none; padding-bottom: 0; }
 .recip-metric:first-child { padding-top: 0; }
 .recip-metric-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 9px; }
-.recip-row { display: flex; align-items: center; gap: 10px; }
+.recip-row { display: flex; align-items: center; gap: 14px; }
 .recip-end { font-size: 12px; color: var(--text-2); white-space: nowrap; }
 .recip-end b { font-weight: 800; }
-.recip-end.user b { color: var(--pink); }
-.recip-end.crush b { color: var(--text); }
-.recip-bar2 { flex: 1; min-width: 60px; height: 10px; border-radius: 100px; overflow: hidden; display: flex; background: rgba(255,255,255,0.05); }
+.recip-end.user b { color: var(--pink); margin-left: 6px; }
+.recip-end.crush b { color: var(--safe); margin-right: 6px; }
+.recip-bar2 { flex: 1; min-width: 50px; max-width: 320px; height: 8px; border-radius: 100px; overflow: hidden; display: flex; background: rgba(255,255,255,0.06); }
 .recip-bar2-user { background: linear-gradient(90deg, var(--pink), #ff6b8e); height: 100%; }
-.recip-bar2-crush { background: rgba(255,255,255,0.14); height: 100%; }
+.recip-bar2-crush { background: var(--safe); height: 100%; }
 .recip-bar2-empty { width: 100%; background: rgba(255,255,255,0.06); height: 100%; }
 .recip-summary { font-size: 13px; color: var(--text-2); line-height: 1.65; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
 
@@ -3841,7 +3852,7 @@ body::after {
 
 /* ── LIMITES DA LEITURA ── */
 .limits-card { background: transparent; border-color: var(--border); }
-.limits-text { font-size: 13px; color: var(--text-3); line-height: 1.7; margin: 0; }
+.limits-text { font-size: 13px; color: var(--text-2); line-height: 1.75; margin: 0; }
 
 /* ── SOBRE ESTA ANÁLISE (encerramento web) ── */
 .about-analysis-card {
@@ -3867,9 +3878,9 @@ body::after {
   letter-spacing: -0.1px;
 }
 .about-text {
-  font-size: 12.5px;
-  color: var(--text-3);
-  line-height: 1.7;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.75;
   margin: 0 0 18px;
 }
 .about-sign {
@@ -4251,14 +4262,14 @@ body::after {
 .pdf-recip-metric { padding: 9px 0; border-bottom: 1px solid var(--pdf-line); }
 .pdf-recip-metric:last-of-type { border-bottom: none; }
 .pdf-recip-mlabel { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pdf-faint); margin-bottom: 6px; }
-.pdf-recip-row { display: flex; align-items: center; gap: 9px; }
+.pdf-recip-row { display: flex; align-items: center; gap: 12px; }
 .pdf-recip-end { font-size: 11px; color: var(--pdf-muted); white-space: nowrap; }
 .pdf-recip-end b { font-weight: 800; }
-.pdf-recip-end.u b { color: var(--pdf-pink); }
-.pdf-recip-end.c b { color: var(--pdf-ink); }
-.pdf-recip-bar2 { flex: 1; min-width: 50px; height: 9px; border-radius: 100px; overflow: hidden; display: flex; background: #ececf2; }
+.pdf-recip-end.u b { color: var(--pdf-pink); margin-left: 5px; }
+.pdf-recip-end.c b { color: var(--pdf-green); margin-right: 5px; }
+.pdf-recip-bar2 { flex: 1; min-width: 50px; max-width: 300px; height: 8px; border-radius: 100px; overflow: hidden; display: flex; background: #ececf2; }
 .pdf-recip-bar2-u { background: var(--pdf-pink); height: 100%; }
-.pdf-recip-bar2-c { background: #cfcfdb; height: 100%; }
+.pdf-recip-bar2-c { background: var(--pdf-green); height: 100%; }
 .pdf-recip-bar2-empty { width: 100%; background: #ececf2; height: 100%; }
 .pdf-recip-summary { font-size: 12.5px; color: var(--pdf-body); line-height: 1.65; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--pdf-line); }
 .pdf-chips { display: flex; flex-wrap: wrap; gap: 7px; }
@@ -4362,13 +4373,15 @@ body::after {
 .pdf-about-sign {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
   margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--pdf-line);
 }
-.pdf-about-brand { font-size: 15px; font-weight: 800; color: var(--pdf-ink); }
-.pdf-about-brand span { color: var(--pdf-pink); }
+.pdf-about-brand { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; color: var(--pdf-ink); }
+.pdf-about-word span { color: var(--pdf-pink); }
 .pdf-about-slogan { font-size: 12px; font-style: italic; color: var(--pdf-muted); }
 .pdf-footer {
   text-align: center;
