@@ -431,7 +431,7 @@ onUnmounted(() => {
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item4 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item5 }}</span></li>
         </ul>
-        <NuxtLink to="/scan" class="btn-price btn-price-free">{{ t.pricing.plan0_cta }}</NuxtLink>
+        <NuxtLink to="/scan?plan=free" class="btn-price btn-price-free">{{ t.pricing.plan0_cta }}</NuxtLink>
       </div>
 
       <!-- Sinais Revelados (featured) -->
@@ -605,7 +605,7 @@ onUnmounted(() => {
           <li>{{ t.pricing.plan0_item4 }}</li>
           <li>{{ t.pricing.plan0_item5 }}</li>
         </ul>
-        <NuxtLink to="/scan" class="lp-btn-plan" style="text-align:center; display:block;" @click="closePricesModal()">{{ t.pricing.plan0_cta }}</NuxtLink>
+        <NuxtLink to="/scan?plan=free" class="lp-btn-plan" style="text-align:center; display:block;" @click="closePricesModal()">{{ t.pricing.plan0_cta }}</NuxtLink>
       </div>
 
       <!-- Plan 1: Sinais Revelados (FEATURED) -->
