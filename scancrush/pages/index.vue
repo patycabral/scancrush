@@ -85,11 +85,12 @@ useHead({
 const { t } = useAppI18n()
 
 const CHECKOUT_URLS = {
+  basico:   '#',   // TODO: colar URL do produto PerfectPay "Primeiras Impressões R$5,90"
   revealed: '#',
   raiox:    '#',
 }
 
-function goToCheckout(plan: 'revealed' | 'raiox') {
+function goToCheckout(plan: 'basico' | 'revealed' | 'raiox') {
   if (import.meta.client) window.location.href = CHECKOUT_URLS[plan]
 }
 
@@ -427,7 +428,10 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <div class="price-card reveal">
         <div class="price-name">{{ t.pricing.plan0_name }}</div>
         <p class="price-desc">{{ t.pricing.plan0_desc }}</p>
-        <div class="price-free-tag">{{ t.pricing.plan0_free }}</div>
+        <div class="price-amount">
+          <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan0_price_curr }}</span>
+          <span class="price-num">{{ t.pricing.plan0_price_num }}</span>
+        </div>
         <div class="price-divider"></div>
         <ul class="price-features">
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item1 }}</span></li>
@@ -436,7 +440,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item4 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item5 }}</span></li>
         </ul>
-        <NuxtLink to="/scan?plan=free" class="btn-price btn-price-free">{{ t.pricing.plan0_cta }}</NuxtLink>
+        <button class="btn-price btn-price-paid" @click="goToCheckout('basico')">{{ t.pricing.plan0_cta }}</button>
       </div>
 
       <div class="price-card featured reveal" style="transition-delay:.08s">
@@ -569,7 +573,10 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <div class="price-card">
         <div class="price-name">{{ t.pricing.plan0_name }}</div>
         <p class="price-desc">{{ t.pricing.plan0_desc }}</p>
-        <div class="price-free-tag">{{ t.pricing.plan0_free }}</div>
+        <div class="price-amount">
+          <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan0_price_curr }}</span>
+          <span class="price-num">{{ t.pricing.plan0_price_num }}</span>
+        </div>
         <div class="price-divider"></div>
         <ul class="price-features">
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item1 }}</span></li>
@@ -578,7 +585,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item4 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item5 }}</span></li>
         </ul>
-        <NuxtLink to="/scan?plan=free" class="btn-price btn-price-free" @click="closePricesModal()">{{ t.pricing.plan0_cta }}</NuxtLink>
+        <button class="btn-price btn-price-paid" @click="goToCheckout('basico'); closePricesModal()">{{ t.pricing.plan0_cta }}</button>
       </div>
 
       <!-- Plan 1: Sinais Revelados (FEATURED) -->

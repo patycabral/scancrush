@@ -10,15 +10,16 @@ onMounted(() => {
 })
 
 const CHECKOUT_URLS = {
+  basico:   '#',   // TODO: URL do produto PerfectPay "Primeiras Impressões R$5,90"
   revealed: '#',
   raiox:    '#',
 }
 
 const plans = computed(() => [
   {
-    key: 'free',
+    key: 'basico',
     name: t.value.pricing.plan0_name,
-    price: t.value.pricing.plan0_free,
+    price: t.value.pricing.plan0_price_curr + t.value.pricing.plan0_price_num,
     desc: t.value.pricing.plan0_desc,
     items: [
       t.value.pricing.plan0_item1,
@@ -68,11 +69,6 @@ const plans = computed(() => [
 ])
 
 function selectPlan(planKey: string) {
-  if (planKey === 'free') {
-    navigateTo('/scan')
-    closeModal()
-    return
-  }
   if (import.meta.client) window.location.href = CHECKOUT_URLS[planKey as keyof typeof CHECKOUT_URLS]
   closeModal()
 }

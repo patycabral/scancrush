@@ -115,8 +115,8 @@ function next() {
 }
 function restart() { current.value = 0; answers.value = []; selected.value = null; finished.value = false }
 
-const CHECKOUT_URLS = { revealed: '#', raiox: '#' }
-function goToCheckout(plan: 'revealed' | 'raiox') { if (import.meta.client) window.location.href = CHECKOUT_URLS[plan] }
+const CHECKOUT_URLS = { basico: '#', revealed: '#', raiox: '#' }
+function goToCheckout(plan: 'basico' | 'revealed' | 'raiox') { if (import.meta.client) window.location.href = CHECKOUT_URLS[plan] }
 const isModalOpen = ref(false)
 function openModal() { isModalOpen.value = true; if (import.meta.client) document.body.style.overflow = 'hidden' }
 function closeModal() { isModalOpen.value = false; if (import.meta.client) document.body.style.overflow = '' }
@@ -187,7 +187,10 @@ if (import.meta.client) window.addEventListener('keydown', (e) => { if (e.key ==
       <div class="lp-plan-card">
         <div class="lp-plan-name">{{ t.pricing.plan0_name }}</div>
         <p class="lp-plan-desc">{{ t.pricing.plan0_desc }}</p>
-        <div class="lp-plan-free-tag">{{ t.pricing.plan0_free }}</div>
+        <div class="lp-plan-price">
+          <span class="lp-curr">{{ t.pricing.plan0_price_curr }}</span>{{ t.pricing.plan0_price_num }}
+        </div>
+        <p class="lp-plan-period">pagamento único</p>
         <ul class="lp-plan-items">
           <li>{{ t.pricing.plan0_item1 }}</li>
           <li>{{ t.pricing.plan0_item2 }}</li>
@@ -195,7 +198,7 @@ if (import.meta.client) window.addEventListener('keydown', (e) => { if (e.key ==
           <li>{{ t.pricing.plan0_item4 }}</li>
           <li>{{ t.pricing.plan0_item5 }}</li>
         </ul>
-        <NuxtLink to="/scan" class="lp-btn-plan" style="text-align:center; display:block;" @click="closeModal()">{{ t.pricing.plan0_cta }}</NuxtLink>
+        <button class="lp-btn-plan" @click="goToCheckout('basico'); closeModal()">{{ t.pricing.plan0_cta }}</button>
       </div>
       <!-- Plan 1: Sinais Revelados (FEATURED) -->
       <div class="lp-plan-card featured">

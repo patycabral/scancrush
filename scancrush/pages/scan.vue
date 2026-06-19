@@ -997,7 +997,7 @@ onUnmounted(() => {
 
     <!-- Free plan limit notice -->
     <p v-if="currentPlan === 'free'" class="free-limit-notice">
-      ⏳ Plano gratuito · 1 análise a cada 7 dias
+      ⏳ Primeiras Impressões · análise única
     </p>
 
     <h1 class="screen-title">{{ uploadTitle }}</h1>
@@ -1906,10 +1906,10 @@ onUnmounted(() => {
 
   <div class="screen-body limit-body">
     <div class="limit-icon">⏳</div>
-    <h1 class="limit-title">Você já fez sua análise gratuita</h1>
+    <h1 class="limit-title">Esta análise já foi utilizada</h1>
     <p class="limit-desc">
-      O plano gratuito permite <strong>1 análise a cada 7 dias</strong>.<br>
-      Sua próxima análise gratuita estará disponível em alguns dias.
+      Cada acesso é de <strong>uso único</strong>.<br>
+      Para uma nova leitura, faça uma nova análise.
     </p>
 
     <div class="limit-divider"></div>
