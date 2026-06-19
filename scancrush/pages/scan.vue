@@ -905,30 +905,6 @@ function clearStoredSession() {
   currentPlan.value = 'free'
 }
 
-function loadFromStorage() {
-  const savedToken = localStorage.getItem('sc_token')
-  const savedPlan  = localStorage.getItem('sc_plan')
-  const savedMax   = localStorage.getItem('sc_max_images')
-
-  if (!savedToken || !savedPlan || !savedMax) {
-    console.log('[ScanCrush] loadFromStorage → sem sessão salva, modo gratuito')
-    return
-  }
-
-  // Sessão paga expirada → descarta e volta ao gratuito
-  const savedExp = localStorage.getItem('sc_expires_at')
-  if (savedExp && Date.now() > Number(savedExp)) {
-    console.log('[ScanCrush] loadFromStorage → sessão expirada, descartando')
-    clearStoredSession()
-    return
-  }
-
-  console.log('[ScanCrush] loadFromStorage → sessão encontrada | plano:', savedPlan, '| limite:', savedMax)
-  const maxInt = parseInt(savedMax, 10)
-  accessToken.value      = savedToken
-  currentPlan.value      = savedPlan
-  PLAN_LIMITS[savedPlan] = maxInt
-}
 
 onMounted(async () => {
   const urlToken = route.query.token as string | undefined
@@ -937,7 +913,6 @@ onMounted(async () => {
   console.log('[ScanCrush] onMounted → modo detectado:', urlToken ? 'tokenizado (pago)' : 'gratuito/storage')
 
   const reportToken = route.query.r as string | undefined
-  const wantsFree   = route.query.plan === 'free' || route.query.free != null
 
   if (reportToken) {
     // Link do e-mail: abre o relatório já gerado em modo visualização
@@ -945,13 +920,12 @@ onMounted(async () => {
   } else if (urlToken) {
     // Token na URL: sempre valida no webhook, nunca cai em free por falha
     await validateToken(urlToken)
-  } else if (wantsFree) {
-    // Veio do plano gratuito: força modo free e descarta sessão paga antiga do storage
-    console.log('[ScanCrush] onMounted → plano gratuito solicitado, limpando sessão paga')
-    clearStoredSession()
   } else {
-    // Sem token: tenta restaurar sessão paga do storage, senão usa free
-    loadFromStorage()
+    // /scan sem token = modo GRATUITO por padrão. O acesso pago é SEMPRE via link
+    // com ?token=; não restauramos sessão paga do storage para não prender o usuário
+    // no plano antigo (bug: grátis abria como Raio-X).
+    console.log('[ScanCrush] onMounted → /scan sem token: modo gratuito')
+    clearStoredSession()
   }
 
   console.log('[ScanCrush] onMounted → estado final | plano:', currentPlan.value, '| limite:', getImageLimit())
