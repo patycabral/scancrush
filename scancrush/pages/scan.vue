@@ -19,7 +19,7 @@ function goToCheckout(plan: 'revealed' | 'raiox') {
 
 // LAUNCH_MODE: true = análise gratuita e sem restrições
 // Altere para FALSE para ativar paywall e limites reais
-const LAUNCH_MODE = true
+const LAUNCH_MODE = false
 
 const currentPlan = ref<string>('free')
 
@@ -215,7 +215,7 @@ function validateS2(): boolean {
   if (isFree.value && !userEmail.value.trim()) missing.push('seu <strong>e-mail</strong>')
   if (!userAgeRange.value) missing.push('sua <strong>faixa etária</strong>')
   if (selectedTags.value.length === 0) missing.push('pelo menos um <strong>sentimento</strong>')
-  if (currentPlan.value !== 'free' && !termsAccepted.value) missing.push('aceitar os <strong>Termos de Uso</strong>')
+  if (!termsAccepted.value) missing.push('confirmar que é <strong>maior de 18 anos</strong> e aceitar os <strong>Termos</strong>')
 
   if (missing.length) {
     if (missing.length === 1) {
@@ -380,6 +380,8 @@ const resultRelDyn   = ref<any>(null)
 const resultUserName  = ref<string>('')   // nome da usuária para normalização de texto
 const resultUserEmail = ref<string>('')   // e-mail do comprador — atribuição no PDF (anti-compartilhamento)
 const resultProtocol  = ref<string>('')   // ID/protocolo da análise (legitimidade no PDF)
+const resultPrintCount = ref<number | null>(null)  // nº de prints analisados (capa)
+const resultAnalysisDate = ref<string>('')          // data REAL da análise (gerado_at)
 
 
 /** Extrai texto de um item que pode ser string ou objeto {label, text, description, situation} */
@@ -485,7 +487,10 @@ function downloadPdf() {
 // ── PDF premium: data formatada + geometria do medidor de score ──
 const analysisDateFormatted = computed(() => {
   try {
-    return new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+    // Usa a data REAL da análise (gerado_at do n8n); cai para "agora" só se ausente.
+    const d = resultAnalysisDate.value ? new Date(resultAnalysisDate.value) : new Date()
+    const valid = !isNaN(d.getTime()) ? d : new Date()
+    return valid.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
   } catch { return '' }
 })
 /** score limitado a 0–100 para o medidor */
@@ -501,10 +506,6 @@ const recipScore = computed(() => {
   const s = Number(resultData.value?.reciprocity?.score)
   return Number.isFinite(s) ? Math.max(0, Math.min(100, s)) : 0
 })
-const recipCoverWidth = computed(() => `${100 - recipScore.value}%`)
-/** posição X do marcador da reciprocidade no SVG do PDF (trilho 30→470) */
-const recipMarkerX = computed(() => 30 + (recipScore.value / 100) * 440)
-
 /** Métricas de reciprocidade com proporção Você×Crush calculada (placar) */
 const recipMetrics = computed(() => {
   return (resultData.value?.reciprocity?.metrics ?? []).map((m: any) => {
@@ -519,6 +520,16 @@ const recipMetrics = computed(() => {
     }
     return { label: m?.label ?? '', user: m?.user ?? '', crush: m?.crush ?? '', u, c }
   })
+})
+
+/** Veredito instantâneo do score de reciprocidade (faixa → título + subtítulo) */
+const recipLabel = computed(() => {
+  const s = recipScore.value
+  if (s <= 20) return { title: 'Reciprocidade muito baixa', sub: 'Investimento unilateral' }
+  if (s <= 40) return { title: 'Reciprocidade baixa',       sub: 'Forte desequilíbrio' }
+  if (s <= 60) return { title: 'Reciprocidade moderada',    sub: 'Desequilíbrio parcial' }
+  if (s <= 80) return { title: 'Reciprocidade equilibrada', sub: 'Troca razoável' }
+  return         { title: 'Reciprocidade alta',           sub: 'Troca mútua' }
 })
 
 function updateNewAnalysisBtn() {
@@ -564,44 +575,17 @@ async function startAnalysis() {
   form.append('crush_age_range', (crushAgeRange.value && crushAgeRange.value !== 'null') ? crushAgeRange.value : 'null')
   form.append('observations',   observations.value.trim())
   form.append('feelings',       selectedTags.value.join(', '))
+  // Free não tem token/sessão no Supabase: envia nome/e-mail/crush pelo form.
+  // No pago esses campos vêm do token (DB) — aqui vão vazios e o n8n os ignora.
+  form.append('user_name',      userName.value.trim())
+  form.append('user_email',     userEmail.value.trim())
+  form.append('crush_name',     crushName.value.trim())
 
   uploadedFiles.value.forEach(file => form.append('images', file))
 
   try {
-    // ── Free: preview rápido sem n8n ──────────────────────────────
-    if (currentPlan.value === 'free') {
-      const previewRes = await fetch('/api/preview', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          name:          userName.value.trim(),
-          email:         userEmail.value.trim(),
-          crush_name:    crushName.value.trim(),
-          feelings:      selectedTags.value.join(', '),
-          observations:  observations.value.trim(),
-        }),
-      })
-      const previewData = await previewRes.json()
-
-      if (msgInterval) clearInterval(msgInterval)
-      if (progressInterval) clearInterval(progressInterval)
-      loadingProgress.value = 100
-      await new Promise(r => setTimeout(r, 400))
-
-      resultPlan.value = 'free'
-      resultData.value = {
-        interest_score:   null,
-        situation_label:  { level: null },
-        final_message:    previewData.preview ?? 'Existe interesse… mas os padrões revelam algo que você precisa ver com mais calma.',
-        signals:          [],
-      }
-      resultCta.value  = 'Ver análise completa'
-      goTo(4)
-      updateNewAnalysisBtn()
-      return
-    }
-
-    // ── Pago: análise completa via n8n ────────────────────────────
+    // ── Todos os planos (free e pago): análise completa via n8n ───
+    // O "Separa os Planos" no n8n roteia pelo campo `plan` do form.
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 8 * 60 * 1000)
 
@@ -642,6 +626,8 @@ async function startAnalysis() {
     resultUserName.value  = data.user_name ?? ''
     resultUserEmail.value = data.user_email ?? ''
     resultProtocol.value  = data.protocol ?? ''
+    resultPrintCount.value = data.print_count ?? null
+    resultAnalysisDate.value = data.generated_at ?? ''
 
     // data pode chegar como string JSON ou array do n8n — parsear/desempacotar
     const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
@@ -800,6 +786,8 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
     resultUserName.value  = data.user_name ?? ''
     resultUserEmail.value = data.user_email ?? ''
     resultProtocol.value  = data.protocol ?? protocol ?? ''
+    resultPrintCount.value = data.print_count ?? null
+    resultAnalysisDate.value = data.generated_at ?? ''
 
     const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
     resultData.value = Array.isArray(rawData) ? (rawData[0] ?? {}) : rawData
@@ -1009,7 +997,7 @@ onUnmounted(() => {
 
     <!-- Free plan limit notice -->
     <p v-if="currentPlan === 'free'" class="free-limit-notice">
-      ⏳ Plano gratuito · 1 análise a cada 48h
+      ⏳ Plano gratuito · 1 análise a cada 7 dias
     </p>
 
     <h1 class="screen-title">{{ uploadTitle }}</h1>
@@ -1205,11 +1193,11 @@ onUnmounted(() => {
       <strong>Quanto mais contexto você enviar, mais precisa a análise fica.</strong>
     </div>
 
-    <!-- Terms (fluxo pago) -->
-    <div v-if="!isFree" class="paid-terms-wrap">
+    <!-- Aceite obrigatório (TODOS os planos): 18+ + termos + privacidade -->
+    <div class="paid-terms-wrap">
       <label class="paid-terms-label">
         <input type="checkbox" v-model="termsAccepted" class="paid-terms-check" />
-        <span>Li e aceito os <a href="/terms.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidade</a></span>
+        <span>Sou maior de 18 anos e li e aceito os <a href="/terms.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidade</a></span>
       </label>
     </div>
 
@@ -1481,33 +1469,55 @@ onUnmounted(() => {
         </template>
       </div>
 
-      <!-- ⑩b Nível de Reciprocidade ── -->
-      <div v-if="resultData?.reciprocity" class="res-card">
+      <!-- ⑩b Nível de Reciprocidade — painel premium ── -->
+      <div v-if="resultData?.reciprocity" class="res-card recip-panel">
         <div class="res-label">Nível de Reciprocidade</div>
-        <div v-if="resultData.reciprocity.score != null" class="recip-score-row">
-          <div class="recip-score-num">{{ resultData.reciprocity.score }}<sup>/100</sup></div>
-          <div class="recip-bar-wrap">
-            <div class="recip-bar-track"><div class="recip-bar-cover" :style="{ width: recipCoverWidth }"></div></div>
-            <div class="recip-bar-labels"><span>Unilateral</span><span>Equilibrado</span></div>
+
+        <!-- HERO: score protagonista + veredito + gauge -->
+        <div v-if="resultData.reciprocity.score != null" class="recip-hero">
+          <div class="recip-hero-score">
+            <span class="recip-hero-num">{{ resultData.reciprocity.score }}</span>
+            <span class="recip-hero-max">/100</span>
           </div>
-        </div>
-        <div v-if="recipMetrics.length" class="recip-metrics">
-          <div v-for="(m, i) in recipMetrics" :key="'rm'+i" class="recip-metric">
-            <div class="recip-metric-label">{{ norm(m.label) }}</div>
-            <div class="recip-row">
-              <span class="recip-end user">Você <b>{{ m.user }}</b></span>
-              <div class="recip-bar2">
-                <template v-if="m.u != null">
-                  <div class="recip-bar2-user" :style="{ width: m.u + '%' }"></div>
-                  <div class="recip-bar2-crush" :style="{ width: m.c + '%' }"></div>
-                </template>
-                <div v-else class="recip-bar2-empty"></div>
+          <div class="recip-hero-meta">
+            <div class="recip-hero-verdict">{{ recipLabel.title }}</div>
+            <div class="recip-hero-sub">{{ recipLabel.sub }}</div>
+            <div class="recip-gauge">
+              <div class="recip-gauge-track">
+                <div class="recip-gauge-fill" :style="{ width: recipScore + '%' }"></div>
+                <div class="recip-gauge-marker" :style="{ left: recipScore + '%' }"></div>
               </div>
-              <span class="recip-end crush"><b>{{ m.crush }}</b> Crush</span>
+              <div class="recip-gauge-scale"><span>Unilateral</span><span>Equilibrado</span></div>
             </div>
           </div>
         </div>
-        <p v-if="resultData.reciprocity.summary" class="recip-summary">{{ norm(resultData.reciprocity.summary) }}</p>
+
+        <!-- MÉTRICAS: secundárias -->
+        <div v-if="recipMetrics.length" class="recip-metrics">
+          <div v-for="(m, i) in recipMetrics" :key="'rm'+i" class="recip-metric">
+            <div class="recip-metric-top">
+              <span class="recip-metric-label">{{ norm(m.label) }}</span>
+              <span class="recip-metric-val">
+                <span class="lbl">Você</span> <b class="u">{{ m.user }}</b>
+                <span class="sep">·</span>
+                <b class="c">{{ m.crush }}</b> <span class="lbl">Crush</span>
+              </span>
+            </div>
+            <div class="recip-bar2">
+              <template v-if="m.u != null">
+                <div class="recip-bar2-user" :style="{ width: m.u + '%' }"></div>
+                <div class="recip-bar2-crush" :style="{ width: m.c + '%' }"></div>
+              </template>
+              <div v-else class="recip-bar2-empty"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONCLUSÃO EXECUTIVA -->
+        <div v-if="resultData.reciprocity.summary" class="recip-conclusion">
+          <span class="recip-conclusion-tag">Leitura</span>
+          <p>{{ norm(resultData.reciprocity.summary) }}</p>
+        </div>
       </div>
 
       <!-- ⑪ Dinâmica da Relação ── -->
@@ -1661,6 +1671,7 @@ onUnmounted(() => {
     </div>
 
     <div class="pdf-cover-foot">
+      <p v-if="resultPrintCount" class="pdf-cover-prints">Análise baseada em <strong>{{ resultPrintCount }} {{ resultPrintCount === 1 ? 'print' : 'prints' }}</strong></p>
       <p class="pdf-cover-protocol" v-if="resultProtocol">Protocolo: <strong>{{ resultProtocol }}</strong></p>
       <p v-if="resultUserEmail" class="pdf-cover-owner">Gerado para: <strong>{{ resultUserEmail }}</strong></p>
       <p class="pdf-cover-meta">{{ analysisDateFormatted }} · scancrush.com</p>
@@ -1770,41 +1781,44 @@ onUnmounted(() => {
 
     <div v-if="resultData?.reciprocity" class="pdf-block">
       <div class="pdf-block-label">Nível de Reciprocidade</div>
-      <div v-if="resultData.reciprocity.score != null" class="pdf-recip-head">
-        <span class="pdf-recip-num">{{ resultData.reciprocity.score }}<span>/100</span></span>
-        <svg class="pdf-recip-svg" viewBox="0 0 500 44" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <linearGradient id="pdfRecipGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"  stop-color="#FF2D6B"/>
-              <stop offset="25%" stop-color="#FF4D4D"/>
-              <stop offset="50%" stop-color="#FF8C00"/>
-              <stop offset="75%" stop-color="#FFB800"/>
-              <stop offset="100%" stop-color="#00D68F"/>
-            </linearGradient>
-          </defs>
-          <rect x="30" y="20" width="440" height="12" rx="6" fill="url(#pdfRecipGrad)"/>
-          <g :transform="`translate(${recipMarkerX}, 0)`">
-            <polygon points="0,14 -6,4 6,4" fill="#1a1a2e"/>
-            <circle cx="0" cy="26" r="5" fill="#fff" stroke="#1a1a2e" stroke-width="2"/>
-          </g>
-        </svg>
-      </div>
-      <div v-if="resultData.reciprocity.score != null" class="pdf-recip-scale"><span>Unilateral</span><span>Equilibrado</span></div>
-      <div v-for="(m, i) in recipMetrics" :key="'prm'+i" class="pdf-recip-metric">
-        <div class="pdf-recip-mlabel">{{ norm(m.label) }}</div>
-        <div class="pdf-recip-row">
-          <span class="pdf-recip-end u">Você <b>{{ m.user }}</b></span>
-          <div class="pdf-recip-bar2">
-            <template v-if="m.u != null">
-              <div class="pdf-recip-bar2-u" :style="{ width: m.u + '%' }"></div>
-              <div class="pdf-recip-bar2-c" :style="{ width: m.c + '%' }"></div>
-            </template>
-            <div v-else class="pdf-recip-bar2-empty"></div>
+      <div v-if="resultData.reciprocity.score != null" class="pdf-recip-hero">
+        <div class="pdf-recip-score">
+          <span class="pdf-recip-num">{{ resultData.reciprocity.score }}</span>
+          <span class="pdf-recip-max">/100</span>
+        </div>
+        <div class="pdf-recip-meta">
+          <div class="pdf-recip-verdict">{{ recipLabel.title }}</div>
+          <div class="pdf-recip-sub">{{ recipLabel.sub }}</div>
+          <div class="pdf-recip-gauge">
+            <div class="pdf-recip-gauge-track">
+              <div class="pdf-recip-gauge-fill" :style="{ width: recipScore + '%' }"></div>
+              <div class="pdf-recip-gauge-marker" :style="{ left: recipScore + '%' }"></div>
+            </div>
+            <div class="pdf-recip-scale"><span>Unilateral</span><span>Equilibrado</span></div>
           </div>
-          <span class="pdf-recip-end c"><b>{{ m.crush }}</b> Crush</span>
         </div>
       </div>
-      <p v-if="resultData.reciprocity.summary" class="pdf-recip-summary">{{ norm(resultData.reciprocity.summary) }}</p>
+      <div v-for="(m, i) in recipMetrics" :key="'prm'+i" class="pdf-recip-metric">
+        <div class="pdf-recip-mtop">
+          <span class="pdf-recip-mlabel">{{ norm(m.label) }}</span>
+          <span class="pdf-recip-mval">
+            <span class="lbl">Você</span> <b class="u">{{ m.user }}</b>
+            <span class="sep">·</span>
+            <b class="c">{{ m.crush }}</b> <span class="lbl">Crush</span>
+          </span>
+        </div>
+        <div class="pdf-recip-bar2">
+          <template v-if="m.u != null">
+            <div class="pdf-recip-bar2-u" :style="{ width: m.u + '%' }"></div>
+            <div class="pdf-recip-bar2-c" :style="{ width: m.c + '%' }"></div>
+          </template>
+          <div v-else class="pdf-recip-bar2-empty"></div>
+        </div>
+      </div>
+      <div v-if="resultData.reciprocity.summary" class="pdf-recip-conclusion">
+        <span class="pdf-recip-conclusion-tag">Leitura</span>
+        <p>{{ norm(resultData.reciprocity.summary) }}</p>
+      </div>
     </div>
 
     <div v-if="resultRelDyn" class="pdf-block">
@@ -1892,10 +1906,10 @@ onUnmounted(() => {
 
   <div class="screen-body limit-body">
     <div class="limit-icon">⏳</div>
-    <h1 class="limit-title">Você já fez sua análise gratuita hoje</h1>
+    <h1 class="limit-title">Você já fez sua análise gratuita</h1>
     <p class="limit-desc">
-      O plano gratuito permite <strong>1 análise a cada 48h</strong>.<br>
-      Sua próxima análise gratuita estará disponível amanhã.
+      O plano gratuito permite <strong>1 análise a cada 7 dias</strong>.<br>
+      Sua próxima análise gratuita estará disponível em alguns dias.
     </p>
 
     <div class="limit-divider"></div>
@@ -2883,36 +2897,79 @@ body::after {
   color: #ff6b8e;
 }
 
-/* ── NÍVEL DE RECIPROCIDADE ── */
-.recip-score-row { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 18px; }
-.recip-score-num { font-size: 40px; font-weight: 800; line-height: 1; color: var(--text); letter-spacing: -1.5px; }
-.recip-score-num sup { font-size: 14px; color: var(--text-2); letter-spacing: 0; }
-.recip-bar-wrap { flex: 1; }
-.recip-bar-track {
-  height: 8px;
-  background: linear-gradient(90deg, #FF4D4D 0%, #FF8800 18%, #FFB800 45%, #a8dd63 72%, #00D68F 100%);
-  border-radius: 100px;
-  overflow: hidden;
-  position: relative;
-  margin-bottom: 6px;
+/* ── NÍVEL DE RECIPROCIDADE — painel premium (Variante C: Executivo) ── */
+.recip-hero {
+  display: flex; align-items: center; gap: 22px;
+  padding-bottom: 22px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
 }
-.recip-bar-cover { position: absolute; top: 0; right: 0; bottom: 0; background: var(--card); border-radius: 0 100px 100px 0; }
-.recip-bar-labels { display: flex; justify-content: space-between; font-size: 9px; font-family: var(--mono); color: var(--text-3); }
-.recip-metrics { display: flex; flex-direction: column; }
-.recip-metric { padding: 12px 0; border-bottom: 1px solid var(--border); }
-.recip-metric:last-child { border-bottom: none; padding-bottom: 0; }
-.recip-metric:first-child { padding-top: 0; }
-.recip-metric-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 9px; }
-.recip-row { display: flex; align-items: center; gap: 14px; }
-.recip-end { font-size: 12px; color: var(--text-2); white-space: nowrap; }
-.recip-end b { font-weight: 800; }
-.recip-end.user b { color: var(--pink); margin-left: 6px; }
-.recip-end.crush b { color: var(--safe); margin-right: 6px; }
-.recip-bar2 { flex: 1; min-width: 50px; max-width: 320px; height: 8px; border-radius: 100px; overflow: hidden; display: flex; background: rgba(255,255,255,0.06); }
+.recip-hero-score { display: flex; align-items: baseline; flex-shrink: 0; }
+.recip-hero-num {
+  font-size: 58px; font-weight: 800; line-height: 0.85; letter-spacing: -2.5px;
+  background: linear-gradient(135deg, #ffffff 0%, #b9b9da 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.recip-hero-max { font-size: 15px; font-weight: 700; color: var(--text-3); margin-left: 4px; }
+.recip-hero-meta { flex: 1; min-width: 0; }
+.recip-hero-verdict { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+.recip-hero-sub {
+  font-size: 10.5px; font-family: var(--mono); text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--pink); margin-top: 4px;
+}
+.recip-gauge { margin-top: 14px; }
+.recip-gauge-track {
+  position: relative; height: 6px; border-radius: 100px;
+  background: rgba(255,255,255,0.07);
+}
+.recip-gauge-fill {
+  position: absolute; left: 0; top: 0; bottom: 0; border-radius: 100px;
+  background: linear-gradient(90deg, var(--pink), var(--purple));
+}
+.recip-gauge-marker {
+  position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%;
+  background: #fff; transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px var(--bg), 0 0 10px var(--pink-glow);
+}
+.recip-gauge-scale {
+  display: flex; justify-content: space-between; margin-top: 8px;
+  font-size: 9px; font-family: var(--mono); text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-3);
+}
+
+.recip-metrics { display: flex; flex-direction: column; gap: 15px; }
+.recip-metric-top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 8px;
+}
+.recip-metric-label {
+  font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-2);
+}
+.recip-metric-val { font-size: 11px; font-family: var(--mono); white-space: nowrap; flex-shrink: 0; }
+.recip-metric-val .lbl { color: var(--text-3); }
+.recip-metric-val .sep { color: var(--text-3); margin: 0 5px; }
+.recip-metric-val b { font-weight: 700; }
+.recip-metric-val b.u { color: var(--pink); }
+.recip-metric-val b.c { color: var(--text-2); }
+.recip-bar2 {
+  height: 6px; border-radius: 100px; overflow: hidden;
+  display: flex; background: rgba(255,255,255,0.05);
+}
 .recip-bar2-user { background: linear-gradient(90deg, var(--pink), #ff6b8e); height: 100%; }
-.recip-bar2-crush { background: var(--safe); height: 100%; }
-.recip-bar2-empty { width: 100%; background: rgba(255,255,255,0.06); height: 100%; }
-.recip-summary { font-size: 13px; color: var(--text-2); line-height: 1.65; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
+.recip-bar2-crush { background: rgba(238,238,248,0.16); height: 100%; }
+.recip-bar2-empty { width: 100%; background: rgba(255,255,255,0.05); height: 100%; }
+
+.recip-conclusion {
+  margin-top: 22px; padding: 15px 17px; border-radius: 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border); border-left: 2px solid var(--pink);
+}
+.recip-conclusion-tag {
+  display: block; font-family: var(--mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.14em; color: var(--pink); margin-bottom: 7px;
+}
+.recip-conclusion p { margin: 0; font-size: 13px; color: var(--text); line-height: 1.65; }
 
 /* ── CONTRADICTIONS CARD ── */
 .contradiction-card {
@@ -4141,6 +4198,15 @@ body::after {
   margin: 0 0 6px;
 }
 .pdf-cover-protocol strong { color: var(--pdf-ink); }
+.pdf-cover-prints {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pdf-muted);
+  margin: 0 0 6px;
+}
+.pdf-cover-prints strong { color: var(--pdf-pink); }
 .pdf-score-block {
   width: 100%;
   max-width: 440px;
@@ -4252,25 +4318,36 @@ body::after {
 .pdf-deep-title.negativo { color: var(--pdf-pink); }
 .pdf-deep-title.atencao  { color: var(--pdf-amber); }
 
-/* ── PDF: Nível de Reciprocidade ── */
-.pdf-recip-head { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
-.pdf-recip-num { font-size: 30px; font-weight: 800; color: var(--pdf-ink); letter-spacing: -1px; line-height: 1; flex-shrink: 0; }
-.pdf-recip-num span { font-size: 13px; color: var(--pdf-faint); font-weight: 700; }
-.pdf-recip-svg { flex: 1; height: auto; }
-.pdf-recip-scale { display: flex; justify-content: space-between; font-size: 9px; color: var(--pdf-faint); margin: 0 0 12px; padding: 0 4px; }
-.pdf-recip-metric { padding: 9px 0; border-bottom: 1px solid var(--pdf-line); }
-.pdf-recip-metric:last-of-type { border-bottom: none; }
-.pdf-recip-mlabel { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pdf-faint); margin-bottom: 6px; }
-.pdf-recip-row { display: flex; align-items: center; gap: 12px; }
-.pdf-recip-end { font-size: 11px; color: var(--pdf-muted); white-space: nowrap; }
-.pdf-recip-end b { font-weight: 800; }
-.pdf-recip-end.u b { color: var(--pdf-pink); margin-left: 5px; }
-.pdf-recip-end.c b { color: var(--pdf-green); margin-right: 5px; }
-.pdf-recip-bar2 { flex: 1; min-width: 50px; max-width: 300px; height: 8px; border-radius: 100px; overflow: hidden; display: flex; background: #ececf2; }
+/* ── PDF: Nível de Reciprocidade — painel premium (Variante C) ── */
+.pdf-recip-hero { display: flex; align-items: center; gap: 18px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--pdf-line); }
+.pdf-recip-score { display: flex; align-items: baseline; flex-shrink: 0; }
+.pdf-recip-num { font-size: 44px; font-weight: 800; color: var(--pdf-ink); letter-spacing: -2px; line-height: 0.85; }
+.pdf-recip-max { font-size: 13px; font-weight: 700; color: var(--pdf-faint); margin-left: 3px; }
+.pdf-recip-meta { flex: 1; min-width: 0; }
+.pdf-recip-verdict { font-size: 13px; font-weight: 700; color: var(--pdf-ink); }
+.pdf-recip-sub { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pdf-pink); margin-top: 3px; }
+.pdf-recip-gauge { margin-top: 11px; }
+.pdf-recip-gauge-track { position: relative; height: 6px; border-radius: 100px; background: #eaeaf1; }
+.pdf-recip-gauge-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 100px; background: linear-gradient(90deg, var(--pdf-pink), var(--pdf-purple)); }
+.pdf-recip-gauge-marker { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--pdf-pink); }
+.pdf-recip-scale { display: flex; justify-content: space-between; margin-top: 7px; font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pdf-faint); }
+.pdf-recip-metric { padding: 0 0 12px; }
+.pdf-recip-metric:last-of-type { padding-bottom: 0; }
+.pdf-recip-mtop { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.pdf-recip-mlabel { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pdf-muted); }
+.pdf-recip-mval { font-family: var(--mono); font-size: 10px; white-space: nowrap; flex-shrink: 0; }
+.pdf-recip-mval .lbl { color: var(--pdf-faint); }
+.pdf-recip-mval .sep { color: var(--pdf-faint); margin: 0 5px; }
+.pdf-recip-mval b { font-weight: 800; }
+.pdf-recip-mval b.u { color: var(--pdf-pink); }
+.pdf-recip-mval b.c { color: var(--pdf-muted); }
+.pdf-recip-bar2 { height: 6px; border-radius: 100px; overflow: hidden; display: flex; background: #eef0f4; }
 .pdf-recip-bar2-u { background: var(--pdf-pink); height: 100%; }
-.pdf-recip-bar2-c { background: var(--pdf-green); height: 100%; }
-.pdf-recip-bar2-empty { width: 100%; background: #ececf2; height: 100%; }
-.pdf-recip-summary { font-size: 12.5px; color: var(--pdf-body); line-height: 1.65; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--pdf-line); }
+.pdf-recip-bar2-c { background: #d3d3df; height: 100%; }
+.pdf-recip-bar2-empty { width: 100%; background: #eef0f4; height: 100%; }
+.pdf-recip-conclusion { margin-top: 16px; padding: 12px 14px; border-radius: 9px; background: #faf7fb; border: 1px solid var(--pdf-line); border-left: 2px solid var(--pdf-pink); }
+.pdf-recip-conclusion-tag { display: block; font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--pdf-pink); margin-bottom: 6px; }
+.pdf-recip-conclusion p { margin: 0; font-size: 12.5px; color: var(--pdf-ink); line-height: 1.6; }
 .pdf-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .pdf-chip {
   font-size: 12px;
