@@ -9,8 +9,8 @@ useHead({ title: 'ScanCrush — Análise da conversa' })
 const PLAN_LIMITS: Record<string, number> = { free: 1, revealed: 4, raiox: 10 }
 
 const CHECKOUT_URLS = {
-  revealed: '#',
-  raiox:    '#',
+  revealed: 'https://go.perfectpay.com.br/PPU38CQC51R',
+  raiox:    'https://go.perfectpay.com.br/PPU38CQC51K',
 }
 
 function goToCheckout(plan: 'revealed' | 'raiox') {

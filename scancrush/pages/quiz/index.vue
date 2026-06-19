@@ -10,9 +10,9 @@ useHead({
 const { t } = useAppI18n()
 
 const CHECKOUT_URLS = {
-  basico:   '#',   // TODO: URL do produto PerfectPay "Primeiras Impressões R$5,90"
-  revealed: '#',
-  raiox:    '#',
+  basico:   'https://go.perfectpay.com.br/PPU38CQDB0D',
+  revealed: 'https://go.perfectpay.com.br/PPU38CQC51R',
+  raiox:    'https://go.perfectpay.com.br/PPU38CQC51K',
 }
 
 function goToCheckout(plan: 'basico' | 'revealed' | 'raiox') {

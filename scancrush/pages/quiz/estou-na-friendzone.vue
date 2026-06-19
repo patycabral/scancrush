@@ -133,7 +133,7 @@ function next() {
 }
 function restart() { current.value = 0; answers.value = []; selected.value = null; finished.value = false }
 
-const CHECKOUT_URLS = { basico: '#', revealed: '#', raiox: '#' }
+const CHECKOUT_URLS = { basico: 'https://go.perfectpay.com.br/PPU38CQDB0D', revealed: 'https://go.perfectpay.com.br/PPU38CQC51R', raiox: 'https://go.perfectpay.com.br/PPU38CQC51K' }
 function goToCheckout(plan: 'basico' | 'revealed' | 'raiox') { if (import.meta.client) window.location.href = CHECKOUT_URLS[plan] }
 const isModalOpen = ref(false)
 function openModal() { isModalOpen.value = true; if (import.meta.client) document.body.style.overflow = 'hidden' }

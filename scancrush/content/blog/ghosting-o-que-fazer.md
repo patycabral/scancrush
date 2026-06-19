@@ -52,7 +52,7 @@ Você não fez nada de errado necessariamente. Alguém simplesmente não teve ma
 **Uma mensagem, se precisar de fechamento para você mesma:**
 "Percebi que você sumiu. Tudo bem — só queria que você soubesse que fico à disposição se quiser conversar."
 
-Simples, sem drama, sem cobrar. Isso é para *você*, não para ele. Pra poder dizer que fez sua parte.
+Simples, sem drama, sem cobrar. Isso é para *você*, não para ele. para poder dizer que fez sua parte.
 
 Se não houver resposta, você tem seu fechamento: ele(a) escolheu não responder. Isso é uma resposta.
 
