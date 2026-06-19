@@ -7,9 +7,8 @@ RUN npm ci
 
 COPY scancrush/ .
 
-# Copia public/index.html do repositório para public/ do Nuxt.
-# Em Nitro, arquivos em public/ têm prioridade sobre as rotas —
-# public/index.html é servido em / no lugar de index.vue.
+# Copia o public/ legado (privacy/terms/ai-policy/acesso + locales) para o public/ do Nuxt.
+# NÃO inclui index.html — a home é a index.vue do Nuxt (multi-idioma via useAppI18n).
 COPY public/ ./public/
 
 ARG GIT_SHA
