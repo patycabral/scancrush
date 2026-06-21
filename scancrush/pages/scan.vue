@@ -9,11 +9,12 @@ useHead({ title: 'ScanCrush — Análise da conversa' })
 const PLAN_LIMITS: Record<string, number> = { free: 1, revealed: 4, raiox: 10 }
 
 const CHECKOUT_URLS = {
+  basico:   'https://go.perfectpay.com.br/PPU38CQDB0D',
   revealed: 'https://go.perfectpay.com.br/PPU38CQC51R',
   raiox:    'https://go.perfectpay.com.br/PPU38CQC51K',
 }
 
-function goToCheckout(plan: 'revealed' | 'raiox') {
+function goToCheckout(plan: 'basico' | 'revealed' | 'raiox') {
   if (import.meta.client) window.location.href = CHECKOUT_URLS[plan]
 }
 
@@ -1877,6 +1878,12 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <!-- CTA: nova análise → planos da landing -->
+    <div class="pdf-cta">
+      <p class="pdf-cta-text">Quer ir mais fundo nessa conversa?</p>
+      <a class="pdf-cta-btn" href="https://scancrush.com/#b-pricing">Fazer uma nova análise</a>
+    </div>
+
     <footer class="pdf-footer">
       <p>© 2026 ScanCrush. Todos os direitos reservados.</p>
       <p class="pdf-footer-site">scancrush.com</p>
@@ -1979,6 +1986,24 @@ onUnmounted(() => {
     <h2 class="modal-title">Escolha o quanto <span>você quer enxergar.</span></h2>
 
     <div class="modal-plans">
+
+      <!-- Plan: Primeiras Impressões -->
+      <div class="plan-card">
+        <div class="plan-name">Primeiras Impressões</div>
+        <div class="plan-price">
+          <span class="curr">R$</span>6<span class="cents">,90</span>
+        </div>
+        <p class="plan-period">pagamento único</p>
+        <p class="plan-desc">A primeira leitura da conversa, por menos que um café.</p>
+        <ul class="plan-items">
+          <li class="plan-item">1 print analisado</li>
+          <li class="plan-item">Score de Interesse</li>
+          <li class="plan-item">Visão geral da conversa</li>
+          <li class="plan-item">1 sinal positivo + 1 de atenção</li>
+          <li class="plan-item">Conclusão inicial</li>
+        </ul>
+        <button class="btn-plan" @click="goToCheckout('basico')">Analisar agora</button>
+      </div>
 
       <!-- Plan: Sinais Revelados (FEATURED) -->
       <div class="plan-card featured">
@@ -3303,7 +3328,7 @@ body::after {
   border-radius: 24px;
   padding: 36px 28px 32px;
   width: 100%;
-  max-width: clamp(520px, 62vw, 760px);
+  max-width: clamp(520px, 92vw, 1040px);
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
@@ -3374,12 +3399,12 @@ body::after {
 /* Plans grid */
 .modal-plans {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  max-width: 680px;
-  margin: 26px auto 0;   /* centraliza os 2 cards + espaço p/ o badge não colar no título */
+  max-width: 1000px;
+  margin: 26px auto 0;   /* centraliza os 3 cards + espaço p/ o badge não colar no título */
 }
-@media (max-width: 560px) {
+@media (max-width: 860px) {
   .modal-plans { grid-template-columns: 1fr; }
   .modal-card { padding: 28px 20px 24px; }
 }
@@ -4459,6 +4484,13 @@ body::after {
 .pdf-about-brand { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; color: var(--pdf-ink); }
 .pdf-about-word span { color: var(--pdf-pink); }
 .pdf-about-slogan { font-size: 12px; font-style: italic; color: var(--pdf-muted); }
+.pdf-cta { text-align: center; margin: 0; padding: 18px 0 6px; }
+.pdf-cta-text { font-size: 13px; color: var(--pdf-body); margin: 0 0 10px; }
+.pdf-cta-btn {
+  display: inline-block; padding: 11px 26px; border-radius: 100px;
+  background: linear-gradient(135deg, var(--pdf-pink), var(--pdf-purple));
+  color: #fff; font-size: 13px; font-weight: 700; text-decoration: none;
+}
 .pdf-footer {
   text-align: center;
   margin-top: 14px;
