@@ -199,15 +199,9 @@ const yearOptions = Array.from(
 )
 
 function checkAnalysisDone() {
-  if (LAUNCH_MODE) return
-  const done = import.meta.client ? sessionStorage.getItem('sc_analysis_done') : null
-  if (done) {
-    showBtnGenerate.value = false
-    showAnalysisBlockedMsg.value = true
-  } else {
-    showBtnGenerate.value = true
-    showAnalysisBlockedMsg.value = false
-  }
+  // Sem limite de quantidade no cliente: cada token = 1 análise (uso único garantido no servidor).
+  showBtnGenerate.value = true
+  showAnalysisBlockedMsg.value = false
 }
 
 function validateS2(): boolean {
@@ -383,6 +377,13 @@ const resultUserEmail = ref<string>('')   // e-mail do comprador — atribuiçã
 const resultProtocol  = ref<string>('')   // ID/protocolo da análise (legitimidade no PDF)
 const resultPrintCount = ref<number | null>(null)  // nº de prints analisados (capa)
 const resultAnalysisDate = ref<string>('')          // data REAL da análise (gerado_at)
+const resultFeelingsRaw = ref<string>('')           // sentimentos relatados no form — eco no "Para você"
+const resultFeelings = computed<string[]>(() => {
+  const fromData = resultFeelingsRaw.value
+    ? resultFeelingsRaw.value.split(',').map(s => s.trim()).filter(Boolean)
+    : []
+  return fromData.length ? fromData : selectedTags.value
+})
 
 
 /** Extrai texto de um item que pode ser string ou objeto {label, text, description, situation} */
@@ -543,13 +544,6 @@ function updateNewAnalysisBtn() {
 async function startAnalysis() {
   if (!validateS2()) return
 
-  if (!LAUNCH_MODE && import.meta.client && sessionStorage.getItem('sc_analysis_done')) {
-    checkAnalysisDone()
-    return
-  }
-
-  if (import.meta.client) sessionStorage.setItem('sc_analysis_done', '1')
-
   goTo(3)
   msgIdx = 0
   updateLoadingMsg()
@@ -629,6 +623,7 @@ async function startAnalysis() {
     resultProtocol.value  = data.protocol ?? ''
     resultPrintCount.value = data.print_count ?? null
     resultAnalysisDate.value = data.generated_at ?? ''
+    resultFeelingsRaw.value = data.feelings ?? ''
 
     // data pode chegar como string JSON ou array do n8n — parsear/desempacotar
     const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
@@ -789,6 +784,7 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
     resultProtocol.value  = data.protocol ?? protocol ?? ''
     resultPrintCount.value = data.print_count ?? null
     resultAnalysisDate.value = data.generated_at ?? ''
+    resultFeelingsRaw.value = data.feelings ?? ''
 
     const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
     resultData.value = Array.isArray(rawData) ? (rawData[0] ?? {}) : rawData
@@ -1198,7 +1194,7 @@ onUnmounted(() => {
     <div class="paid-terms-wrap">
       <label class="paid-terms-label">
         <input type="checkbox" v-model="termsAccepted" class="paid-terms-check" />
-        <span>Sou maior de 18 anos e li e aceito os <a href="/terms.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidade</a></span>
+        <span>Declaro ser maior de 18 anos e concordar com os <a href="/terms.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidade</a></span>
       </label>
     </div>
 
@@ -1374,6 +1370,10 @@ onUnmounted(() => {
         </div>
       </div>
       <div class="free-insight-card">
+        <div v-if="resultFeelings.length" class="for-you-feelings">
+          <span class="ff-intro">Você relatou se sentir</span>
+          <span v-for="(f, i) in resultFeelings" :key="'fff'+i" class="ff-chip">{{ capFirst(f) }}</span>
+        </div>
         <p class="free-insight-text">{{ norm(resultData?.final_message ?? '') }}</p>
       </div>
       <p class="free-upgrade-hint">✨ A versão completa revela padrões que não aparecem em uma leitura inicial.</p>
@@ -1555,6 +1555,10 @@ onUnmounted(() => {
       <!-- ⑭ Para Você (mensagem final) ── -->
       <div v-if="resultData?.final_message" class="for-you-card">
         <div class="for-you-label">Para Você</div>
+        <div v-if="resultFeelings.length" class="for-you-feelings">
+          <span class="ff-intro">Você relatou se sentir</span>
+          <span v-for="(f, i) in resultFeelings" :key="'ff'+i" class="ff-chip">{{ capFirst(f) }}</span>
+        </div>
         <p class="for-you-text">{{ norm(resultData.final_message) }}</p>
       </div>
 
@@ -1848,6 +1852,10 @@ onUnmounted(() => {
 
     <div v-if="resultData?.final_message" class="pdf-block pdf-block--foryou">
       <div class="pdf-block-label">Para Você</div>
+      <div v-if="resultFeelings.length" class="pdf-foryou-feelings">
+        <span class="pdf-ff-intro">Você relatou se sentir</span>
+        <span v-for="(f, i) in resultFeelings" :key="'pff'+i" class="pdf-ff-chip">{{ capFirst(f) }}</span>
+      </div>
       <p class="pdf-p">{{ norm(resultData.final_message) }}</p>
     </div>
 
@@ -3098,6 +3106,16 @@ body::after {
   font-weight: 500;
   margin-bottom: 14px;
 }
+.for-you-feelings { margin: 0 0 14px; }
+.for-you-feelings .ff-intro {
+  font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-3); display: block; margin-bottom: 7px;
+}
+.ff-chip {
+  display: inline-block; margin: 0 6px 6px 0; padding: 4px 12px; border-radius: 100px;
+  background: rgba(155,93,229,0.12); border: 1px solid rgba(155,93,229,0.32);
+  color: #c9a5f0; font-size: 12px; font-weight: 600;
+}
 .for-you-text {
   font-size: 15px;
   color: var(--text);
@@ -4313,6 +4331,9 @@ body::after {
 }
 .pdf-block--verdict { border-left: 3px solid var(--pdf-pink); }
 .pdf-block--foryou  { border-left: 3px solid var(--pdf-purple); background: var(--pdf-soft); }
+.pdf-foryou-feelings { margin: 0 0 9px; }
+.pdf-ff-intro { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pdf-faint); display: block; margin-bottom: 5px; }
+.pdf-ff-chip { display: inline-block; margin: 0 5px 5px 0; padding: 3px 10px; border-radius: 100px; background: rgba(155,93,229,0.10); border: 1px solid rgba(155,93,229,0.32); color: var(--pdf-purple); font-size: 11px; font-weight: 700; }
 .pdf-block--limits  { background: var(--pdf-soft); }
 .pdf-block--limits .pdf-p { color: var(--pdf-faint); font-size: 12px; }
 .pdf-block-label {

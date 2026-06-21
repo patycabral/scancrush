@@ -28,6 +28,10 @@ useHead({ title: 'ScanCrush — Termos de Uso' })
   <p>O ScanCrush é uma ferramenta de <strong>análise informativa</strong> baseada em padrões de comunicação. Não se trata de conselho profissional, diagnóstico psicológico ou terapia.</p>
   <p>Os resultados gerados são baseados em reconhecimento de padrões e devem ser interpretados como uma perspectiva complementar, <strong>não como verdade absoluta</strong>.</p>
 
+  <h2>Idade mínima</h2>
+  <p>O ScanCrush é destinado exclusivamente a pessoas <strong>maiores de 18 anos</strong>. Ao utilizar a ferramenta, você declara ter 18 anos ou mais e plena capacidade civil para aceitar estes Termos.</p>
+  <p>Em conformidade com a Lei Geral de Proteção de Dados (LGPD), não coletamos nem tratamos intencionalmente dados de menores de 18 anos. Caso seja identificado um cadastro de menor, os dados serão excluídos.</p>
+
   <h2>Uso adequado</h2>
   <p>Ao usar o ScanCrush, você concorda em:</p>
   <ul>
@@ -64,7 +68,7 @@ useHead({ title: 'ScanCrush — Termos de Uso' })
     <NuxtLink to="/privacy">Privacidade</NuxtLink>
     <NuxtLink to="/terms">Termos</NuxtLink>
   </p>
-  <p style="margin-top:16px">© 2026 ScanCrush. Análise emocional de conversas.</p>
+  <p style="margin-top:16px">© 2026 ScanCrush. Nem sempre os sinais são óbvios.</p>
 </footer>
 </template>
 
