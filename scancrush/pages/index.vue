@@ -195,8 +195,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <div class="hero-eyebrow">IA especializada em analisar conversa do crush</div>
 
         <h1>
-          <span>Como saber se o crush gosta de mim</span>
-          <span class="line2 grad">pela conversa?</span>
+          <span>Como saber se o crush gosta de mim</span> <span class="line2 grad">pela conversa?</span>
         </h1>
 
         <p class="hero-sub">
@@ -279,8 +278,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <!-- centro: título -->
       <div class="loop-center">
         <h2 class="loop-center-title">
-          <span>Admite,</span><br class="br-m-hide">
-          <span class="grad">você já<br class="br-m-hide"> fez isso...</span>
+          <span>Admite,</span><br class="br-m-hide"> <span class="grad">você já<br class="br-m-hide"> fez isso...</span>
         </h2>
         <div class="loop-center-pulse"></div>
       </div>
@@ -327,8 +325,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <div class="reveal" style="text-align:center">
       <span class="tag">// você já até perguntou para IA, né?</span>
       <h2 class="section-title">
-        <span>Interpretar mensagens do crush</span><br class="br-m-hide">
-        <span class="grad">com IA genérica não funciona.</span>
+        <span>Interpretar mensagens do crush</span><br class="br-m-hide"> <span class="grad">com IA genérica não funciona.</span>
       </h2>
       <p class="diff-sub reveal">Qualquer pessoa pode perguntar para IA genérica o que uma mensagem significa. Mas a IA genérica não foi treinada para ler relacionamentos — foi treinada para parecer prestativa com qualquer pergunta.</p>
       <p class="diff-contrast reveal" style="margin-bottom:28px">"Talvez". "Depende". "Cada pessoa é diferente!" — sem nenhuma conclusão real sobre a conversa.</p>
@@ -534,8 +531,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   <div class="container">
     <div class="cta-final-inner reveal">
       <h2>
-        <span>Você já leu essa conversa várias vezes,</span><br>
-        <span class="grad">só ainda não viu do jeito certo.</span>
+        <span>Você já leu essa conversa várias vezes,</span><br class="br-m-hide"> <span class="grad">só ainda não viu do jeito certo.</span>
       </h2>
       <p>Enquanto você fica ruminando, a resposta já está nos prints.</p>
       <button class="btn-primary" style="font-size:17px;padding:18px 40px" @click="scrollToPricing()">
@@ -796,7 +792,13 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   .loop-center-pulse { display: none; }
   .loop-item {
     position: relative;   /* p/ ancorar o conector pontilhado */
+    /* zera o posicionamento absoluto do desktop (top/left vinham das vars) */
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
     transform: none;
+    margin: 0 auto;       /* coluna única centralizada na tela */
     width: 100%;
     max-width: 360px;
     text-align: left;

@@ -687,7 +687,7 @@ body::after {
   padding: 0 0 20px;
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: -80px;
 }
 .disclaimer-inner {
   border-radius: var(--r);
@@ -974,7 +974,7 @@ body::after {
   font-weight: 300;
   margin-bottom: 40px;
 }
-.cta-hint { margin-top: 16px; font-size: 12px; color: var(--text-3); }
+.cta-hint { margin-top: 16px; font-size: 10px; color: var(--text-3); }
 
 /* ─── FOOTER ─────────────────────────────────────────────────── */
 footer {
@@ -1141,7 +1141,7 @@ footer {
 
   /* CTA final: largura full + hint bem menor */
   .cta-final .btn-primary { width: 100%; justify-content: center; font-size: 14px !important; padding: 16px 20px !important; }
-  .cta-hint { font-size: 9.5px; }
+  .cta-hint { font-size: 8.5px; }
 
   /* footer centralizado + ocultar "Dúvidas" */
   .footer-row { flex-direction: column; align-items: center; text-align: center; gap: 18px; }
