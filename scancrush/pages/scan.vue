@@ -167,6 +167,12 @@ const crushAgeRange = ref('')
 const termsAccepted = ref(false)
 const showValidationMsg = ref(false)
 const validationMsgHtml = ref('')
+const showInvalidContent = ref(false)
+const invalidContentMsg = ref('')
+function closeInvalidContent() {
+  showInvalidContent.value = false
+  if (import.meta.client) document.body.style.overflow = ''
+}
 const showAnalysisBlockedMsg = ref(false)
 const showBtnGenerate = ref(true)
 
@@ -613,6 +619,12 @@ async function startAnalysis() {
         goTo(5)   // tela de limite 24h
       } else if (data?.error === 'invalid_session') {
         goTo(6)   // tela de sessão inválida/expirada
+      } else if (data?.error === 'invalid_content') {
+        // Guardrails/validação: não é conversa ou conteúdo bloqueado → popup amigável
+        goTo(2)
+        invalidContentMsg.value = data?.message ?? 'O conteúdo enviado não parece ser uma conversa. Envie um print real da conversa com o seu crush.'
+        showInvalidContent.value = true
+        if (import.meta.client) document.body.style.overflow = 'hidden'
       } else {
         goTo(2)
         validationMsgHtml.value = `⚠️ ${data?.message ?? 'Erro ao processar análise. Tente novamente.'}`
@@ -727,6 +739,7 @@ function resetAll() {
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     if (lightboxSrc.value) { closeLightbox(); return }
+    if (showInvalidContent.value) { closeInvalidContent(); return }
     if (showImageCountWarning.value) { closeImageCountWarning(); return }
     if (showConfirmDialog.value) { closeConfirmDialog(); return }
     closeModal()
@@ -1205,6 +1218,26 @@ onUnmounted(() => {
       <button class="confirm-btn-ok" @click="proceedFromWarning()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
         Gerar análise com {{ uploadedFiles.length }} {{ uploadedFiles.length === 1 ? 'imagem' : 'imagens' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- POPUP: conteúdo inválido (não é conversa / bloqueado) -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="confirm-overlay" :class="{ open: showInvalidContent }" @click.self="closeInvalidContent()">
+  <div class="confirm-card icw-card">
+    <button class="confirm-close" @click="closeInvalidContent()" aria-label="Fechar">×</button>
+    <div class="invalid-pop-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FF2D6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <h2 class="confirm-title">Esse print não parece uma conversa</h2>
+    <p class="confirm-sub">{{ invalidContentMsg }}</p>
+    <div class="confirm-actions">
+      <button class="confirm-btn-ok" @click="closeInvalidContent()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Enviar outro print
       </button>
     </div>
   </div>
@@ -4579,6 +4612,12 @@ body::after {
 }
 .confirm-overlay.open .confirm-card {
   transform: scale(1) translateY(0);
+}
+.invalid-pop-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(255,45,107,0.12); border: 1px solid var(--pink-border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 4px auto 14px;
 }
 .icw-card .confirm-actions { flex-direction: column; gap: 10px; }
 .icw-card .confirm-btn-cancel,
