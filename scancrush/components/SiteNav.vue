@@ -26,6 +26,10 @@ function handlePricesOverlayClick(e: MouseEvent) {
 
 const navScrolled = ref(false)
 function onScroll() { navScrolled.value = window.scrollY > 30 }
+
+const mobileMenuOpen = ref(false)
+function toggleMobileMenu() { mobileMenuOpen.value = !mobileMenuOpen.value }
+function closeMobileMenu() { mobileMenuOpen.value = false }
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePricesModal() })
@@ -61,9 +65,18 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <button class="btn-nav" @click="openPricesModal()">Analisar conversa</button>
       </div>
 
-      <button class="nav-mobile-btn" aria-label="Menu">
+      <button class="nav-mobile-btn" :class="{ active: mobileMenuOpen }" @click="toggleMobileMenu()" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
+    </div>
+
+    <!-- Menu mobile (dropdown do hamburguer) -->
+    <div class="nav-mobile-menu" :class="{ open: mobileMenuOpen }">
+      <a href="/#b-how" @click="closeMobileMenu()">Como funciona</a>
+      <a href="/#b-report" @click="closeMobileMenu()">O relatório</a>
+      <a href="/#b-pricing" @click="closeMobileMenu()">Planos</a>
+      <NuxtLink to="/blog" @click="closeMobileMenu()">Blog</NuxtLink>
+      <button class="btn-nav" @click="openPricesModal(); closeMobileMenu()">Analisar conversa</button>
     </div>
   </div>
 </nav>

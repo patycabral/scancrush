@@ -280,7 +280,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <div class="loop-center">
         <h2 class="loop-center-title">
           <span>Admite,</span><br class="br-m-hide">
-          <span class="grad">você já<br class="br-m-hide">fez isso...</span>
+          <span class="grad">você já<br class="br-m-hide"> fez isso...</span>
         </h2>
         <div class="loop-center-pulse"></div>
       </div>
@@ -783,7 +783,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 34px;            /* espaço maior p/ ver a linha de conexão */
     padding-top: 0;
   }
   .loop-track { display: none; }
@@ -795,7 +795,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   }
   .loop-center-pulse { display: none; }
   .loop-item {
-    position: static;
+    position: relative;   /* p/ ancorar o conector pontilhado */
     transform: none;
     width: 100%;
     max-width: 360px;
@@ -804,6 +804,18 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     align-items: flex-start;
     gap: 12px;
     padding: 16px;
+  }
+  /* Linha pontilhada vertical centralizada ligando um card ao próximo */
+  .loop-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 34px;
+    border-left: 2px dashed var(--pink);
+    opacity: 0.45;
   }
   .loop-item:hover { transform: none; }
   .loop-emoji { margin-bottom: 0; flex-shrink: 0; }

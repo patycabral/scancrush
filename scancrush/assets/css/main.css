@@ -1122,8 +1122,9 @@ footer {
   .hero-inner h1 { font-size: clamp(30px, 8.5vw, 40px); line-height: 1.14; }
   .hero-sub { font-size: 14px; }
 
-  /* "Resultado em até 3 min" / "Privacidade garantida" em 2 linhas */
-  .hero-urgency { font-size: 11.5px; }
+  /* "Resultado em até 3 min" / "Privacidade garantida" — centralizado abaixo do botão, em 2 linhas */
+  .hero-actions { align-items: center; }
+  .hero-urgency { font-size: 11.5px; text-align: center; width: 100%; }
   .hu-sep { display: none; }
   .hu-priv { display: block; margin-top: 5px; }
 
@@ -1138,10 +1139,9 @@ footer {
   /* aviso/disclaimer mais perto do bloco anterior */
   .disclaimer-bar { margin-top: -40px; }
 
-  /* CTA final em uma linha + hint menor */
-  .cta-final .btn-primary { font-size: 13px !important; padding: 15px 20px !important; }
-  .cta-final .btn-primary span { white-space: nowrap; }
-  .cta-hint { font-size: 11px; }
+  /* CTA final: largura full + hint bem menor */
+  .cta-final .btn-primary { width: 100%; justify-content: center; font-size: 14px !important; padding: 16px 20px !important; }
+  .cta-hint { font-size: 9.5px; }
 
   /* footer centralizado + ocultar "Dúvidas" */
   .footer-row { flex-direction: column; align-items: center; text-align: center; gap: 18px; }
@@ -1149,16 +1149,6 @@ footer {
   .footer-links { justify-content: center; flex-wrap: wrap; }
   .footer-hide-m { display: none; }
   .footer-copy { text-align: center; }
-
-  /* cards "Admite" interligados por linha pontilhada */
-  .loop-item:not(:last-child)::after {
-    content: '';
-    display: block;
-    width: 0; height: 14px;
-    margin: 10px auto -6px;
-    border-left: 2px dashed var(--pink);
-    opacity: 0.45;
-  }
 }
 
 /* ─── PLANS MODAL (landing page) ─────────────────────────── */
