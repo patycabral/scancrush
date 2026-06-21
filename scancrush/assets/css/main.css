@@ -208,7 +208,9 @@ body::after {
   background: var(--text-2);
   border-radius: 2px;
   display: block;
+  transition: transform 0.25s, opacity 0.2s;
 }
+.nav-mobile-menu { display: none; }
 
 /* ─── HERO ───────────────────────────────────────────────────── */
 .hero {
@@ -1077,6 +1079,26 @@ footer {
   .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
   .nav-links { display: none; }
   .nav-mobile-btn { display: flex; }
+  .nav-mobile-menu.open {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 20px 18px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .nav-mobile-menu a {
+    padding: 13px 4px;
+    color: var(--text-2);
+    font-size: 15px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .nav-mobile-menu a:hover { color: var(--text); }
+  .nav-mobile-menu .btn-nav { margin-top: 12px; width: 100%; display: block; }
+  .nav-mobile-btn.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-mobile-btn.active span:nth-child(2) { opacity: 0; }
+  .nav-mobile-btn.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 }
 @media (max-width: 560px) {
   .pricing-grid { grid-template-columns: 1fr; max-width: 360px; margin-left: auto; margin-right: auto; }
@@ -1088,6 +1110,55 @@ footer {
   .container { padding: 0 18px; }
   .section-pad { padding: 72px 0; }
   .hero-visual { max-width: 300px; }
+}
+
+/* ─── RESPONSIVO: ajustes finos de conteúdo (mobile) ───────── */
+@media (max-width: 700px) {
+  /* headlines sem enter forçado */
+  .br-m-hide { display: none; }
+  .hero-inner h1 .line2 { display: inline; }
+
+  /* hero: headline maior + sub menor */
+  .hero-inner h1 { font-size: clamp(30px, 8.5vw, 40px); line-height: 1.14; }
+  .hero-sub { font-size: 14px; }
+
+  /* "Resultado em até 3 min" / "Privacidade garantida" em 2 linhas */
+  .hero-urgency { font-size: 11.5px; }
+  .hu-sep { display: none; }
+  .hu-priv { display: block; margin-top: 5px; }
+
+  /* títulos/subtítulos dos planos centralizados */
+  .price-name, .price-desc { text-align: center; }
+  .price-amount { justify-content: center; text-align: center; }
+  .diff-sub { font-size: 14px; }
+
+  /* relatório: "// o relatório" (texto) antes do mock "Relatório de Análise" */
+  .report-copy { order: -1; }
+
+  /* aviso/disclaimer mais perto do bloco anterior */
+  .disclaimer-bar { margin-top: -40px; }
+
+  /* CTA final em uma linha + hint menor */
+  .cta-final .btn-primary { font-size: 13px !important; padding: 15px 20px !important; }
+  .cta-final .btn-primary span { white-space: nowrap; }
+  .cta-hint { font-size: 11px; }
+
+  /* footer centralizado + ocultar "Dúvidas" */
+  .footer-row { flex-direction: column; align-items: center; text-align: center; gap: 18px; }
+  .footer-row > div { display: flex; flex-direction: column; align-items: center; }
+  .footer-links { justify-content: center; flex-wrap: wrap; }
+  .footer-hide-m { display: none; }
+  .footer-copy { text-align: center; }
+
+  /* cards "Admite" interligados por linha pontilhada */
+  .loop-item:not(:last-child)::after {
+    content: '';
+    display: block;
+    width: 0; height: 14px;
+    margin: 10px auto -6px;
+    border-left: 2px dashed var(--pink);
+    opacity: 0.45;
+  }
 }
 
 /* ─── PLANS MODAL (landing page) ─────────────────────────── */

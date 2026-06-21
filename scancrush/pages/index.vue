@@ -118,6 +118,10 @@ function toggleFaq(i: number) {
 
 const navScrolled = ref(false)
 function onScroll() { navScrolled.value = window.scrollY > 30 }
+
+const mobileMenuOpen = ref(false)
+function toggleMobileMenu() { mobileMenuOpen.value = !mobileMenuOpen.value }
+function closeMobileMenu() { mobileMenuOpen.value = false }
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePricesModal() })
@@ -166,9 +170,18 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <button class="btn-nav" @click="openPricesModal()">Analisar conversa</button>
       </div>
 
-      <button class="nav-mobile-btn" aria-label="Menu">
+      <button class="nav-mobile-btn" :class="{ active: mobileMenuOpen }" @click="toggleMobileMenu()" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
+    </div>
+
+    <!-- Menu mobile (dropdown do hamburguer) -->
+    <div class="nav-mobile-menu" :class="{ open: mobileMenuOpen }">
+      <a href="#b-how" @click="closeMobileMenu()">Como funciona</a>
+      <a href="#b-report" @click="closeMobileMenu()">O relatório</a>
+      <a href="#b-pricing" @click="closeMobileMenu()">Planos</a>
+      <NuxtLink to="/blog" @click="closeMobileMenu()">Blog</NuxtLink>
+      <button class="btn-nav" @click="openPricesModal(); closeMobileMenu()">Analisar conversa</button>
     </div>
   </div>
 </nav>
@@ -187,8 +200,8 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         </h1>
 
         <p class="hero-sub">
-          <b>A resposta está nos padrões das mensagens — não no que você espera ouvir.</b><br>
-          Cole os prints da conversa com o seu crush e receba uma análise honesta dos sinais reais de interesse — sem julgamento, sem achismo, sem <em>"talvez"</em>.
+          A resposta está nos padrões das mensagens — não no que você espera ouvir.<br>
+          <b>Cole os prints da conversa com o seu crush e receba uma análise honesta dos sinais reais de interesse</b> — sem julgamento, sem achismo, sem <em>"talvez"</em>.
         </p>
 
         <div class="hero-actions">
@@ -197,7 +210,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
             <span>Analisar minha conversa</span>
           </button>
           <div class="hero-urgency">
-            <span>⚡ Resultado em segundos · Privacidade garantida</span>
+            <span class="hu-time">⚡ Resultado em até 3 min</span><span class="hu-sep"> · </span><span class="hu-priv">🔒 Privacidade garantida</span>
           </div>
         </div>
       </div>
@@ -266,8 +279,8 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <!-- centro: título -->
       <div class="loop-center">
         <h2 class="loop-center-title">
-          <span>Admite,</span><br>
-          <span class="grad">você já<br>fez isso...</span>
+          <span>Admite,</span><br class="br-m-hide">
+          <span class="grad">você já<br class="br-m-hide">fez isso...</span>
         </h2>
         <div class="loop-center-pulse"></div>
       </div>
@@ -314,7 +327,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <div class="reveal" style="text-align:center">
       <span class="tag">// você já até perguntou para IA, né?</span>
       <h2 class="section-title">
-        <span>Interpretar mensagens do crush</span><br>
+        <span>Interpretar mensagens do crush</span><br class="br-m-hide">
         <span class="grad">com IA genérica não funciona.</span>
       </h2>
       <p class="diff-sub reveal">Qualquer pessoa pode perguntar para IA genérica o que uma mensagem significa. Mas a IA genérica não foi treinada para ler relacionamentos — foi treinada para parecer prestativa com qualquer pergunta.</p>
@@ -551,7 +564,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <ul class="footer-links">
         <li><a href="#b-how">{{ t.footer.how }}</a></li>
         <li><a href="#b-pricing">{{ t.footer.pricing }}</a></li>
-        <li><a href="#b-faq">{{ t.footer.faq }}</a></li>
+        <li class="footer-hide-m"><a href="#b-faq">{{ t.footer.faq }}</a></li>
         <li><NuxtLink to="/privacy">{{ t.footer.privacy }}</NuxtLink></li>
         <li><NuxtLink to="/terms">{{ t.footer.terms }}</NuxtLink></li>
       </ul>

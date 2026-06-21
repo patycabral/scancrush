@@ -25,7 +25,7 @@ const LAUNCH_MODE = false
 const currentPlan = ref<string>('free')
 
 function getImageLimit(): number {
-  return PLAN_LIMITS[currentPlan.value] ?? 1
+  return PLAN_LIMITS[currentPlan.value] || 1   // || captura também 0 inválido vindo do token
 }
 
 // ── Screen control ──
@@ -208,16 +208,22 @@ function validateS2(): boolean {
   const missing: string[] = []
   if (!userAgeRange.value) missing.push('sua <strong>faixa etária</strong>')
   if (selectedTags.value.length === 0) missing.push('pelo menos um <strong>sentimento</strong>')
-  if (!termsAccepted.value) missing.push('confirmar que é <strong>maior de 18 anos</strong> e aceitar os <strong>Termos</strong>')
 
-  if (missing.length) {
-    if (missing.length === 1) {
-      validationMsgHtml.value = `⚠️ Preencha ${missing[0]} para continuar.`
-    } else {
-      const last = missing[missing.length - 1]
-      const rest = missing.slice(0, -1)
-      validationMsgHtml.value = `⚠️ Preencha ${rest.join(', ')} e ${last} para continuar.`
-    }
+  let msg = ''
+  if (missing.length === 1) {
+    msg = `Preencha ${missing[0]}`
+  } else if (missing.length > 1) {
+    const last = missing[missing.length - 1]
+    const rest = missing.slice(0, -1)
+    msg = `Preencha ${rest.join(', ')} e ${last}`
+  }
+  if (!termsAccepted.value) {
+    const terms = 'confirme que é <strong>maior de 18 anos</strong> e aceite os <strong>Termos</strong>'
+    msg = msg ? `${msg}, e ${terms}` : `Por favor, ${terms}`
+  }
+
+  if (msg) {
+    validationMsgHtml.value = `⚠️ ${msg} para continuar.`
     showValidationMsg.value = true
     return false
   }
@@ -518,7 +524,11 @@ const recipMetrics = computed(() => {
     } else if (Number.isFinite(pu) && pu >= 0 && pu <= 100) {
       u = Math.round(pu); c = 100 - u
     }
-    return { label: m?.label ?? '', user: m?.user ?? '', crush: m?.crush ?? '', u, c }
+    let dominance = ''
+    if (u != null && c != null) {
+      dominance = u >= 65 ? 'Você' : c >= 65 ? 'Crush' : 'Equilibrada'
+    }
+    return { label: m?.label ?? '', user: m?.user ?? '', crush: m?.crush ?? '', u, c, dominance }
   })
 })
 
@@ -730,7 +740,7 @@ const PLAN_NAMES: Record<string, string> = {
   raiox:    'Raio-X do Crush',
 }
 const planDisplayName = computed(() => PLAN_NAMES[currentPlan.value] ?? 'Primeiras Impressões')
-const planImageLimit  = computed(() => PLAN_LIMITS[currentPlan.value] ?? 1)
+const planImageLimit  = computed(() => PLAN_LIMITS[currentPlan.value] || 1)
 const isFree          = computed(() => currentPlan.value === 'free')
 
 // Copy condicional por plano
@@ -848,7 +858,7 @@ async function validateToken(token: string) {
 
       accessToken.value        = access.token
       currentPlan.value        = planKey
-      PLAN_LIMITS[planKey]     = access.max_prints
+      if (Number(access.max_prints) > 0) PLAN_LIMITS[planKey] = Number(access.max_prints)
 
       const expiresAt = access.expires_at
         ? new Date(access.expires_at).getTime()
@@ -991,7 +1001,7 @@ onUnmounted(() => {
 
     <!-- Free plan limit notice -->
     <p v-if="currentPlan === 'free'" class="free-limit-notice">
-      ⏳ Primeiras Impressões · análise única
+      ⏳ análise única
     </p>
 
     <h1 class="screen-title">{{ uploadTitle }}</h1>
@@ -1044,7 +1054,6 @@ onUnmounted(() => {
     <!-- Limit reached alert -->
     <div class="limit-alert" :class="{ visible: showLimitAlert }">
       <p class="limit-alert-text">{{ limitAlertText }}</p>
-      <button class="btn-upgrade-inline" @click="openModal()">🔓 Desbloquear análise completa</button>
     </div>
 
     <button class="btn-main" :disabled="btnContinueDisabled" @click="tryProceed()">
@@ -1146,9 +1155,6 @@ onUnmounted(() => {
         <p>🧠 A análise identifica padrões, sinais e inconsistências nas mensagens enviadas.</p>
         <p class="free-disclaimer-sub">Ela não lê pensamentos — mas pode revelar comportamentos que passam despercebidos no momento.</p>
       </div>
-      <div class="free-disclaimer-card free-disclaimer-card--soft">
-        ✨ Essa é uma leitura inicial baseada no print enviado.
-      </div>
     </template>
 
     <!-- Disclaimer — plano pago -->
@@ -1178,6 +1184,7 @@ onUnmounted(() => {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Ver os sinais da conversa
     </button>
+    <p v-if="isFree" class="leitura-inicial-hint">✨ Essa é uma leitura inicial baseada no print enviado.</p>
   </div>
 </div>
 
@@ -1343,6 +1350,17 @@ onUnmounted(() => {
         </div>
         <p class="free-insight-text">{{ norm(resultData?.final_message ?? '') }}</p>
       </div>
+      <!-- Download PDF da leitura inicial (free também baixa) -->
+      <div class="pdf-download-card">
+        <div class="pdf-download-title">Guarde sua leitura inicial</div>
+        <p class="pdf-download-desc">Baixe esta primeira leitura em PDF para consultar quando quiser.</p>
+        <button class="btn-pdf-primary" @click="downloadPdf()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar leitura em PDF
+        </button>
+        <p class="pdf-hint">Na janela de impressão, escolha "Salvar como PDF" como destino.</p>
+      </div>
+
       <p class="free-upgrade-hint">✨ A versão completa revela padrões que não aparecem em uma leitura inicial.</p>
       <div class="free-upgrade-card">
         <p class="free-upgrade-title">Quer ver a leitura completa?</p>
@@ -1478,6 +1496,7 @@ onUnmounted(() => {
               </template>
               <div v-else class="recip-bar2-empty"></div>
             </div>
+            <div v-if="m.dominance" class="recip-dominance">Predominância: <span>{{ m.dominance }}</span></div>
           </div>
         </div>
 
@@ -1601,7 +1620,7 @@ onUnmounted(() => {
 <!-- ══════════════════════════════════════════════════ -->
 <!-- PDF DOCUMENT (print-only, identidade própria light) -->
 <!-- ══════════════════════════════════════════════════ -->
-<div class="pdf-doc" v-if="!isFree && resultData">
+<div class="pdf-doc" v-if="resultData">
 
   <!-- ── PÁGINA 1: CAPA ── -->
   <section class="pdf-cover">
@@ -1632,7 +1651,7 @@ onUnmounted(() => {
 
     <div class="pdf-cover-center">
       <p class="pdf-cover-eyebrow">Relatório de análise comportamental</p>
-      <h1 class="pdf-cover-title">RAIO-X DO CRUSH</h1>
+      <h1 class="pdf-cover-title">{{ planDisplayName.toUpperCase() }}</h1>
       <p class="pdf-cover-subtitle">Análise comportamental baseada exclusivamente no recorte enviado.</p>
 
       <!-- Score teaser (compacto): número + classificação -->
@@ -1786,6 +1805,7 @@ onUnmounted(() => {
           </template>
           <div v-else class="pdf-recip-bar2-empty"></div>
         </div>
+        <div v-if="m.dominance" class="pdf-recip-dominance">Predominância: <span>{{ m.dominance }}</span></div>
       </div>
       <div v-if="resultData.reciprocity.summary" class="pdf-recip-conclusion">
         <span class="pdf-recip-conclusion-tag">Leitura</span>
@@ -2119,6 +2139,12 @@ body::after {
 }
 .plan-info-limit {
   color: var(--text-2);
+}
+.leitura-inicial-hint {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: #FFB800;
 }
 .free-limit-notice {
   font-size: 11px;
@@ -2951,14 +2977,16 @@ body::after {
 .recip-metric-val .sep { color: var(--text-3); margin: 0 5px; }
 .recip-metric-val b { font-weight: 700; }
 .recip-metric-val b.u { color: var(--pink); }
-.recip-metric-val b.c { color: var(--text-2); }
+.recip-metric-val b.c { color: var(--purple); }
 .recip-bar2 {
   height: 6px; border-radius: 100px; overflow: hidden;
   display: flex; background: rgba(255,255,255,0.05);
 }
 .recip-bar2-user { background: linear-gradient(90deg, var(--pink), #ff6b8e); height: 100%; }
-.recip-bar2-crush { background: rgba(238,238,248,0.16); height: 100%; }
+.recip-bar2-crush { background: var(--purple); height: 100%; }
 .recip-bar2-empty { width: 100%; background: rgba(255,255,255,0.05); height: 100%; }
+.recip-dominance { margin-top: 6px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); }
+.recip-dominance span { color: var(--text-2); font-weight: 700; }
 
 .recip-conclusion {
   margin-top: 22px; padding: 15px 17px; border-radius: 12px;
@@ -4353,10 +4381,12 @@ body::after {
 .pdf-recip-mval .sep { color: var(--pdf-faint); margin: 0 5px; }
 .pdf-recip-mval b { font-weight: 800; }
 .pdf-recip-mval b.u { color: var(--pdf-pink); }
-.pdf-recip-mval b.c { color: var(--pdf-muted); }
+.pdf-recip-mval b.c { color: var(--pdf-purple); }
 .pdf-recip-bar2 { height: 6px; border-radius: 100px; overflow: hidden; display: flex; background: #eef0f4; }
 .pdf-recip-bar2-u { background: var(--pdf-pink); height: 100%; }
-.pdf-recip-bar2-c { background: #d3d3df; height: 100%; }
+.pdf-recip-bar2-c { background: var(--pdf-purple); height: 100%; }
+.pdf-recip-dominance { margin-top: 5px; font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--pdf-faint); }
+.pdf-recip-dominance span { color: var(--pdf-muted); font-weight: 700; }
 .pdf-recip-bar2-empty { width: 100%; background: #eef0f4; height: 100%; }
 .pdf-recip-conclusion { margin-top: 16px; padding: 12px 14px; border-radius: 9px; background: #faf7fb; border: 1px solid var(--pdf-line); border-left: 2px solid var(--pdf-pink); }
 .pdf-recip-conclusion-tag { display: block; font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--pdf-pink); margin-bottom: 6px; }

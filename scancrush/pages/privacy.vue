@@ -60,7 +60,7 @@ useHead({ title: 'ScanCrush — Privacidade' })
     <NuxtLink to="/privacy">Privacidade</NuxtLink>
     <NuxtLink to="/terms">Termos</NuxtLink>
   </p>
-  <p style="margin-top:16px">© 2026 ScanCrush. Análise emocional de conversas.</p>
+  <p style="margin-top:16px">© 2026 ScanCrush. Nem sempre os sinais são óbvios.</p>
 </footer>
 </template>
 
