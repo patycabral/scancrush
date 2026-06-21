@@ -4556,7 +4556,12 @@ body::after {
 /* ════════════════════════════════════════════════════ */
 @media print {
   @page { size: A4; margin: 12mm; }
-  html, body { background: #fff !important; }
+  html, body {
+    background: #fff !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
   body::before, body::after { display: none !important; }
   .screen,
   .token-overlay,
@@ -4566,6 +4571,15 @@ body::after {
 
   .pdf-doc {
     display: block !important;
+    /* largura fixa = área útil do A4 (210mm − 2×12mm). Sem isto, o mobile
+       calcula o layout na largura da tela (~390px) e escala → quebra tudo. */
+    width: 186mm !important;
+    margin: 0 auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* garante cores/gradientes/barras em navegadores mobile (não herdam sempre) */
+  .pdf-doc * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
