@@ -59,7 +59,7 @@ useHead({
   <!-- Mid CTA -->
   <div class="article-cta-bar">
     <span class="article-cta-text">Quer entender o que ele(a) realmente sente?</span>
-    <NuxtLink to="/scan" class="article-cta-btn">Analisar conversa →</NuxtLink>
+    <NuxtLink to="/#b-pricing" class="article-cta-btn">Analisar conversa →</NuxtLink>
   </div>
 
   <div class="article-body-wrap">
@@ -81,7 +81,7 @@ useHead({
       <p class="final-cta-eyebrow">// chega de adivinhar</p>
       <p class="final-cta-title">Você merece uma resposta de verdade</p>
       <p class="final-cta-sub">Cole a conversa, a IA analisa os padrões e te diz o que está acontecendo — em segundos.</p>
-      <NuxtLink to="/scan" class="final-cta-btn">Analisar minha conversa agora →</NuxtLink>
+      <NuxtLink to="/#b-pricing" class="final-cta-btn">Analisar minha conversa agora →</NuxtLink>
     </div>
 
     <!-- Related -->
