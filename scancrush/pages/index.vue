@@ -504,6 +504,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         { q: t.faq.q5, a: t.faq.a5 },
         { q: t.faq.q6, a: t.faq.a6 },
         { q: t.faq.q7, a: t.faq.a7 },
+        { q: t.faq.q8, a: t.faq.a8 },
       ]" :key="i" class="faq-item" :class="{ open: openFaqIndex === i }">
         <button class="faq-btn" @click="toggleFaq(i)">
           <span>{{ item.q }}</span>

@@ -132,6 +132,8 @@ const translations = {
       a6: 'Depende do plano escolhido:\n\n• Primeiras Impressões: 1 print\n• Sinais Revelados: até 4 prints\n• Raio-X do Crush: até 10 prints\n\nMais prints permitem uma análise mais profunda e precisa.',
       q7: 'E se eu não gostar do resultado?',
       a7: 'A análise interpreta os sinais presentes na conversa enviada. Mas emoções, intenções e relações humanas sempre envolvem contexto e subjetividade.',
+      q8: 'Por quanto tempo tenho acesso à análise?',
+      a8: 'Seu acesso é válido por 90 dias após a compra e pode ser reaberto pelo link enviado por e-mail. Cada compra dá direito a 1 análise (token de uso único).',
     },
     differentiator: {
       tag: 'Por que o ScanCrush?',
@@ -289,6 +291,8 @@ const translations = {
       a6: 'Depends on the plan:\n\n• First Impressions: 1 screenshot\n• Revealed Signals: up to 4\n• Crush X-Ray: up to 10\n\nMore screenshots allow for deeper, more accurate analysis.',
       q7: "What if I don't like the result?",
       a7: "Then it's probably something you were already feeling. You just didn't want to confirm it.",
+      q8: 'How long do I have access to the analysis?',
+      a8: 'Your access is valid for 90 days after purchase and can be reopened via the link sent by email. Each purchase includes 1 analysis (single-use token).',
     },
     differentiator: {
       tag: 'Why ScanCrush?',
@@ -446,6 +450,8 @@ const translations = {
       a6: 'Depende del plan elegido:\n\n• Primeras Impresiones: 1 captura\n• Señales Reveladas: hasta 4\n• Radiografía del Crush: hasta 10\n\nMás capturas permiten un análisis más profundo y preciso.',
       q7: '¿Y si no me gusta el resultado?',
       a7: 'Entonces probablemente es algo que ya sentías. Solo que no querías confirmarlo.',
+      q8: '¿Por cuánto tiempo tengo acceso al análisis?',
+      a8: 'Tu acceso es válido por 90 días después de la compra y puede reabrirse mediante el enlace enviado por correo. Cada compra incluye 1 análisis (token de un solo uso).',
     },
     differentiator: {
       tag: '¿Por qué ScanCrush?',

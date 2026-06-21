@@ -206,8 +206,6 @@ function checkAnalysisDone() {
 
 function validateS2(): boolean {
   const missing: string[] = []
-  if (isFree.value && !userName.value.trim()) missing.push('seu <strong>nome</strong>')
-  if (isFree.value && !userEmail.value.trim()) missing.push('seu <strong>e-mail</strong>')
   if (!userAgeRange.value) missing.push('sua <strong>faixa etária</strong>')
   if (selectedTags.value.length === 0) missing.push('pelo menos um <strong>sentimento</strong>')
   if (!termsAccepted.value) missing.push('confirmar que é <strong>maior de 18 anos</strong> e aceitar os <strong>Termos</strong>')
@@ -906,11 +904,10 @@ onMounted(async () => {
     // Token na URL: sempre valida no webhook, nunca cai em free por falha
     await validateToken(urlToken)
   } else {
-    // /scan sem token = modo GRATUITO por padrão. O acesso pago é SEMPRE via link
-    // com ?token=; não restauramos sessão paga do storage para não prender o usuário
-    // no plano antigo (bug: grátis abria como Raio-X).
-    console.log('[ScanCrush] onMounted → /scan sem token: modo gratuito')
+    // Não há mais plano gratuito: o acesso é SEMPRE via link com ?token= (pós-compra)
+    // ou ?r= (reabrir relatório). Acesso direto sem token → manda escolher um plano.
     clearStoredSession()
+    if (import.meta.client) { window.location.href = '/#b-pricing'; return }
   }
 
   console.log('[ScanCrush] onMounted → estado final | plano:', currentPlan.value, '| limite:', getImageLimit())
@@ -1089,36 +1086,6 @@ onUnmounted(() => {
 
     <h1 class="screen-title">Conte um pouco mais</h1>
     <p class="screen-subtitle">Vamos personalizar a análise para o seu perfil</p>
-
-    <!-- Nome + e-mail (plano gratuito) -->
-    <template v-if="isFree">
-      <div class="person-fields">
-        <div class="field-group">
-          <label class="field-label" for="userName">Seu nome</label>
-          <input
-            id="userName"
-            class="obs-input"
-            type="text"
-            v-model="userName"
-            placeholder="Como você se chama?"
-            autocomplete="given-name"
-          />
-        </div>
-        <div class="field-group">
-          <label class="field-label" for="userEmail">Seu e-mail</label>
-          <input
-            id="userEmail"
-            class="obs-input"
-            type="email"
-            v-model="userEmail"
-            placeholder="Para enviarmos sua análise"
-            autocomplete="email"
-            inputmode="email"
-          />
-        </div>
-      </div>
-      <div class="person-divider"></div>
-    </template>
 
     <!-- Faixas etárias lado a lado -->
     <div class="person-fields">
