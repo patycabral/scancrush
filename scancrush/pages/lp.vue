@@ -64,7 +64,7 @@ useHead({
           {
             '@type': 'Question',
             name: 'Quantos prints posso enviar?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Gratuito (1 print), Sinais Revelados (até 4 prints), Raio-X do Crush (até 10 prints). Mais prints permitem uma análise mais profunda e precisa.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Primeiras Impressões (1 print), Sinais Revelados (até 4 prints), Raio-X do Crush (até 10 prints). Mais prints permitem uma análise mais profunda e precisa.' },
           },
           {
             '@type': 'Question',

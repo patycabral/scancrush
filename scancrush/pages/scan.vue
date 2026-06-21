@@ -104,7 +104,7 @@ function updateUploadUI() {
     dropAreaStyle.value = { pointerEvents: 'none', opacity: '0.45' }
     showLimitAlert.value = true
     if (currentPlan.value === 'free') {
-      limitAlertText.value = '⚠️ Você já usou sua análise gratuita. Faça upgrade para enviar mais imagens e obter uma análise completa.'
+      limitAlertText.value = '⚠️ Este plano inclui 1 imagem. Faça upgrade para enviar mais e obter uma análise completa.'
       btnContinueDisabled.value = true
     } else {
       limitAlertText.value = `⚠️ Você atingiu o limite de ${limit} ${unit} do seu plano. Faça upgrade para enviar mais.`
@@ -731,11 +731,11 @@ function onKeydown(e: KeyboardEvent) {
 
 // Plan names for display
 const PLAN_NAMES: Record<string, string> = {
-  free:     'Gratuito',
+  free:     'Primeiras Impressões',
   revealed: 'Sinais Revelados',
   raiox:    'Raio-X do Crush',
 }
-const planDisplayName = computed(() => PLAN_NAMES[currentPlan.value] ?? 'Gratuito')
+const planDisplayName = computed(() => PLAN_NAMES[currentPlan.value] ?? 'Primeiras Impressões')
 const planImageLimit  = computed(() => PLAN_LIMITS[currentPlan.value] ?? 1)
 const isFree          = computed(() => currentPlan.value === 'free')
 
