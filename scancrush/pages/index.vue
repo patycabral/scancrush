@@ -200,7 +200,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
         <p class="hero-sub">
           A resposta está nos padrões das mensagens — não no que você espera ouvir.<br>
-          <b>Cole os prints da conversa com o seu crush e receba uma análise honesta dos sinais reais de interesse</b> — sem julgamento, sem achismo, sem <em>"talvez"</em>.
+          <span class="hero-sub-2"><b>Cole os prints da conversa com o seu crush e receba uma análise honesta dos sinais reais de interesse</b> — sem julgamento, sem achismo, sem <em>"talvez"</em>.</span>
         </p>
 
         <div class="hero-actions">
@@ -531,7 +531,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   <div class="container">
     <div class="cta-final-inner reveal">
       <h2>
-        <span>Você já leu essa conversa várias vezes,</span><br class="br-m-hide"> <span class="grad">só ainda não viu do jeito certo.</span>
+        <span>Você já leu essa conversa várias vezes,</span> <span class="grad cta-line2">só ainda não viu do jeito certo.</span>
       </h2>
       <p>Enquanto você fica ruminando, a resposta já está nos prints.</p>
       <button class="btn-primary" style="font-size:17px;padding:18px 40px" @click="scrollToPricing()">

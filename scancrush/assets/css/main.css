@@ -273,6 +273,9 @@ body::after {
   white-space: pre-line;
 }
 .hero-sub strong { color: var(--text); font-weight: 500; }
+/* 2ª linha do subheadline: levemente maior e mais encorpada */
+.hero-sub-2 { font-size: 1.15em; font-weight: 500; color: var(--text-2); }
+.hero-sub-2 b { color: var(--text); font-weight: 700; }
 
 .hero-actions {
   display: inline-flex;
@@ -968,6 +971,8 @@ body::after {
   line-height: 1.08;
   margin-bottom: 18px;
 }
+/* desktop: 2ª linha em bloco (quebra); mobile: inline c/ espaço (regra no @media) */
+.cta-final h2 .cta-line2 { display: block; }
 .cta-final p {
   font-size: 17px;
   color: var(--text-2);
@@ -1139,9 +1144,10 @@ footer {
   /* aviso/disclaimer mais perto do bloco anterior */
   .disclaimer-bar { margin-top: -40px; }
 
-  /* CTA final: largura full + hint bem menor */
+  /* CTA final: largura full + hint menor + headline em 1 fluxo (espaço, sem quebra) */
   .cta-final .btn-primary { width: 100%; justify-content: center; font-size: 14px !important; padding: 16px 20px !important; }
-  .cta-hint { font-size: 8.5px; }
+  .cta-final h2 .cta-line2 { display: inline; }
+  .cta-hint { font-size: 10px; }
 
   /* footer centralizado + ocultar "Dúvidas" */
   .footer-row { flex-direction: column; align-items: center; text-align: center; gap: 18px; }
