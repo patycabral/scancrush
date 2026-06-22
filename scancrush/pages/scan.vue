@@ -70,7 +70,26 @@ function onFileChange(e: Event) {
   if (input.files) handleFiles(input.files)
 }
 
-function handleFiles(newFiles: FileList | File[]) {
+// ── Limites por imagem (anti-arquivo pesado / anti-montagem) ──
+const MAX_IMG_BYTES = 2 * 1024 * 1024   // 2 MB por imagem
+const MAX_IMG_ASPECT = 5                 // lado maior até 5× o menor (print normal ~2,2:1; montagem de 3+ telas reprova)
+
+// Carrega a imagem só para medir a proporção (largura × altura)
+function getImageAspect(file: File): Promise<number> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const w = img.naturalWidth, h = img.naturalHeight
+      resolve(w && h ? Math.max(w, h) / Math.min(w, h) : 1)
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(1) }
+    img.src = url
+  })
+}
+
+async function handleFiles(newFiles: FileList | File[]) {
   const limit = getImageLimit()
   const imgs = Array.from(newFiles).filter(f => f.type.startsWith('image/'))
   if (!imgs.length) return
@@ -79,12 +98,32 @@ function handleFiles(newFiles: FileList | File[]) {
 
   const slots = limit - uploadedFiles.value.length
   if (slots <= 0) { updateUploadUI(); return }
-  const accepted = imgs.slice(0, slots)
+  const candidates = imgs.slice(0, slots)
 
-  uploadedFiles.value = [...uploadedFiles.value, ...accepted]
-  renderPreviews()
+  // Valida tamanho + proporção de cada arquivo
+  const accepted: File[] = []
+  let rejectMsg = ''
+  for (const f of candidates) {
+    if (f.size > MAX_IMG_BYTES) {
+      rejectMsg = '⚠️ Imagem muito pesada (máx. 2MB cada). Envie o print direto da conversa, sem editar.'
+      continue
+    }
+    const aspect = await getImageAspect(f)
+    if (aspect > MAX_IMG_ASPECT) {
+      rejectMsg = '⚠️ Essa imagem é muito longa (parece uma montagem). Envie 1 print único da conversa por vez.'
+      continue
+    }
+    accepted.push(f)
+  }
+
+  if (accepted.length) {
+    uploadedFiles.value = [...uploadedFiles.value, ...accepted]
+    renderPreviews()
+    btnContinueDisabled.value = false
+  }
   updateUploadUI()
-  btnContinueDisabled.value = false
+  // mensagem de rejeição tem prioridade sobre o estado normal do contador
+  if (rejectMsg) { showLimitAlert.value = true; limitAlertText.value = rejectMsg }
 }
 
 function updateUploadUI() {
