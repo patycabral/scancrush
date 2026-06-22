@@ -1,28 +1,5 @@
 <script setup lang="ts">
-const { t } = useAppI18n()
-
-const CHECKOUT_URLS = {
-  basico:   'https://go.perfectpay.com.br/PPU38CQDB0D',
-  revealed: 'https://go.perfectpay.com.br/PPU38CQC51R',
-  raiox:    'https://go.perfectpay.com.br/PPU38CQC51K',
-}
-
-function goToCheckout(plan: 'basico' | 'revealed' | 'raiox') {
-  if (import.meta.client) window.location.href = CHECKOUT_URLS[plan]
-}
-
-const isPricesModalOpen = ref(false)
-function openPricesModal() {
-  isPricesModalOpen.value = true
-  if (import.meta.client) document.body.style.overflow = 'hidden'
-}
-function closePricesModal() {
-  isPricesModalOpen.value = false
-  if (import.meta.client) document.body.style.overflow = ''
-}
-function handlePricesOverlayClick(e: MouseEvent) {
-  if ((e.target as HTMLElement).classList.contains('lp-modal-overlay')) closePricesModal()
-}
+const plansModal = ref()
 
 const navScrolled = ref(false)
 function onScroll() { navScrolled.value = window.scrollY > 30 }
@@ -32,7 +9,6 @@ function toggleMobileMenu() { mobileMenuOpen.value = !mobileMenuOpen.value }
 function closeMobileMenu() { mobileMenuOpen.value = false }
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePricesModal() })
 })
 onUnmounted(() => window.removeEventListener('scroll', onScroll))
 </script>
@@ -62,7 +38,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       </ul>
 
       <div class="nav-right">
-        <button class="btn-nav" @click="openPricesModal()">Analisar conversa</button>
+        <button class="btn-nav" @click="plansModal?.open()">Analisar conversa</button>
       </div>
 
       <button class="nav-mobile-btn" :class="{ active: mobileMenuOpen }" @click="toggleMobileMenu()" aria-label="Menu">
@@ -76,86 +52,13 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <a href="/#b-report" @click="closeMobileMenu()">O relatório</a>
       <a href="/#b-pricing" @click="closeMobileMenu()">Planos</a>
       <NuxtLink to="/blog" @click="closeMobileMenu()">Blog</NuxtLink>
-      <button class="btn-nav" @click="openPricesModal(); closeMobileMenu()">Analisar conversa</button>
+      <button class="btn-nav" @click="plansModal?.open(); closeMobileMenu()">Analisar conversa</button>
     </div>
   </div>
 </nav>
 
-<!-- PLANS MODAL -->
-<div class="lp-modal-overlay" :class="{ open: isPricesModalOpen }" @click="handlePricesOverlayClick($event)">
-  <div class="lp-modal-card">
-    <button class="lp-modal-close" @click="closePricesModal()" aria-label="Fechar">×</button>
-    <p class="lp-modal-eyebrow">// {{ t.pricing.tag }}</p>
-    <h2 class="lp-modal-title">{{ t.pricing.title }} <span class="grad">{{ t.pricing.title_accent }}</span></h2>
-    <!-- Espelho exato da seção de planos (#b-pricing) -->
-    <div class="lp-modal-plans" style="margin-top:20px">
-
-      <!-- Plan 0: Primeiras Impressões (Free) -->
-      <div class="price-card">
-        <div class="price-name">{{ t.pricing.plan0_name }}</div>
-        <p class="price-desc">{{ t.pricing.plan0_desc }}</p>
-        <div class="price-amount">
-          <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan0_price_curr }}</span>
-          <span class="price-num">{{ t.pricing.plan0_price_num }}</span>
-        </div>
-        <div class="price-divider"></div>
-        <ul class="price-features">
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item1 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item2 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item3 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item4 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item5 }}</span></li>
-        </ul>
-        <button class="btn-price btn-price-paid" @click="goToCheckout('basico'); closePricesModal()">{{ t.pricing.plan0_cta }}</button>
-      </div>
-
-      <!-- Plan 1: Sinais Revelados (FEATURED) -->
-      <div class="price-card featured">
-        <div class="popular-badge">{{ t.pricing.popular }}</div>
-        <div class="price-name">{{ t.pricing.plan1_name }}</div>
-        <p class="price-desc">{{ t.pricing.plan1_desc }}</p>
-        <div class="price-amount">
-          <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan1_price_curr }}</span>
-          <span class="price-num">{{ t.pricing.plan1_price_num }}</span>
-        </div>
-        <div class="price-divider"></div>
-        <ul class="price-features">
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item1 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item2 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item3 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item4 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item5 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item6 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan1_item7 }}</span></li>
-        </ul>
-        <button class="btn-price btn-price-featured" @click="goToCheckout('revealed')">{{ t.pricing.plan1_cta }}</button>
-      </div>
-
-      <!-- Plan 2: Raio-X do Crush -->
-      <div class="price-card">
-        <div class="price-name">{{ t.pricing.plan2_name }}</div>
-        <p class="price-desc">{{ t.pricing.plan2_desc }}</p>
-        <div class="price-amount">
-          <span class="price-curr">{{ t.pricing.plan2_price_curr }}</span>
-          <span class="price-num">{{ t.pricing.plan2_price_num }}</span>
-        </div>
-        <div class="price-divider"></div>
-        <ul class="price-features">
-          <li class="pf-includes">+ {{ t.pricing.plan1_name }}</li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item2 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item3 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item4 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item5 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item6 }}</span></li>
-          <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan2_item7 }}</span></li>
-        </ul>
-        <button class="btn-price btn-price-paid" @click="goToCheckout('raiox')">{{ t.pricing.plan2_cta }}</button>
-      </div>
-
-    </div>
-    <p class="lp-modal-guarantee">🔒 Pagamento seguro · acesso imediato · uso único</p>
-  </div>
-</div>
+<!-- PLANS MODAL (componente compartilhado, padrão print 9) -->
+<PlansModal ref="plansModal" />
 </template>
 
 <style scoped>

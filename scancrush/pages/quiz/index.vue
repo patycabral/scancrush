@@ -7,35 +7,7 @@ useHead({
   ],
 })
 
-const { t } = useAppI18n()
-
-const CHECKOUT_URLS = {
-  basico:   'https://go.perfectpay.com.br/PPU38CQDB0D',
-  revealed: 'https://go.perfectpay.com.br/PPU38CQC51R',
-  raiox:    'https://go.perfectpay.com.br/PPU38CQC51K',
-}
-
-function goToCheckout(plan: 'basico' | 'revealed' | 'raiox') {
-  if (import.meta.client) window.location.href = CHECKOUT_URLS[plan]
-}
-
-const isPricesModalOpen = ref(false)
-
-function openPricesModal() {
-  isPricesModalOpen.value = true
-  if (import.meta.client) document.body.style.overflow = 'hidden'
-}
-function closePricesModal() {
-  isPricesModalOpen.value = false
-  if (import.meta.client) document.body.style.overflow = ''
-}
-function handlePricesOverlayClick(e: MouseEvent) {
-  if ((e.target as HTMLElement).classList.contains('lp-modal-overlay')) closePricesModal()
-}
-
-if (import.meta.client) {
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePricesModal() })
-}
+const plansModal = ref()
 
 const quizzes = [
   {
@@ -95,85 +67,13 @@ const quizzes = [
       <p class="scan-cta-eyebrow">// análise aprofundada</p>
       <p class="scan-cta-title">Quiz não basta? Analise a conversa de verdade.</p>
       <p class="scan-cta-sub">Cole o print da conversa, a IA lê os padrões e te dá uma análise personalizada — não genérica.</p>
-      <button class="scan-cta-btn" @click="openPricesModal()">Analisar minha conversa →</button>
+      <button class="scan-cta-btn" @click="plansModal?.open()">Analisar minha conversa →</button>
     </div>
   </div>
 </div>
 
-<!-- PLANS MODAL -->
-<div class="lp-modal-overlay" :class="{ open: isPricesModalOpen }" @click="handlePricesOverlayClick($event)">
-  <div class="lp-modal-card">
-    <button class="lp-modal-close" @click="closePricesModal()" aria-label="Fechar">×</button>
-
-    <p class="lp-modal-eyebrow">// {{ t.pricing.tag }}</p>
-    <h2 class="lp-modal-title">{{ t.pricing.title }} <span class="grad">{{ t.pricing.title_accent }}</span></h2>
-
-    <div class="lp-modal-plans">
-
-      <!-- Plan 0: Primeiras Impressões (Free) -->
-      <div class="lp-plan-card">
-        <div class="lp-plan-name">{{ t.pricing.plan0_name }}</div>
-        <p class="lp-plan-desc">{{ t.pricing.plan0_desc }}</p>
-        <div class="lp-plan-price">
-          <span class="lp-curr">{{ t.pricing.plan0_price_curr }}</span>{{ t.pricing.plan0_price_num }}
-        </div>
-        <p class="lp-plan-period">pagamento único</p>
-        <ul class="lp-plan-items">
-          <li>{{ t.pricing.plan0_item1 }}</li>
-          <li>{{ t.pricing.plan0_item2 }}</li>
-          <li>{{ t.pricing.plan0_item3 }}</li>
-          <li>{{ t.pricing.plan0_item4 }}</li>
-          <li>{{ t.pricing.plan0_item5 }}</li>
-        </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('basico'); closePricesModal()">{{ t.pricing.plan0_cta }}</button>
-      </div>
-
-      <!-- Plan 1: Sinais Revelados (FEATURED) -->
-      <div class="lp-plan-card featured">
-        <div class="lp-plan-badge">{{ t.pricing.popular }}</div>
-        <div class="lp-plan-name">{{ t.pricing.plan1_name }}</div>
-        <p class="lp-plan-desc">{{ t.pricing.plan1_desc }}</p>
-        <div class="lp-plan-price">
-          <span class="lp-curr">{{ t.pricing.plan1_price_curr }}</span>{{ t.pricing.plan1_price_num }}
-        </div>
-        <p class="lp-plan-period">pagamento único</p>
-        <ul class="lp-plan-items">
-          <li>{{ t.pricing.plan1_item1 }}</li>
-          <li>{{ t.pricing.plan1_item2 }}</li>
-          <li>{{ t.pricing.plan1_item3 }}</li>
-          <li>{{ t.pricing.plan1_item4 }}</li>
-          <li>{{ t.pricing.plan1_item5 }}</li>
-          <li>{{ t.pricing.plan1_item6 }}</li>
-          <li>{{ t.pricing.plan1_item7 }}</li>
-        </ul>
-        <button class="lp-btn-plan primary" @click="goToCheckout('revealed')">{{ t.pricing.plan1_cta }}</button>
-      </div>
-
-      <!-- Plan 2: Raio-X do Crush -->
-      <div class="lp-plan-card">
-        <div class="lp-plan-name">{{ t.pricing.plan2_name }}</div>
-        <p class="lp-plan-desc">{{ t.pricing.plan2_desc }}</p>
-        <div class="lp-plan-price">
-          <span class="lp-curr">{{ t.pricing.plan2_price_curr }}</span>{{ t.pricing.plan2_price_num }}
-        </div>
-        <p class="lp-plan-period">pagamento único</p>
-        <ul class="lp-plan-items">
-          <li class="lp-plan-item-includes">{{ t.pricing.plan2_item1 }}</li>
-          <li>{{ t.pricing.plan2_item2 }}</li>
-          <li>{{ t.pricing.plan2_item3 }}</li>
-          <li>{{ t.pricing.plan2_item4 }}</li>
-          <li>{{ t.pricing.plan2_item5 }}</li>
-          <li>{{ t.pricing.plan2_item6 }}</li>
-          <li>{{ t.pricing.plan2_item7 }}</li>
-        </ul>
-        <button class="lp-btn-plan" @click="goToCheckout('raiox')">{{ t.pricing.plan2_cta }}</button>
-      </div>
-
-    </div>
-
-    <p class="lp-modal-guarantee">🔒 Pagamento seguro · acesso imediato · uso único</p>
-  </div>
-</div>
+<!-- PLANS MODAL (componente compartilhado, padrão print 9) -->
+<PlansModal ref="plansModal" />
 </template>
 
 <style scoped>

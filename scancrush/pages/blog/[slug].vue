@@ -41,6 +41,8 @@ useHead({
     },
   ],
 })
+
+const plansModal = ref()
 </script>
 
 <template>
@@ -59,7 +61,7 @@ useHead({
   <!-- Mid CTA -->
   <div class="article-cta-bar">
     <span class="article-cta-text">Quer entender o que ele(a) realmente sente?</span>
-    <NuxtLink to="/#b-pricing" class="article-cta-btn">Analisar conversa →</NuxtLink>
+    <button type="button" class="article-cta-btn" @click="plansModal?.open()">Analisar conversa →</button>
   </div>
 
   <div class="article-body-wrap">
@@ -81,7 +83,7 @@ useHead({
       <p class="final-cta-eyebrow">// chega de adivinhar</p>
       <p class="final-cta-title">Você merece uma resposta de verdade</p>
       <p class="final-cta-sub">Cole a conversa, a IA analisa os padrões e te diz o que está acontecendo — em segundos.</p>
-      <NuxtLink to="/#b-pricing" class="final-cta-btn">Analisar minha conversa agora →</NuxtLink>
+      <button type="button" class="final-cta-btn" @click="plansModal?.open()">Analisar minha conversa agora →</button>
     </div>
 
     <!-- Related -->
@@ -90,6 +92,8 @@ useHead({
     </div>
   </div>
 </div>
+
+<PlansModal ref="plansModal" />
 </template>
 
 <style scoped>
