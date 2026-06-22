@@ -102,15 +102,17 @@ async function handleFiles(newFiles: FileList | File[]) {
 
   // Valida tamanho + proporção de cada arquivo
   const accepted: File[] = []
-  let rejectMsg = ''
+  let rejectTitle = '', rejectMsg = ''
   for (const f of candidates) {
     if (f.size > MAX_IMG_BYTES) {
-      rejectMsg = '⚠️ Imagem muito pesada (máx. 2MB cada). Envie o print direto da conversa, sem editar.'
+      rejectTitle = 'Imagem muito pesada'
+      rejectMsg = 'Cada imagem precisa ter no máximo 2MB. Envie o print direto da conversa, sem editar nem juntar imagens.'
       continue
     }
     const aspect = await getImageAspect(f)
     if (aspect > MAX_IMG_ASPECT) {
-      rejectMsg = '⚠️ Essa imagem é muito longa (parece uma montagem). Envie 1 print único da conversa por vez.'
+      rejectTitle = 'Imagem muito longa'
+      rejectMsg = 'Essa imagem parece uma montagem de vários prints. Envie 1 print único da conversa por vez.'
       continue
     }
     accepted.push(f)
@@ -122,8 +124,13 @@ async function handleFiles(newFiles: FileList | File[]) {
     btnContinueDisabled.value = false
   }
   updateUploadUI()
-  // mensagem de rejeição tem prioridade sobre o estado normal do contador
-  if (rejectMsg) { showLimitAlert.value = true; limitAlertText.value = rejectMsg }
+  // imagem rejeitada (tamanho/proporção) → popup de aviso, mais visível que o alerta inline
+  if (rejectMsg) {
+    invalidContentTitle.value = rejectTitle
+    invalidContentMsg.value = rejectMsg
+    showInvalidContent.value = true
+    if (import.meta.client) document.body.style.overflow = 'hidden'
+  }
 }
 
 function updateUploadUI() {
@@ -208,6 +215,7 @@ const showValidationMsg = ref(false)
 const validationMsgHtml = ref('')
 const showInvalidContent = ref(false)
 const invalidContentMsg = ref('')
+const invalidContentTitle = ref('Esse print não parece uma conversa')
 function closeInvalidContent() {
   showInvalidContent.value = false
   if (import.meta.client) document.body.style.overflow = ''
@@ -661,6 +669,7 @@ async function startAnalysis() {
       } else if (data?.error === 'invalid_content') {
         // Guardrails/validação: não é conversa ou conteúdo bloqueado → popup amigável
         goTo(2)
+        invalidContentTitle.value = 'Esse print não parece uma conversa'
         invalidContentMsg.value = data?.message ?? 'O conteúdo enviado não parece ser uma conversa. Envie um print real da conversa com o seu crush.'
         showInvalidContent.value = true
         if (import.meta.client) document.body.style.overflow = 'hidden'
@@ -1271,7 +1280,7 @@ onUnmounted(() => {
     <div class="invalid-pop-icon">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FF2D6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     </div>
-    <h2 class="confirm-title">Esse print não parece uma conversa</h2>
+    <h2 class="confirm-title">{{ invalidContentTitle }}</h2>
     <p class="confirm-sub">{{ invalidContentMsg }}</p>
     <div class="confirm-actions">
       <button class="confirm-btn-ok" @click="closeInvalidContent()">
