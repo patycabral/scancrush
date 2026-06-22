@@ -975,15 +975,16 @@ body::after {
   line-height: 1.08;
   margin-bottom: 18px;
 }
-/* desktop: 2ª linha em bloco (quebra); mobile: inline c/ espaço (regra no @media) */
-.cta-final h2 .cta-line2 { display: block; }
+/* headline em fluxo único (sem quebra forçada; espaço já está no template) */
+.cta-final h2 .cta-line2 { display: inline; }
 .cta-final p {
   font-size: 17px;
   color: var(--text-2);
   font-weight: 300;
   margin-bottom: 40px;
 }
-.cta-hint { margin-top: 16px; font-size: 10px; color: var(--text-3); }
+/* seletor específico p/ vencer ".cta-final p" e fixar o hint em 10px (desktop + mobile) */
+.cta-final .cta-hint { margin-top: 16px; font-size: 10px; color: var(--text-3); }
 
 /* ─── FOOTER ─────────────────────────────────────────────────── */
 footer {
