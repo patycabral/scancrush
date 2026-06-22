@@ -569,18 +569,20 @@ const recipMetrics = computed(() => {
   return (resultData.value?.reciprocity?.metrics ?? []).map((m: any) => {
     const pu = parseFloat(String(m?.user ?? '').replace(/[^\d.]/g, ''))
     const pc = parseFloat(String(m?.crush ?? '').replace(/[^\d.]/g, ''))
+    const hasU = Number.isFinite(pu), hasC = Number.isFinite(pc)
+    // 0/0 (ou sem número) → NÃO OBSERVADO: barra vazia, sem predominância, fora do score
+    const noData = (!hasU && !hasC) || (hasU && hasC && pu === 0 && pc === 0)
     let u: number | null = null, c: number | null = null
-    if (Number.isFinite(pu) && Number.isFinite(pc) && pu + pc > 0) {
-      const t = pu + pc
-      u = Math.round((pu / t) * 100); c = 100 - u
-    } else if (Number.isFinite(pu) && pu >= 0 && pu <= 100) {
-      u = Math.round(pu); c = 100 - u
+    if (!noData) {
+      if (hasU && hasC && pu + pc > 0) { const t = pu + pc; u = Math.round((pu / t) * 100); c = 100 - u }
+      else if (hasU) { u = Math.round(Math.max(0, Math.min(100, pu))); c = 100 - u }
+      else if (hasC) { c = Math.round(Math.max(0, Math.min(100, pc))); u = 100 - c }
     }
     let dominance = ''
-    if (u != null && c != null) {
-      dominance = u >= 65 ? 'Você' : c >= 65 ? 'Crush' : 'Equilibrada'
+    if (!noData && u != null && c != null) {
+      dominance = u >= 60 ? 'Você' : c >= 60 ? 'Crush' : 'Equilibrada'
     }
-    return { label: m?.label ?? '', user: m?.user ?? '', crush: m?.crush ?? '', u, c, dominance }
+    return { label: m?.label ?? '', user: m?.user ?? '', crush: m?.crush ?? '', u, c, dominance, noData }
   })
 })
 
@@ -1403,7 +1405,7 @@ onUnmounted(() => {
 
     <!-- ③b FREE: Resumo Executivo (insights do score, chips) ── -->
     <div v-if="isFree && allKeyPatterns.length" class="res-card">
-      <div class="res-label">Resumo Executivo</div>
+      <div class="res-label">Visão Geral da Conversa</div>
       <div class="exec-chips">
         <span v-for="(kp, i) in allKeyPatterns" :key="'fkp'+i" :class="['exec-chip', kp.kind]">
           {{ norm(kp.text) }}
@@ -1453,7 +1455,7 @@ onUnmounted(() => {
 
       <!-- ⑤ Resumo Executivo (key_patterns como chips) ── -->
       <div v-if="allKeyPatterns.length" class="res-card">
-        <div class="res-label">Resumo Executivo</div>
+        <div class="res-label">Visão Geral da Conversa</div>
         <div class="exec-chips">
           <span v-for="(kp, i) in allKeyPatterns" :key="'kp'+i"
                 :class="['exec-chip', kp.kind]">
@@ -1563,9 +1565,12 @@ onUnmounted(() => {
             <div class="recip-metric-top">
               <span class="recip-metric-label">{{ norm(m.label) }}</span>
               <span class="recip-metric-val">
-                <span class="lbl">Você</span> <b class="u">{{ m.user }}</b>
-                <span class="sep">·</span>
-                <b class="c">{{ m.crush }}</b> <span class="lbl">Crush</span>
+                <template v-if="m.noData"><span class="lbl">Não observado no recorte</span></template>
+                <template v-else>
+                  <span class="lbl">Você</span> <b class="u">{{ m.user }}</b>
+                  <span class="sep">·</span>
+                  <b class="c">{{ m.crush }}</b> <span class="lbl">Crush</span>
+                </template>
               </span>
             </div>
             <div class="recip-bar2">
@@ -1789,7 +1794,7 @@ onUnmounted(() => {
     </div>
 
     <div v-if="allKeyPatterns.length" class="pdf-block">
-      <div class="pdf-block-label">Resumo Executivo</div>
+      <div class="pdf-block-label">Visão Geral da Conversa</div>
       <div class="pdf-chips">
         <span v-for="(kp, i) in allKeyPatterns" :key="'pkp'+i" :class="['pdf-chip', kp.kind]">{{ norm(kp.text) }}</span>
       </div>
@@ -1872,9 +1877,12 @@ onUnmounted(() => {
         <div class="pdf-recip-mtop">
           <span class="pdf-recip-mlabel">{{ norm(m.label) }}</span>
           <span class="pdf-recip-mval">
-            <span class="lbl">Você</span> <b class="u">{{ m.user }}</b>
-            <span class="sep">·</span>
-            <b class="c">{{ m.crush }}</b> <span class="lbl">Crush</span>
+            <template v-if="m.noData"><span class="lbl">Não observado no recorte</span></template>
+            <template v-else>
+              <span class="lbl">Você</span> <b class="u">{{ m.user }}</b>
+              <span class="sep">·</span>
+              <b class="c">{{ m.crush }}</b> <span class="lbl">Crush</span>
+            </template>
           </span>
         </div>
         <div class="pdf-recip-bar2">
@@ -3281,11 +3289,13 @@ body::after {
 .free-upgrade-card {
   width: 100%;
   background: var(--surface);
-  border: 1px solid rgba(255,45,107,0.18);
+  border: 1px solid rgba(155,93,229,0.22);
   border-radius: 18px;
   padding: 24px 22px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 8px;
   margin-bottom: 4px;
 }
@@ -3361,7 +3371,7 @@ body::after {
 .btn-unlock {
   width: 100%;
   padding: 17px;
-  background: linear-gradient(135deg, var(--pink), #C0004D);
+  background: linear-gradient(135deg, var(--purple), #6D34A8);
   color: white;
   border-radius: 100px;
   font-size: 16px;
@@ -3370,14 +3380,14 @@ body::after {
   border: none;
   cursor: pointer;
   transition: all 0.25s;
-  box-shadow: var(--glow-pink);
+  box-shadow: 0 0 50px rgba(155,93,229,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   margin-top: 8px;
 }
-.btn-unlock:hover { transform: translateY(-2px); box-shadow: 0 0 70px rgba(255,45,107,0.55); }
+.btn-unlock:hover { transform: translateY(-2px); box-shadow: 0 0 70px rgba(155,93,229,0.55); }
 
 .result-hint {
   font-size: 11px;
