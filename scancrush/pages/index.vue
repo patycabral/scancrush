@@ -24,7 +24,7 @@ useHead({
         '@type': 'WebApplication',
         name: 'ScanCrush',
         url: 'https://scancrush.com/',
-        description: 'Descubra como saber se o crush gosta de você analisando a conversa com IA. Sinais reais, score de interesse e conclusão direta — sem achismo.',
+        description: 'Descubra como saber se o crush gosta de você analisando a conversa com IA. Sinais reais, score de engajamento e conclusão direta — sem achismo.',
         applicationCategory: 'LifestyleApplication',
         operatingSystem: 'Web',
         inLanguage: 'pt-BR',
@@ -49,7 +49,7 @@ useHead({
           {
             '@type': 'Question',
             name: 'Como funciona a análise de conversa do crush?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Você envia prints da conversa. Nossa IA identifica padrões emocionais, consistência nas mensagens e sinais que passam despercebidos no calor do momento. O resultado inclui score de interesse, sinais positivos e negativos, e uma conclusão direta.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Você envia prints da conversa. Nossa IA identifica padrões emocionais, consistência nas mensagens e sinais que passam despercebidos no calor do momento. O resultado inclui score de engajamento, sinais positivos e negativos, e uma conclusão direta.' },
           },
           {
             '@type': 'Question',

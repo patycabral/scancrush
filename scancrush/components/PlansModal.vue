@@ -55,7 +55,7 @@ defineExpose({ open, close })
         <p class="plan-desc">A primeira leitura da conversa, por menos que um café.</p>
         <ul class="plan-items">
           <li class="plan-item">1 print analisado</li>
-          <li class="plan-item">Score de Interesse</li>
+          <li class="plan-item">Score de Engajamento</li>
           <li class="plan-item">Visão geral da conversa</li>
           <li class="plan-item">1 sinal positivo + 1 de atenção</li>
           <li class="plan-item">Conclusão inicial</li>
@@ -74,7 +74,7 @@ defineExpose({ open, close })
         <p class="plan-desc">Descubra o que realmente está escondido nas mensagens.</p>
         <ul class="plan-items">
           <li class="plan-item">Até 4 prints analisados</li>
-          <li class="plan-item">Score de Interesse</li>
+          <li class="plan-item">Score de Engajamento</li>
           <li class="plan-item">Análise completa da conversa</li>
           <li class="plan-item">Sinais positivos e negativos</li>
           <li class="plan-item">Trechos importantes destacados</li>

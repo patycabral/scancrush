@@ -1380,7 +1380,7 @@ onUnmounted(() => {
 
     <!-- ② Score + Veredicto — FREE e pago ── -->
     <div class="score-card">
-      <div class="score-label">Nível de engajamento observado</div>
+      <div class="score-label">Score de Engajamento Observado</div>
       <div class="score-row">
         <div class="score-num">{{ resultData?.interest_score ?? '—' }}<sup>/100</sup></div>
         <div style="flex:1">
@@ -1759,7 +1759,7 @@ onUnmounted(() => {
 
     <!-- Medidor completo do score (movido da capa) -->
     <div class="pdf-block pdf-block--score">
-      <div class="pdf-block-label">Nível de engajamento observado</div>
+      <div class="pdf-block-label">Score de Engajamento Observado</div>
       <div class="pdf-score-block">
         <div class="pdf-score-num">{{ resultData?.interest_score ?? '—' }}<span>/100</span></div>
         <svg class="pdf-score-svg" viewBox="0 0 500 56" preserveAspectRatio="xMidYMid meet">
@@ -2071,7 +2071,7 @@ onUnmounted(() => {
         <p class="plan-desc">A primeira leitura da conversa, por menos que um café.</p>
         <ul class="plan-items">
           <li class="plan-item">1 print analisado</li>
-          <li class="plan-item">Score de Interesse</li>
+          <li class="plan-item">Score de Engajamento</li>
           <li class="plan-item">Visão geral da conversa</li>
           <li class="plan-item">1 sinal positivo + 1 de atenção</li>
           <li class="plan-item">Conclusão inicial</li>
@@ -2090,7 +2090,7 @@ onUnmounted(() => {
         <p class="plan-desc">Descubra o que realmente está escondido nas mensagens.</p>
         <ul class="plan-items">
           <li class="plan-item">Até 4 prints analisados</li>
-          <li class="plan-item">Score de Interesse</li>
+          <li class="plan-item">Score de Engajamento</li>
           <li class="plan-item">Análise completa da conversa</li>
           <li class="plan-item">Sinais positivos e negativos</li>
           <li class="plan-item">Trechos importantes destacados</li>
