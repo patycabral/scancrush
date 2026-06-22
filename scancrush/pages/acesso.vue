@@ -12,7 +12,6 @@ onMounted(async () => {
   const params = new URLSearchParams(window.location.search)
   const token  = params.get('token')
 
-  console.log('[acesso] token extraído da URL:', token)
 
   if (!token) {
     state.value = 'no-token'
@@ -23,8 +22,6 @@ onMounted(async () => {
   const emailParam = params.get('email')
   if (emailParam) payload.email = emailParam
 
-  console.log('[acesso] URL do webhook:', VALIDATE_URL)
-  console.log('[acesso] payload enviado:', payload)
 
   try {
     const res  = await fetch(VALIDATE_URL, {
@@ -34,7 +31,6 @@ onMounted(async () => {
     })
 
     const data = await res.json()
-    console.log('[acesso] resposta recebida:', data)
 
     if (data.success) {
       const { access } = data
@@ -46,7 +42,6 @@ onMounted(async () => {
 
       window.location.href = '/scan'
     } else {
-      console.log('[acesso] validação falhou:', data.error)
       errorMessage.value = data.error?.message ?? 'Seu link de acesso não é válido ou expirou.'
       state.value = 'error'
     }

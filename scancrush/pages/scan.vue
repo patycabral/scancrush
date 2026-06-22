@@ -891,12 +891,9 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
 async function validateToken(token: string) {
   tokenValidating.value = true
   accessError.value     = ''
-  console.log('[ScanCrush] validateToken → iniciando | token:', token)
-  console.log('[ScanCrush] validateToken → webhook:', VALIDATE_URL)
 
   try {
     const payload = { token }
-    console.log('[ScanCrush] validateToken → payload:', payload)
 
     const res  = await fetch(VALIDATE_URL, {
       method:  'POST',
@@ -904,7 +901,6 @@ async function validateToken(token: string) {
       body:    JSON.stringify(payload),
     })
     const data = await res.json()
-    console.log('[ScanCrush] validateToken → resposta:', data)
 
     if (data.success) {
       const { access } = data
@@ -914,7 +910,6 @@ async function validateToken(token: string) {
       const planKey  = VALID_KEYS.has(access.plan) ? access.plan : (PLAN_NAME_TO_KEY[access.plan] ?? 'free')
       const planName = access.plan_name ?? PLAN_NAMES[planKey] ?? planKey
 
-      console.log('[ScanCrush] validateToken → plano:', planKey, '| nome:', planName, '| limite:', access.max_prints)
 
       accessToken.value        = access.token
       currentPlan.value        = planKey
@@ -936,9 +931,7 @@ async function validateToken(token: string) {
       url.searchParams.delete('token')
       window.history.replaceState({}, '', url.toString())
 
-      console.log('[ScanCrush] validateToken → sucesso! estado final carregado.')
     } else {
-      console.log('[ScanCrush] validateToken → falhou:', data.error)
       accessError.value = data.error?.message ?? 'Seu link de acesso não é válido ou expirou.'
     }
   } catch (err) {
@@ -961,9 +954,6 @@ function clearStoredSession() {
 
 onMounted(async () => {
   const urlToken = route.query.token as string | undefined
-  console.log('[ScanCrush] onMounted → URL:', window.location.href)
-  console.log('[ScanCrush] onMounted → token encontrado:', urlToken ?? '(nenhum)')
-  console.log('[ScanCrush] onMounted → modo detectado:', urlToken ? 'tokenizado (pago)' : 'gratuito/storage')
 
   const reportToken = route.query.r as string | undefined
 
@@ -980,7 +970,6 @@ onMounted(async () => {
     if (import.meta.client) { window.location.href = '/#b-pricing'; return }
   }
 
-  console.log('[ScanCrush] onMounted → estado final | plano:', currentPlan.value, '| limite:', getImageLimit())
 
   checkAnalysisDone()
   updateUploadUI()
