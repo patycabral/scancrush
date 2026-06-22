@@ -3790,6 +3790,7 @@ body::after {
   color: var(--text-2);
   line-height: 1.65;
   margin-bottom: 10px;
+  text-align: center;
 }
 .free-disclaimer-card p { margin: 0 0 4px; }
 .free-disclaimer-card p:last-child { margin: 0; }

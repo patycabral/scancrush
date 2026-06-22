@@ -215,34 +215,5 @@ const plansModal = ref()
 .result-btn-ghost:hover { border-color: rgba(255,45,107,.25); color: var(--text-2); }
 .result-btn-main { border: none; cursor: pointer; width: 100%; }
 
-/* ── MODAL ── */
-.lp-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .25s; }
-.lp-modal-overlay.open { opacity: 1; pointer-events: all; backdrop-filter: blur(4px); }
-.lp-modal-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 32px 28px; max-width: 860px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
-.lp-modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--text-3); font-size: 22px; cursor: pointer; line-height: 1; padding: 4px; transition: color .15s; }
-.lp-modal-close:hover { color: var(--text); }
-.lp-modal-eyebrow { font-size: 10px; font-family: var(--mono); color: var(--pink); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 8px; }
-.lp-modal-title { font-size: clamp(20px,4vw,28px); font-weight: 800; letter-spacing: -1px; line-height: 1.15; margin-bottom: 24px; }
-.lp-modal-plans { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
-.lp-plan-card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; position: relative; display: flex; flex-direction: column; gap: 6px; }
-.lp-plan-card.featured { border-color: var(--pink); background: rgba(255,45,107,.04); }
-.lp-plan-badge { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: var(--pink); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 12px; border-radius: 100px; white-space: nowrap; font-family: var(--mono); letter-spacing: .06em; }
-.lp-plan-name { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -.3px; }
-.lp-plan-hook { font-size: 11px; color: var(--text-3); font-style: italic; line-height: 1.4; }
-.lp-plan-price { font-size: 36px; font-weight: 900; color: var(--text); line-height: 1; letter-spacing: -2px; margin-top: 4px; }
-.lp-curr { font-size: 16px; font-weight: 700; vertical-align: super; letter-spacing: 0; }
-.lp-plan-period { font-size: 11px; color: var(--text-3); font-family: var(--mono); margin-top: 2px; }
-.lp-plan-desc { font-size: 12px; color: var(--text-2); line-height: 1.55; margin-top: 4px; }
-.lp-plan-items { list-style: none; padding: 0; margin: 8px 0 12px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
-.lp-plan-items li { font-size: 12px; color: var(--text-2); padding-left: 16px; position: relative; line-height: 1.45; }
-.lp-plan-items li::before { content: '✓'; position: absolute; left: 0; color: var(--pink); font-size: 11px; font-weight: 700; }
-.lp-plan-item-includes { color: var(--pink) !important; font-weight: 600 !important; }
-.lp-plan-item-includes::before { content: '' !important; }
-.lp-btn-plan { width: 100%; padding: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 13px; font-weight: 700; border-radius: 12px; cursor: pointer; font-family: var(--font); transition: border-color .2s, background .2s; margin-top: auto; }
-.lp-btn-plan:hover { border-color: var(--pink); background: rgba(255,45,107,.06); }
-.lp-btn-plan.primary { background: linear-gradient(135deg,#FF2D6B,#9B5DE5); color: #fff; border: none; }
-.lp-btn-plan.primary:hover { opacity: .88; }
-.lp-modal-guarantee { font-size: 11px; color: var(--text-3); text-align: center; font-family: var(--mono); }
-.lp-modal-free-hint { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px; }
-.lp-modal-free-link { color: var(--pink); text-decoration: none; font-weight: 600; }
+/* (modal de planos extraído para components/PlansModal.vue) */
 </style>
