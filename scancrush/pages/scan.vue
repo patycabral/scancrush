@@ -151,7 +151,7 @@ function updateUploadUI() {
     dropAreaStyle.value = { pointerEvents: 'none', opacity: '0.45' }
     showLimitAlert.value = true
     if (currentPlan.value === 'free') {
-      limitAlertText.value = 'ℹ️ Este plano analisa 1 print por análise — envie a imagem mais nítida da conversa.'
+      limitAlertText.value = '⚠️ Este plano analisa somente 1 print por análise. '
     } else {
       limitAlertText.value = `⚠️ Você atingiu o limite de ${limit} ${unit} do seu plano. Faça upgrade para enviar mais.`
     }
@@ -1371,12 +1371,12 @@ onUnmounted(() => {
     <button class="header-action" @click="handleNewAnalysis()">Fazer nova análise</button>
   </header>
 
-  <!-- ── Banner ── -->
-  <div class="result-notice-wrap" v-if="!isFree">
+  <!-- ── Banner (todos os planos) ── -->
+  <div class="result-notice-wrap">
     <div class="result-notice-card result-notice-ok">
       <div class="notice-body">
         <strong><span class="notice-check">✓</span> Seu resultado foi gerado com sucesso.</strong>
-        Uma cópia completa foi enviada para o seu e-mail. Você também pode baixar o PDF ao final desta página.
+        Uma cópia da sua análise foi enviada para o e-mail usado na compra. Você também pode baixar o PDF ao final desta página.
         <span class="notice-sub">Evite fechar esta aba antes de concluir sua leitura.</span>
       </div>
     </div>
@@ -1410,6 +1410,16 @@ onUnmounted(() => {
     <div v-if="resultData?.summary" class="res-card">
       <div class="res-label">O que este resultado significa</div>
       <p class="res-body">{{ norm(resultData.summary) }}</p>
+    </div>
+
+    <!-- ③b FREE: Resumo Executivo (insights do score, chips) ── -->
+    <div v-if="isFree && allKeyPatterns.length" class="res-card">
+      <div class="res-label">Resumo Executivo</div>
+      <div class="exec-chips">
+        <span v-for="(kp, i) in allKeyPatterns" :key="'fkp'+i" :class="['exec-chip', kp.kind]">
+          {{ norm(kp.text) }}
+        </span>
+      </div>
     </div>
 
     <!-- ④ FREE: sinais limitados + gate de upgrade ── -->
