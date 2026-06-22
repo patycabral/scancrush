@@ -209,7 +209,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
             <span>Analisar minha conversa</span>
           </button>
           <div class="hero-urgency">
-            <span class="hu-time">⚡ Resultado em até 3 min</span><span class="hu-sep"> · </span><span class="hu-priv">🔒 Privacidade garantida</span>
+            <span class="hu-time">⚡ Análise imediata</span><span class="hu-sep"> · </span><span class="hu-priv">🔒 Privacidade garantida</span>
           </div>
         </div>
       </div>

@@ -105,7 +105,7 @@ function updateUploadUI() {
     dropAreaStyle.value = { pointerEvents: 'none', opacity: '0.45' }
     showLimitAlert.value = true
     if (currentPlan.value === 'free') {
-      limitAlertText.value = '⚠️ Este plano inclui 1 imagem. Faça upgrade para enviar mais e obter uma análise completa.'
+      limitAlertText.value = '⚠️ Este plano analisa 1 print por análise. Envie a imagem mais nítida da conversa.'
       btnContinueDisabled.value = true
     } else {
       limitAlertText.value = `⚠️ Você atingiu o limite de ${limit} ${unit} do seu plano. Faça upgrade para enviar mais.`
@@ -641,7 +641,7 @@ async function startAnalysis() {
     resultUserName.value  = data.user_name ?? ''
     resultUserEmail.value = data.user_email ?? ''
     resultProtocol.value  = data.protocol ?? ''
-    resultPrintCount.value = data.print_count ?? null
+    resultPrintCount.value = data.print_count ?? (uploadedFiles.value.length || null)
     resultAnalysisDate.value = data.generated_at ?? ''
     resultFeelingsRaw.value = data.feelings ?? ''
 
@@ -803,7 +803,7 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
     resultUserName.value  = data.user_name ?? ''
     resultUserEmail.value = data.user_email ?? ''
     resultProtocol.value  = data.protocol ?? protocol ?? ''
-    resultPrintCount.value = data.print_count ?? null
+    resultPrintCount.value = data.print_count ?? (uploadedFiles.value.length || null)
     resultAnalysisDate.value = data.generated_at ?? ''
     resultFeelingsRaw.value = data.feelings ?? ''
 
