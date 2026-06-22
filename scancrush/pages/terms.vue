@@ -42,7 +42,7 @@ useHead({ title: 'ScanCrush — Termos de Uso' })
   </ul>
 
   <h2>Acesso, uso único e validade</h2>
-  <p>Cada compra dá direito a <strong>1 análise</strong>, gerada por meio de um <strong>token de uso único</strong>. Após gerar a análise, o token é marcado como utilizado e não pode ser reaproveitado.</p>
+  <p>Cada compra dá direito a <strong>1 análise</strong>, de <strong>uso único</strong>. Após gerar a análise, o acesso é marcado como utilizado e não pode ser reaproveitado.</p>
   <p>O acesso ao relatório fica disponível por <strong>90 dias</strong> após a compra e pode ser reaberto pelo link enviado por e-mail. Após esse período, o acesso expira. Recomendamos baixar o PDF para guardar o resultado.</p>
 
   <h2>Limitação de responsabilidade</h2>

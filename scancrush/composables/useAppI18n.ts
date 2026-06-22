@@ -133,7 +133,7 @@ const translations = {
       q7: 'E se eu não gostar do resultado?',
       a7: 'A análise interpreta os sinais presentes na conversa enviada. Mas emoções, intenções e relações humanas sempre envolvem contexto e subjetividade.',
       q8: 'Por quanto tempo tenho acesso à análise?',
-      a8: 'Seu acesso é válido por 90 dias após a compra e pode ser reaberto pelo link enviado por e-mail. Cada compra dá direito a 1 análise (token de uso único).',
+      a8: 'Você tem até 90 dias após a compra para gerar sua análise. Depois de concluída, o resultado é enviado para o e-mail usado na compra e também fica disponível para download ao final da análise.',
     },
     differentiator: {
       tag: 'Por que o ScanCrush?',
@@ -292,7 +292,7 @@ const translations = {
       q7: "What if I don't like the result?",
       a7: "Then it's probably something you were already feeling. You just didn't want to confirm it.",
       q8: 'How long do I have access to the analysis?',
-      a8: 'Your access is valid for 90 days after purchase and can be reopened via the link sent by email. Each purchase includes 1 analysis (single-use token).',
+      a8: 'You have up to 90 days after purchase to generate your analysis. Once it is ready, the result is sent to the email used at checkout and is also available to download at the end of the analysis.',
     },
     differentiator: {
       tag: 'Why ScanCrush?',
@@ -451,7 +451,7 @@ const translations = {
       q7: '¿Y si no me gusta el resultado?',
       a7: 'Entonces probablemente es algo que ya sentías. Solo que no querías confirmarlo.',
       q8: '¿Por cuánto tiempo tengo acceso al análisis?',
-      a8: 'Tu acceso es válido por 90 días después de la compra y puede reabrirse mediante el enlace enviado por correo. Cada compra incluye 1 análisis (token de un solo uso).',
+      a8: 'Tienes hasta 90 días después de la compra para generar tu análisis. Una vez listo, el resultado se envía al correo usado en la compra y también queda disponible para descargar al final del análisis.',
     },
     differentiator: {
       tag: '¿Por qué ScanCrush?',
