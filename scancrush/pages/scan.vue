@@ -1201,8 +1201,8 @@ onUnmounted(() => {
     <!-- Disclaimer — plano gratuito -->
     <template v-if="isFree">
       <div class="free-disclaimer-card">
-        <p>🧠 A análise identifica padrões, sinais e inconsistências nas mensagens enviadas.</p>
-        <p class="free-disclaimer-sub">Ela não lê pensamentos — mas pode revelar comportamentos que passam despercebidos no momento.</p>
+        <p>🧠 A IA lê os padrões, sinais e contradições da conversa.</p>
+        <p class="free-disclaimer-sub">Não adivinha sentimentos — mostra o que costuma passar despercebido na hora.</p>
       </div>
     </template>
 
@@ -3721,6 +3721,8 @@ body::after {
   padding: 16px 18px;
   display: none;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 12px;
   margin-bottom: 16px;
   animation: fadeIn 0.3s ease;
