@@ -151,8 +151,7 @@ function updateUploadUI() {
     dropAreaStyle.value = { pointerEvents: 'none', opacity: '0.45' }
     showLimitAlert.value = true
     if (currentPlan.value === 'free') {
-      limitAlertText.value = '⚠️ Este plano analisa 1 print por análise. Envie a imagem mais nítida da conversa.'
-      btnContinueDisabled.value = true
+      limitAlertText.value = 'ℹ️ Este plano analisa 1 print por análise — envie a imagem mais nítida da conversa.'
     } else {
       limitAlertText.value = `⚠️ Você atingiu o limite de ${limit} ${unit} do seu plano. Faça upgrade para enviar mais.`
     }
