@@ -105,14 +105,14 @@ async function handleFiles(newFiles: FileList | File[]) {
   let rejectTitle = '', rejectMsg = ''
   for (const f of candidates) {
     if (f.size > MAX_IMG_BYTES) {
-      rejectTitle = 'Imagem muito pesada'
-      rejectMsg = 'Cada imagem precisa ter no máximo 2MB. Envie o print direto da conversa, sem editar nem juntar imagens.'
+      rejectTitle = 'Essa imagem ficou pesada demais'
+      rejectMsg = 'Para a leitura sair certinha, cada print precisa ter até 2MB. Envie a imagem direto da galeria, sem editar — o print original da conversa já é tudo que a gente precisa. 💜'
       continue
     }
     const aspect = await getImageAspect(f)
     if (aspect > MAX_IMG_ASPECT) {
-      rejectTitle = 'Imagem muito longa'
-      rejectMsg = 'Essa imagem parece uma montagem de vários prints. Envie 1 print único da conversa por vez.'
+      rejectTitle = 'Isso parece uma montagem'
+      rejectMsg = 'A leitura fica mais precisa com o print original da conversa, do jeitinho que ele aparece no seu celular — sem várias telas coladas numa imagem só. 💜'
       continue
     }
     accepted.push(f)
