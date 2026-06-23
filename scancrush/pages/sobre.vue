@@ -1,0 +1,92 @@
+<script setup lang="ts">
+useHead({
+  title: 'A história por trás do ScanCrush e da Patty | Sobre',
+  meta: [
+    { name: 'description', content: 'O ScanCrush nasceu de uma história real: a de quem passou anos interpretando sinais errados. Conheça a origem da marca e da Patty, a observadora que ajuda a enxergar a conversa com mais clareza.' },
+    { property: 'og:type', content: 'article' },
+    { property: 'og:url', content: 'https://scancrush.com/sobre' },
+    { property: 'og:title', content: 'A história por trás do ScanCrush e da Patty' },
+    { property: 'og:description', content: 'A origem da marca e da Patty — a observadora que ajuda a enxergar a conversa com mais clareza, sem achismo.' },
+  ],
+  link: [{ rel: 'canonical', href: 'https://scancrush.com/sobre' }],
+})
+
+const plansModal = ref()
+</script>
+
+<template>
+<SiteNav />
+
+<main class="about-page">
+  <div class="container about-wrap">
+    <NuxtLink to="/" class="about-back">← Início</NuxtLink>
+
+    <header class="about-head">
+      <span class="tag">// A história por trás do ScanCrush</span>
+      <h1 class="about-title">Por que o ScanCrush <span class="grad">existe</span></h1>
+      <p class="about-lead">Ele não nasceu pra ser só mais uma IA que lê mensagens. Nasceu de uma história real.</p>
+    </header>
+
+    <article class="about-body">
+      <p>A fundadora do ScanCrush passou boa parte da adolescência interpretando sinais errados. Por não se enxergar dentro dos padrões de beleza da época, muitas vezes achava que ninguém poderia se interessar por ela.</p>
+
+      <p>Então, quando alguém demonstrava atenção, gentileza ou proximidade, aquilo frequentemente ganhava um significado maior do que realmente tinha. Vieram expectativas criadas, frustrações e decepções que talvez pudessem ter sido evitadas se existisse uma forma mais neutra de olhar a situação.</p>
+
+      <p>Com o tempo, ficou claro que isso não acontece só na adolescência. Adultos continuam interpretando sinais, criando expectativas, tentando entender conversas ambíguas e ignorando padrões de comportamento — porque, quando a gente está envolvido, é quase impossível ler a própria conversa com calma.</p>
+
+      <p>O ScanCrush nasceu exatamente pra ajudar nisso: <strong>enxergar com mais clareza</strong>. Não pra decidir por você, não pra prever o futuro, não pra dizer quem você deve amar — mas pra mostrar sinais, padrões e comportamentos que muitas vezes passam despercebidos quando a emoção fala mais alto.</p>
+
+      <h2 class="about-h2">E a Patty?</h2>
+
+      <p>A <strong>Patty</strong> é a observadora virtual do ScanCrush — a personagem que conduz a análise. Ela é uma homenagem a essa história: representa a ajuda que a fundadora gostaria de ter tido naquela época. Alguém capaz de olhar uma conversa sem ansiedade, sem expectativa e sem envolvimento emocional.</p>
+
+      <p>Enquanto você está emocionalmente envolvido na situação, a Patty observa os fatos: quem inicia, quem sustenta, o que se repete, o que ficou no ar. Ela identifica sinais, padrões e reciprocidade — pra reduzir o achismo e transformar dúvida em clareza.</p>
+
+      <div class="about-not">
+        <p class="about-not-label">Pra deixar claro, a Patty <strong>não é</strong>:</p>
+        <ul>
+          <li>vidência ou oráculo</li>
+          <li>terapia ou aconselhamento profissional</li>
+          <li>detector de sentimentos</li>
+          <li>promessa de relacionamento</li>
+          <li>uma pessoa real</li>
+        </ul>
+        <p class="about-not-foot">Ela é uma observadora neutra de padrões e sinais — nada além, nada a mais.</p>
+      </div>
+
+      <p class="about-closing">No fim, o ScanCrush existe pra que você não precise ler a conversa sozinho, no meio da ansiedade. A Patty olha junto — com calma.</p>
+    </article>
+
+    <div class="about-cta">
+      <button class="btn-primary" @click="plansModal?.open()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Deixa a Patty observar sua conversa</span>
+      </button>
+    </div>
+  </div>
+</main>
+
+<PlansModal ref="plansModal" />
+</template>
+
+<style scoped>
+.about-page { background: var(--bg); color: var(--text); min-height: 100vh; padding: 96px 0 80px; }
+.about-wrap { max-width: 680px; }
+.about-back { font-size: 13px; color: var(--text-3); text-decoration: none; font-family: var(--mono); display: inline-block; margin-bottom: 28px; }
+.about-back:hover { color: var(--text-2); }
+.about-head { margin-bottom: 32px; }
+.about-title { font-size: clamp(32px, 6vw, 48px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; margin: 12px 0 14px; }
+.about-lead { font-size: 18px; color: var(--text-2); font-weight: 300; line-height: 1.6; }
+.about-body p { font-size: 16px; color: var(--text-2); font-weight: 300; line-height: 1.85; margin-bottom: 20px; }
+.about-body strong { color: var(--text); font-weight: 600; }
+.about-h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 36px 0 16px; }
+.about-not { background: var(--card); border: 1px solid rgba(155,93,229,0.20); border-radius: var(--r); padding: 22px 24px; margin: 8px 0 24px; }
+.about-not-label { font-size: 14px; color: var(--text-2); margin-bottom: 10px; font-weight: 300; }
+.about-not ul { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-direction: column; gap: 7px; }
+.about-not li { font-size: 14px; color: var(--text-2); padding-left: 18px; position: relative; }
+.about-not li::before { content: '✕'; position: absolute; left: 0; color: var(--purple); font-size: 11px; }
+.about-not-foot { font-size: 13.5px; color: var(--text-3); font-style: italic; margin: 0; }
+.about-closing { font-size: 17px; color: var(--text); font-weight: 400; line-height: 1.7; border-left: 2px solid var(--purple); padding-left: 16px; }
+.about-cta { margin-top: 36px; }
+.grad { background: linear-gradient(135deg,#FF2D6B,#9B5DE5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+</style>

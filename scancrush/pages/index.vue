@@ -655,6 +655,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <ul class="footer-links">
         <li><a href="#b-how">{{ t.footer.how }}</a></li>
         <li><a href="#b-pricing">{{ t.footer.pricing }}</a></li>
+        <li><NuxtLink to="/sobre">Sobre</NuxtLink></li>
         <li class="footer-hide-m"><a href="#b-faq">{{ t.footer.faq }}</a></li>
         <li><NuxtLink to="/privacy">{{ t.footer.privacy }}</NuxtLink></li>
         <li><NuxtLink to="/terms">{{ t.footer.terms }}</NuxtLink></li>

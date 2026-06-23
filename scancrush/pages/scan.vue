@@ -1430,6 +1430,7 @@ onUnmounted(() => {
           <span v-for="(f, i) in resultFeelings" :key="'fff'+i" class="ff-chip">{{ capFirst(f) }}</span>
         </div>
         <p class="free-insight-text">{{ norm(resultData?.final_message ?? '') }}</p>
+        <p class="result-signature">— Patty, sua observadora no ScanCrush</p>
       </div>
       <!-- Download PDF da leitura inicial (free também baixa) -->
       <div class="pdf-download-card">
@@ -1630,6 +1631,7 @@ onUnmounted(() => {
           <span v-for="(f, i) in resultFeelings" :key="'ff'+i" class="ff-chip">{{ capFirst(f) }}</span>
         </div>
         <p class="for-you-text">{{ norm(resultData.final_message) }}</p>
+        <p class="result-signature">— Patty, sua observadora no ScanCrush</p>
       </div>
 
       <!-- ⑭b Limites da leitura ── -->
@@ -1931,6 +1933,7 @@ onUnmounted(() => {
         <span v-for="(f, i) in resultFeelings" :key="'pff'+i" class="pdf-ff-chip">{{ capFirst(f) }}</span>
       </div>
       <p class="pdf-p">{{ norm(resultData.final_message) }}</p>
+      <p class="pdf-signature">— Patty, sua observadora no ScanCrush</p>
     </div>
 
     <div v-if="resultData?.limits" class="pdf-block pdf-block--limits">
@@ -3205,6 +3208,14 @@ body::after {
   margin: 0;
   font-weight: 400;
 }
+.result-signature {
+  margin: 14px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--purple);
+  text-align: right;
+}
 
 /* ── SIGNALS CARD (mantido para compatibilidade) ── */
 .signals-card {
@@ -4419,6 +4430,7 @@ body::after {
 .pdf-block--verdict { border-left: 3px solid var(--pdf-pink); }
 .pdf-block--foryou  { border-left: 3px solid var(--pdf-purple); background: var(--pdf-soft); }
 .pdf-foryou-feelings { margin: 0 0 9px; }
+.pdf-signature { margin: 8px 0 0; font-family: var(--mono); font-size: 10.5px; font-style: italic; color: var(--pdf-purple); text-align: right; }
 .pdf-ff-intro { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pdf-faint); display: block; margin-bottom: 5px; }
 .pdf-ff-chip { display: inline-block; margin: 0 5px 5px 0; padding: 3px 10px; border-radius: 100px; background: rgba(155,93,229,0.10); border: 1px solid rgba(155,93,229,0.32); color: var(--pdf-purple); font-size: 11px; font-weight: 700; }
 .pdf-block--limits  { background: var(--pdf-soft); }
