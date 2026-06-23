@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
+# Páginas privadas (acesso por token / resultado / pesquisa)
 Disallow: /scan
 Disallow: /tack
+Disallow: /acesso
+Disallow: /pesquisa
 
 Sitemap: https://scancrush.com/sitemap.xml
