@@ -23,8 +23,10 @@ const plansModal = ref()
 
     <header class="about-head">
       <span class="tag">// A história por trás do ScanCrush</span>
-      <h1 class="about-title">Por que o ScanCrush <span class="grad">existe</span></h1>
-      <p class="about-lead">Ele não nasceu pra ser só mais uma IA que lê mensagens. Nasceu de uma história real.</p>
+      <h1 class="about-title">Por que o ScanCrush <span class="grad">existe?</span></h1>
+      <p class="about-lead" style="color:var(--text-2);font-weight:600">
+        Ele não nasceu para ser só mais uma IA que lê mensagens. Nasceu de uma história real.
+      </p>
     </header>
 
     <article class="about-body">
@@ -34,27 +36,29 @@ const plansModal = ref()
 
       <p>Com o tempo, ficou claro que isso não acontece só na adolescência. Adultos continuam interpretando sinais, criando expectativas, tentando entender conversas ambíguas e ignorando padrões de comportamento — porque, quando a gente está envolvido, é quase impossível ler a própria conversa com calma.</p>
 
-      <p>O ScanCrush nasceu exatamente pra ajudar nisso: <strong>enxergar com mais clareza</strong>. Não pra decidir por você, não pra prever o futuro, não pra dizer quem você deve amar — mas pra mostrar sinais, padrões e comportamentos que muitas vezes passam despercebidos quando a emoção fala mais alto.</p>
+      <p>O ScanCrush nasceu exatamente para ajudar nisso: <strong>enxergar com mais clareza</strong>. Não para decidir por você, não para prever o futuro, não para dizer quem você deve amar — mas para mostrar sinais, padrões e comportamentos que muitas vezes passam despercebidos quando a emoção fala mais alto.</p>
 
       <h2 class="about-h2">E a Patty?</h2>
 
       <p>A <strong>Patty</strong> é a observadora virtual do ScanCrush — a personagem que conduz a análise. Ela é uma homenagem a essa história: representa a ajuda que a fundadora gostaria de ter tido naquela época. Alguém capaz de olhar uma conversa sem ansiedade, sem expectativa e sem envolvimento emocional.</p>
 
-      <p>Enquanto você está emocionalmente envolvido na situação, a Patty observa os fatos: quem inicia, quem sustenta, o que se repete, o que ficou no ar. Ela identifica sinais, padrões e reciprocidade — pra reduzir o achismo e transformar dúvida em clareza.</p>
+      <p>Enquanto você está emocionalmente envolvido na situação, a Patty observa os fatos: quem inicia, quem sustenta, o que se repete, o que ficou no ar. Ela identifica sinais, padrões e reciprocidade — para reduzir o achismo e transformar dúvida em clareza.</p>
 
       <div class="about-not">
-        <p class="about-not-label">Pra deixar claro, a Patty <strong>não é</strong>:</p>
-        <ul>
-          <li>vidência ou oráculo</li>
-          <li>terapia ou aconselhamento profissional</li>
-          <li>detector de sentimentos</li>
-          <li>promessa de relacionamento</li>
-          <li>uma pessoa real</li>
-        </ul>
+        <p class="about-not-label">Para deixar claro, a Patty <strong>não é</strong></p>
+        <div class="about-not-chips">
+          <span class="about-not-chip">vidência</span>
+          <span class="about-not-chip">oráculo</span>
+          <span class="about-not-chip">terapia</span>
+          <span class="about-not-chip">aconselhamento profissional</span>
+          <span class="about-not-chip">detector de sentimentos</span>
+          <span class="about-not-chip">promessa de relacionamento</span>
+          <span class="about-not-chip">uma pessoa real</span>
+        </div>
         <p class="about-not-foot">Ela é uma observadora neutra de padrões e sinais — nada além, nada a mais.</p>
       </div>
 
-      <p class="about-closing">No fim, o ScanCrush existe pra que você não precise ler a conversa sozinho, no meio da ansiedade. A Patty olha junto — com calma.</p>
+      <p class="about-closing">No fim, o ScanCrush existe para que você não precise ler a conversa sozinha, no meio da ansiedade. A Patty olha junto — com calma.</p>
     </article>
 
     <div class="about-cta">
@@ -80,12 +84,27 @@ const plansModal = ref()
 .about-body p { font-size: 16px; color: var(--text-2); font-weight: 300; line-height: 1.85; margin-bottom: 20px; }
 .about-body strong { color: var(--text); font-weight: 600; }
 .about-h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 36px 0 16px; }
-.about-not { background: var(--card); border: 1px solid rgba(155,93,229,0.20); border-radius: var(--r); padding: 22px 24px; margin: 8px 0 24px; }
-.about-not-label { font-size: 14px; color: var(--text-2); margin-bottom: 10px; font-weight: 300; }
-.about-not ul { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-direction: column; gap: 7px; }
-.about-not li { font-size: 14px; color: var(--text-2); padding-left: 18px; position: relative; }
-.about-not li::before { content: '✕'; position: absolute; left: 0; color: var(--purple); font-size: 11px; }
-.about-not-foot { font-size: 13.5px; color: var(--text-3); font-style: italic; margin: 0; }
+.about-not {
+  background: linear-gradient(160deg, rgba(155,93,229,0.08), rgba(255,45,107,0.04));
+  border: 1px solid rgba(155,93,229,0.22);
+  border-radius: var(--r);
+  padding: 28px 26px;
+  margin: 10px 0 26px;
+  text-align: center;
+}
+.about-not-label { font-size: 13px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 14px; }
+.about-not-label strong { color: var(--text); }
+.about-not-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; }
+.about-not-chip {
+  font-size: 12.5px;
+  color: var(--text-2);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+.about-not-foot { font-size: 13.5px; color: var(--text-3); font-style: italic; margin: 0; line-height: 1.6; max-width: 460px; margin: 0 auto; }
 .about-closing { font-size: 17px; color: var(--text); font-weight: 400; line-height: 1.7; border-left: 2px solid var(--purple); padding-left: 16px; }
 .about-cta { margin-top: 36px; }
 .grad { background: linear-gradient(135deg,#FF2D6B,#9B5DE5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }

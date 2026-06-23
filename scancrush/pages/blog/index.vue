@@ -92,6 +92,16 @@ const categories = computed(() => {
       <span class="bf-cta">Ler artigo →</span>
     </NuxtLink>
 
+    <!-- DESTAQUE: A HISTÓRIA DA MARCA / A PATTY -->
+    <NuxtLink to="/sobre" class="blog-featured blog-featured-story">
+      <div class="bf-meta">
+        <span class="bf-tag bf-tag-story">A história da marca</span>
+      </div>
+      <h2 class="bf-title">Por que o ScanCrush existe — e quem é a Patty</h2>
+      <p class="bf-desc">A marca nasceu de uma história real: a de quem já confundiu atenção com interesse. Conheça a origem e a observadora por trás das análises.</p>
+      <span class="bf-cta">Ler a história →</span>
+    </NuxtLink>
+
     <!-- CATEGORIAS -->
     <div v-for="cat in categories" :key="cat.tag" class="blog-section">
       <div class="blog-section-header">
@@ -179,6 +189,11 @@ const categories = computed(() => {
 .bf-title { font-size: clamp(20px,3.5vw,28px); font-weight: 800; color: var(--text); line-height: 1.2; letter-spacing: -.5px; margin-bottom: 12px; }
 .bf-desc { font-size: 15px; color: var(--text-2); line-height: 1.65; margin-bottom: 20px; max-width: 560px; }
 .bf-cta { font-size: 13px; color: var(--pink); font-weight: 700; }
+/* Destaque da história (acento roxo, diferencia do destaque principal) */
+.blog-featured-story { background: linear-gradient(135deg, rgba(155,93,229,.09), rgba(255,45,107,.03)); border-color: rgba(155,93,229,.28); margin-top: -32px; }
+.blog-featured-story:hover { border-color: rgba(155,93,229,.5); }
+.bf-tag-story { color: var(--purple); }
+.blog-featured-story .bf-cta { color: var(--purple); }
 
 /* ── SEÇÕES POR CATEGORIA ── */
 .blog-section { margin-bottom: 52px; }
