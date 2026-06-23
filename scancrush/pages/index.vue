@@ -55,10 +55,12 @@ useHead({
       type: 'application/ld+json',
       innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
-        '@type': 'Person',
-        name: 'Patty',
-        description: 'Observadora virtual do ScanCrush. Personagem da marca especializada em identificar padrões de comportamento e sinais em conversas, de forma neutra. Não é uma pessoa real, nem psicóloga, terapeuta ou coach.',
-        worksFor: { '@type': 'Organization', name: 'ScanCrush', url: 'https://scancrush.com/' },
+        '@type': 'WebSite',
+        name: 'ScanCrush',
+        alternateName: ['Scan Crush', 'Crush Scan', 'Scanner de Crush'],
+        url: 'https://scancrush.com/',
+        inLanguage: 'pt-BR',
+        description: 'Análise de conversas com IA: identifica sinais, padrões de comportamento e reciprocidade nas mensagens. Conduzida pela Patty, observadora virtual da marca (personagem, não uma pessoa real).',
       }),
     },
     {
