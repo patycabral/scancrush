@@ -18,8 +18,9 @@ node_modules
 scancrush/uploads/
 uploads/
 
-# Brand / assets gerados (binários grandes)
-brand/
+# Brand / assets gerados (binários grandes) — só a pasta da raiz
+/brand/
+# (libera scancrush/public/brand/ p/ imagens servidas no site: /brand/patty.webp etc.)
 
 # Prints de teste
 Prints_Testes/

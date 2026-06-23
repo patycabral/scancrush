@@ -482,26 +482,26 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       </p>
     </div>
 
-    <div class="reveal" style="max-width:640px;margin:30px auto 0;background:var(--card);border:1px solid rgba(155,93,229,0.20);border-radius:var(--r);padding:30px 28px">
-      <p style="font-size:15px;color:var(--text-2);font-weight:300;line-height:1.8;margin-bottom:16px">
-        Quando a gente gosta de alguém, fica quase impossível ler a conversa com calma. Cada "kkk", cada demora pra responder, cada "qualquer dia a gente marca" ganha um peso que talvez nem tenha.
-      </p>
-      <p style="font-size:15px;color:var(--text-2);font-weight:300;line-height:1.8;margin-bottom:16px">
-        A <strong style="color:var(--text);font-weight:600">Patty</strong> existe pra isso. Como ela não está emocionalmente envolvida na sua história, consegue observar os fatos: quem inicia, quem sustenta, o que se repete e o que ficou no ar. Ela <strong style="color:var(--text);font-weight:600">identifica sinais, padrões e reciprocidade</strong> nas mensagens e te devolve isso de um jeito honesto — pra reduzir o achismo e trazer mais clareza.
-      </p>
-      <p style="font-size:13.5px;color:var(--text-3);font-style:italic;line-height:1.7;margin-bottom:20px">
-        A Patty nasceu de uma história real: a de quem passou anos interpretando sinais errados e gostaria de ter tido alguém pra olhar com calma. <NuxtLink to="/sobre" style="color:var(--purple);text-decoration:none;font-style:normal;font-weight:600">a história por trás do ScanCrush →</NuxtLink>
-      </p>
+    <div class="reveal patty-layout">
+      <div class="patty-photo-wrap">
+        <img src="/brand/patty.webp" alt="Patty — a observadora virtual do ScanCrush" class="patty-photo" width="440" height="660" loading="lazy" />
+      </div>
 
-      <div style="border-top:1px solid var(--border);padding-top:18px">
-        <p style="font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);margin-bottom:10px">A Patty não é</p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
-          <span class="patty-not">vidência</span>
-          <span class="patty-not">oráculo</span>
-          <span class="patty-not">terapia</span>
-          <span class="patty-not">aconselhamento profissional</span>
-          <span class="patty-not">detector de sentimentos</span>
-          <span class="patty-not">promessa de relacionamento</span>
+      <div class="patty-card">
+        <p class="patty-p">Quando a gente gosta de alguém, fica quase impossível ler a conversa com calma. Cada "kkk", cada demora pra responder, cada "qualquer dia a gente marca" ganha um peso que talvez nem tenha.</p>
+        <p class="patty-p">A <strong>Patty</strong> existe pra isso. Como ela não está emocionalmente envolvida na sua história, consegue observar os fatos: quem inicia, quem sustenta, o que se repete e o que ficou no ar. Ela <strong>identifica sinais, padrões e reciprocidade</strong> nas mensagens e te devolve isso de um jeito honesto — pra reduzir o achismo e trazer mais clareza.</p>
+        <p class="patty-origin">A Patty nasceu de uma história real: a de quem passou anos interpretando sinais errados e gostaria de ter tido alguém pra olhar com calma. <NuxtLink to="/sobre">a história por trás do ScanCrush →</NuxtLink></p>
+
+        <div class="patty-not-wrap">
+          <p class="patty-not-label">A Patty não é</p>
+          <div class="patty-not-row">
+            <span class="patty-not">vidência</span>
+            <span class="patty-not">oráculo</span>
+            <span class="patty-not">terapia</span>
+            <span class="patty-not">aconselhamento profissional</span>
+            <span class="patty-not">detector de sentimentos</span>
+            <span class="patty-not">promessa de relacionamento</span>
+          </div>
         </div>
       </div>
     </div>
@@ -747,7 +747,48 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 </template>
 
 <style>
-/* ─── CONHEÇA A PATTY — chips "não é" ─────────────────────────── */
+/* ─── CONHEÇA A PATTY ─────────────────────────────────────────── */
+.patty-layout {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+  max-width: 900px;
+  margin: 34px auto 0;
+}
+.patty-photo-wrap {
+  flex-shrink: 0;
+  position: relative;
+  width: 270px;
+}
+.patty-photo-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -24px;
+  background: radial-gradient(ellipse at center, rgba(255,45,107,0.22), transparent 68%);
+  z-index: -1;
+}
+.patty-photo {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 18px;
+  border: 1px solid rgba(255,45,107,0.25);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+}
+.patty-card {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid rgba(155,93,229,0.20);
+  border-radius: var(--r);
+  padding: 28px 26px;
+}
+.patty-p { font-size: 15px; color: var(--text-2); font-weight: 300; line-height: 1.8; margin-bottom: 16px; }
+.patty-p strong { color: var(--text); font-weight: 600; }
+.patty-origin { font-size: 13.5px; color: var(--text-3); font-style: italic; line-height: 1.7; margin-bottom: 20px; }
+.patty-origin a { color: var(--purple); text-decoration: none; font-style: normal; font-weight: 600; }
+.patty-not-wrap { border-top: 1px solid var(--border); padding-top: 18px; }
+.patty-not-label { font-size: 11px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 10px; }
+.patty-not-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .patty-not {
   font-size: 12px;
   color: var(--text-2);
@@ -756,6 +797,13 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   border-radius: 100px;
   padding: 5px 13px;
   white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .patty-layout { flex-direction: column; gap: 24px; }
+  .patty-photo-wrap { width: 200px; }
+  .patty-not-row { justify-content: center; }
+  .patty-card { text-align: center; }
+  .patty-not-wrap { text-align: center; }
 }
 
 /* ─── CTA FINAL — fonte menor que o padrão global ────────────── */
