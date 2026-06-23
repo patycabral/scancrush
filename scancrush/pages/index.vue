@@ -1,17 +1,20 @@
 <script setup lang="ts">
 useHead({
-  title: 'Como Saber se o Crush Gosta de Mim? IA Analisa a Conversa | ScanCrush',
+  title: 'Será que o crush gosta de você? IA analisa a conversa | ScanCrush',
   meta: [
-    { name: 'description',        content: 'Entenda o que as mensagens do seu crush realmente revelam. Nossa IA interpreta os sinais da conversa e te diz se existe interesse de verdade — sem achismo, sem talvez.' },
-    { name: 'keywords',           content: 'como saber se o crush gosta de mim, meu crush gosta de mim, interpretar mensagens do crush, sinais do crush no whatsapp, analisar conversa do crush, análise de conversa com IA' },
+    { name: 'description',        content: 'Cole os prints da conversa e deixe a Patty observar os sinais. O ScanCrush identifica padrões, reciprocidade e pontos de atenção — com clareza, sem achismo.' },
+    { name: 'keywords',           content: 'ScanCrush, Scan Crush, Crush Scan, scanner de crush, análise de crush, como saber se o crush gosta de mim, sinais do crush, interpretar mensagens do crush, análise de conversa com IA, reciprocidade em conversas, sinais de interesse' },
     { property: 'og:type',        content: 'website' },
     { property: 'og:url',         content: 'https://scancrush.com/' },
-    { property: 'og:title',       content: 'Como Saber se o Crush Gosta de Mim? IA Analisa a Conversa | ScanCrush' },
-    { property: 'og:description', content: 'Entenda o que as mensagens do seu crush realmente revelam. Nossa IA interpreta os sinais da conversa e te diz se existe interesse de verdade.' },
+    { property: 'og:site_name',   content: 'ScanCrush' },
+    { property: 'og:locale',      content: 'pt_BR' },
+    { property: 'og:title',       content: 'Será que o crush gosta de você? A Patty observa os sinais | ScanCrush' },
+    { property: 'og:description', content: 'Cole os prints e deixe a Patty observar os sinais da conversa. O ScanCrush identifica padrões, reciprocidade e pontos de atenção — com clareza, sem achismo.' },
     { property: 'og:image',       content: 'https://scancrush.com/og-image.png' },
     { name: 'twitter:card',       content: 'summary_large_image' },
-    { name: 'twitter:title',      content: 'Como Saber se o Crush Gosta de Mim? | ScanCrush' },
-    { name: 'twitter:description', content: 'IA que analisa a conversa com o crush e revela os sinais reais de interesse.' },
+    { name: 'twitter:title',      content: 'Será que o crush gosta de você? | ScanCrush' },
+    { name: 'twitter:description', content: 'A Patty observa os sinais da conversa com o seu crush: padrões, reciprocidade e pontos de atenção. Com clareza, sem achismo.' },
+    { name: 'twitter:image',      content: 'https://scancrush.com/og-image.png' },
   ],
   link: [
     { rel: 'canonical', href: 'https://scancrush.com/' }
@@ -23,16 +26,39 @@ useHead({
         '@context': 'https://schema.org',
         '@type': 'WebApplication',
         name: 'ScanCrush',
+        alternateName: ['Scan Crush', 'Crush Scan', 'Scanner de Crush'],
         url: 'https://scancrush.com/',
-        description: 'Descubra como saber se o crush gosta de você analisando a conversa com IA. Sinais reais, score de engajamento e conclusão direta — sem achismo.',
+        description: 'O ScanCrush é uma ferramenta de análise de conversas que identifica sinais, padrões de comportamento e reciprocidade nas mensagens, conduzida pela Patty — a observadora virtual da marca. Não é vidência, oráculo nem aconselhamento profissional: ajuda a enxergar o que a conversa mostra (Score de Engajamento Observado).',
         applicationCategory: 'LifestyleApplication',
         operatingSystem: 'Web',
         inLanguage: 'pt-BR',
         offers: [
-          { '@type': 'Offer', price: '0', priceCurrency: 'BRL', name: 'Primeiras Impressões — 1 print' },
+          { '@type': 'Offer', price: '6.90', priceCurrency: 'BRL', name: 'Primeiras Impressões — 1 print' },
           { '@type': 'Offer', price: '19.90', priceCurrency: 'BRL', name: 'Sinais Revelados — até 4 prints' },
           { '@type': 'Offer', price: '44.90', priceCurrency: 'BRL', name: 'Raio-X do Crush — até 10 prints' },
         ],
+      }),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'ScanCrush',
+        alternateName: ['Scan Crush', 'Crush Scan'],
+        url: 'https://scancrush.com/',
+        logo: 'https://scancrush.com/logo-email.png',
+        description: 'Plataforma de análise de conversas que identifica sinais, padrões e reciprocidade nas mensagens. A voz pública da marca é a Patty, observadora virtual.',
+      }),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: 'Patty',
+        description: 'Observadora virtual do ScanCrush. Personagem da marca especializada em identificar padrões de comportamento e sinais em conversas, de forma neutra. Não é uma pessoa real, nem psicóloga, terapeuta ou coach.',
+        worksFor: { '@type': 'Organization', name: 'ScanCrush', url: 'https://scancrush.com/' },
       }),
     },
     {
@@ -43,38 +69,58 @@ useHead({
         mainEntity: [
           {
             '@type': 'Question',
-            name: 'Como saber se o crush gosta de mim pela conversa?',
-            acceptedAnswer: { '@type': 'Answer', text: 'A resposta está nos padrões das mensagens: frequência de resposta, quem inicia o contato, consistência no tom e sinais de distância emocional. Nossa IA analisa esses padrões e entrega um score com sinais concretos de interesse.' },
+            name: 'O que é o ScanCrush?',
+            acceptedAnswer: { '@type': 'Answer', text: 'O ScanCrush é uma ferramenta de análise de conversas que usa IA para identificar sinais, padrões de comportamento e reciprocidade nas mensagens entre você e seu crush. Ele ajuda a enxergar o que costuma passar despercebido quando a emoção fala mais alto. Não é vidência, oráculo, terapia nem aconselhamento profissional.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Quem é a Patty?',
+            acceptedAnswer: { '@type': 'Answer', text: 'A Patty é a observadora virtual do ScanCrush — a personagem que conduz a análise. Ela não é vidente, psicóloga, terapeuta nem coach: é uma observadora neutra que identifica padrões e sinais na conversa, sem estar emocionalmente envolvida na sua história.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'A Patty é uma pessoa real?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. A Patty é a personagem/observadora virtual da marca, que representa uma forma calma e neutra de observar conversas.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Scan Crush e ScanCrush são a mesma coisa?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Sim. ScanCrush, Scan Crush, Crush Scan e scanner de crush se referem ao mesmo produto: a plataforma de análise de conversas conduzida pela Patty.' },
           },
           {
             '@type': 'Question',
             name: 'Como funciona a análise de conversa do crush?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Você envia prints da conversa. Nossa IA identifica padrões emocionais, consistência nas mensagens e sinais que passam despercebidos no calor do momento. O resultado inclui score de engajamento, sinais positivos e negativos, e uma conclusão direta.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Você cola os prints da conversa e a Patty identifica padrões como quem inicia o contato, reciprocidade, constância e coerência entre o que a pessoa diz e faz. O resultado traz um Score de Engajamento Observado, sinais positivos e pontos de atenção, e uma leitura honesta da conversa.' },
           },
           {
             '@type': 'Question',
-            name: 'Minha conversa fica salva em algum lugar?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Não. As mensagens são processadas no momento da análise e não ficam armazenadas. Sua privacidade é levada a sério.' },
+            name: 'Como saber se o crush gosta de mim pela conversa?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Os indícios estão nos padrões das mensagens: quem inicia o contato, a reciprocidade, a constância e a coerência entre fala e atitude. O ScanCrush observa esses padrões e ajuda a enxergar os sinais — a leitura traz clareza, mas a decisão é sempre sua.' },
           },
           {
             '@type': 'Question',
-            name: 'A análise de conversa com IA é precisa?',
-            acceptedAnswer: { '@type': 'Answer', text: 'É uma análise de padrões, não uma leitura da mente. Ela oferece clareza baseada no que as mensagens revelam — mas a decisão final é sempre sua.' },
+            name: 'O ScanCrush prevê o futuro ou decide por mim?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. O ScanCrush não adivinha nem prevê relacionamento, e não toma decisões por você. Ele interpreta o comportamento observável nas mensagens enviadas e te dá mais clareza para decidir.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'Minhas mensagens ficam armazenadas?',
+            acceptedAnswer: { '@type': 'Answer', text: 'As conversas enviadas são usadas para gerar a análise solicitada, conforme a Política de Privacidade. Não vendemos suas mensagens nem usamos os prints para exposição pública.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'O ScanCrush substitui aconselhamento profissional?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. É uma ferramenta de clareza sobre uma conversa — não é terapia, aconselhamento profissional nem detector de sentimentos.' },
           },
           {
             '@type': 'Question',
             name: 'Posso analisar conversa do WhatsApp, Instagram ou Telegram?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Sim — conversas de WhatsApp, Instagram DM, Telegram ou qualquer outro app. Quanto mais contexto você fornecer, mais precisa será a análise.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Sim — conversas de WhatsApp, Instagram DM, Telegram ou qualquer outro app. Quanto mais contexto você fornecer, mais completa fica a leitura.' },
           },
           {
             '@type': 'Question',
             name: 'Quantos prints posso enviar para análise?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Primeiras Impressões (1 print), Sinais Revelados (até 4 prints), Raio-X do Crush (até 10 prints). Mais prints permitem uma análise mais profunda e precisa.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'O que fazer se não gostar do resultado da análise?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Então provavelmente é algo que você já sentia. Só não queria confirmar. A análise revela o que os padrões mostram — a decisão sobre o que fazer é sempre sua.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Primeiras Impressões (1 print), Sinais Revelados (até 4 prints) e Raio-X do Crush (até 10 prints). Mais prints permitem uma leitura mais profunda.' },
           },
         ],
       }),
@@ -423,6 +469,50 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   </div>
 </div>
 
+<!-- ─── CONHEÇA A PATTY ──────────────────────────────────────── -->
+<section class="section-pad" id="b-patty" style="background:radial-gradient(ellipse at 50% 0%, rgba(155,93,229,0.07) 0%, transparent 70%);">
+  <div class="container">
+    <div class="reveal" style="max-width:760px;margin:0 auto;text-align:center">
+      <span class="tag">// Quem lê a sua conversa</span>
+      <h2 class="section-title">Conheça a <span class="grad">Patty</span></h2>
+      <p style="font-size:17px;color:var(--text-2);font-weight:300;line-height:1.7;max-width:620px;margin:14px auto 0">
+        A observadora que ajuda você a enxergar o que a emoção embaça.
+      </p>
+    </div>
+
+    <div class="reveal" style="max-width:640px;margin:30px auto 0;background:var(--card);border:1px solid rgba(155,93,229,0.20);border-radius:var(--r);padding:30px 28px">
+      <p style="font-size:15px;color:var(--text-2);font-weight:300;line-height:1.8;margin-bottom:16px">
+        Quando a gente gosta de alguém, fica quase impossível ler a conversa com calma. Cada "kkk", cada demora pra responder, cada "qualquer dia a gente marca" ganha um peso que talvez nem tenha.
+      </p>
+      <p style="font-size:15px;color:var(--text-2);font-weight:300;line-height:1.8;margin-bottom:16px">
+        A <strong style="color:var(--text);font-weight:600">Patty</strong> existe pra isso. Como ela não está emocionalmente envolvida na sua história, consegue observar os fatos: quem inicia, quem sustenta, o que se repete e o que ficou no ar. Ela <strong style="color:var(--text);font-weight:600">identifica sinais, padrões e reciprocidade</strong> nas mensagens e te devolve isso de um jeito honesto — pra reduzir o achismo e trazer mais clareza.
+      </p>
+      <p style="font-size:13.5px;color:var(--text-3);font-style:italic;line-height:1.7;margin-bottom:20px">
+        A Patty nasceu de uma história real: a de quem passou anos interpretando sinais errados e gostaria de ter tido alguém pra olhar com calma. <NuxtLink to="/sobre" style="color:var(--purple);text-decoration:none;font-style:normal;font-weight:600">a história por trás do ScanCrush →</NuxtLink>
+      </p>
+
+      <div style="border-top:1px solid var(--border);padding-top:18px">
+        <p style="font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);margin-bottom:10px">A Patty não é</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
+          <span class="patty-not">vidência</span>
+          <span class="patty-not">oráculo</span>
+          <span class="patty-not">terapia</span>
+          <span class="patty-not">aconselhamento profissional</span>
+          <span class="patty-not">detector de sentimentos</span>
+          <span class="patty-not">promessa de relacionamento</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="text-align:center;margin-top:28px">
+      <button class="btn-primary" @click="openPricesModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Deixa a Patty observar sua conversa</span>
+      </button>
+    </div>
+  </div>
+</section>
+
 <!-- ─── PRICING ───────────────────────────────────────────────── -->
 <section class="section-pad" id="b-pricing" style="background:radial-gradient(ellipse at 50% 100%, rgba(255,45,107,0.05) 0%, transparent 60%);">
   <div class="container">
@@ -515,6 +605,11 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         { q: t.faq.q6, a: t.faq.a6 },
         { q: t.faq.q7, a: t.faq.a7 },
         { q: t.faq.q8, a: t.faq.a8 },
+        { q: t.faq.q9, a: t.faq.a9 },
+        { q: t.faq.q10, a: t.faq.a10 },
+        { q: t.faq.q11, a: t.faq.a11 },
+        { q: t.faq.q12, a: t.faq.a12 },
+        { q: t.faq.q13, a: t.faq.a13 },
       ]" :key="i" class="faq-item" :class="{ open: openFaqIndex === i }">
         <button class="faq-btn" @click="toggleFaq(i)">
           <span>{{ item.q }}</span>
@@ -649,6 +744,17 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 </template>
 
 <style>
+/* ─── CONHEÇA A PATTY — chips "não é" ─────────────────────────── */
+.patty-not {
+  font-size: 12px;
+  color: var(--text-2);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 5px 13px;
+  white-space: nowrap;
+}
+
 /* ─── CTA FINAL — fonte menor que o padrão global ────────────── */
 .cta-final h2 {
   font-size: clamp(26px, 3.8vw, 44px);
