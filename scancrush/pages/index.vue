@@ -488,9 +488,11 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       </div>
 
       <div class="patty-card">
-        <p class="patty-p">Quando a gente gosta de alguém, fica quase impossível ler a conversa com calma. Cada "kkk", cada demora pra responder, cada "qualquer dia a gente marca" ganha um peso que talvez nem tenha.</p>
-        <p class="patty-p">A <strong>Patty</strong> existe pra isso. Como ela não está emocionalmente envolvida na sua história, consegue observar os fatos: quem inicia, quem sustenta, o que se repete e o que ficou no ar. Ela <strong>identifica sinais, padrões e reciprocidade</strong> nas mensagens e te devolve isso de um jeito honesto — pra reduzir o achismo e trazer mais clareza.</p>
-        <p class="patty-origin">A Patty nasceu de uma história real: a de quem passou anos interpretando sinais errados e gostaria de ter tido alguém pra olhar com calma. <NuxtLink to="/sobre">a história por trás do ScanCrush →</NuxtLink></p>
+        <p class="patty-p">Quando a gente gosta de alguém, fica difícil ler uma conversa com calma. Um "kkk", uma demora para responder ou um "qualquer dia a gente marca" pode ganhar um peso maior do que realmente tem.</p>
+        <p class="patty-p"><strong>A Patty existe para olhar os fatos.</strong></p>
+        <p class="patty-p">Ela observa quem inicia, quem sustenta, o que se repete, o que fica no ar e quais sinais aparecem na conversa.</p>
+        <p class="patty-p">Identifica padrões, sinais de reciprocidade e pontos de atenção — sem drama, sem julgamento e sem prometer o que ninguém pode garantir.</p>
+        <p class="patty-origin">A Patty nasceu de uma história real: a de quem já confundiu atenção com interesse e queria ter tido alguém para olhar a conversa com calma. <NuxtLink to="/sobre">a história por trás do ScanCrush →</NuxtLink></p>
 
         <div class="patty-not-wrap">
           <p class="patty-not-label">A Patty não é</p>
@@ -507,9 +509,9 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     </div>
 
     <div class="reveal" style="text-align:center;margin-top:28px">
-      <button class="btn-primary" @click="openPricesModal()">
+      <button class="btn-primary" @click="scrollToPricing()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span>Deixa a Patty observar sua conversa</span>
+        <span>Ver os sinais com a Patty</span>
       </button>
     </div>
   </div>
