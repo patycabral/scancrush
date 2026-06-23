@@ -1676,12 +1676,6 @@ onUnmounted(() => {
     </template>
     <!-- ── fim conteúdo pago ── -->
 
-    <!-- ⑰ Pesquisa pós-análise (todos os planos) ── -->
-    <div class="survey-cta">
-      <p class="survey-cta-text">Antes de ir, conta pra Patty: <strong>essa análise te ajudou?</strong></p>
-      <NuxtLink class="survey-cta-btn" :to="`/pesquisa?token=${accessToken}&source=result_page`">Responder pesquisa rápida</NuxtLink>
-    </div>
-
   </div>
 
   <!-- ⑯ Footer ── -->
