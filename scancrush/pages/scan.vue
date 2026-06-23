@@ -1676,6 +1676,12 @@ onUnmounted(() => {
     </template>
     <!-- ── fim conteúdo pago ── -->
 
+    <!-- ⑰ Pesquisa pós-análise (todos os planos) ── -->
+    <div class="survey-cta">
+      <p class="survey-cta-text">Antes de ir, conta pra Patty: <strong>essa análise te ajudou?</strong></p>
+      <NuxtLink class="survey-cta-btn" :to="`/pesquisa?token=${accessToken}&source=result_page`">Responder pesquisa rápida</NuxtLink>
+    </div>
+
   </div>
 
   <!-- ⑯ Footer ── -->
@@ -2882,6 +2888,30 @@ body::after {
   margin: 0 auto;
   gap: 16px;
 }
+
+/* ── Pesquisa pós-análise (CTA discreto) ── */
+.survey-cta {
+  width: 100%;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+  padding-top: 26px;
+}
+.survey-cta-text { font-size: 14px; color: var(--text-2); margin-bottom: 12px; }
+.survey-cta-text strong { color: var(--text); }
+.survey-cta-btn {
+  display: inline-block;
+  padding: 11px 24px;
+  border-radius: 100px;
+  border: 1px solid rgba(155,93,229,0.4);
+  background: rgba(155,93,229,0.10);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.survey-cta-btn:hover { background: rgba(155,93,229,0.18); border-color: var(--purple); }
 
 .score-card {
   width: 100%;
