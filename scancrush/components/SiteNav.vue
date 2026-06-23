@@ -33,6 +33,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <ul class="nav-links">
         <li><a href="/#b-how">Como funciona</a></li>
         <li><a href="/#b-report">O relatório</a></li>
+        <li><a href="/#b-patty">A Patty</a></li>
         <li><a href="/#b-pricing">Planos</a></li>
         <li><NuxtLink to="/blog">Blog</NuxtLink></li>
       </ul>
@@ -50,6 +51,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <div class="nav-mobile-menu" :class="{ open: mobileMenuOpen }">
       <a href="/#b-how" @click="closeMobileMenu()">Como funciona</a>
       <a href="/#b-report" @click="closeMobileMenu()">O relatório</a>
+      <a href="/#b-patty" @click="closeMobileMenu()">A Patty</a>
       <a href="/#b-pricing" @click="closeMobileMenu()">Planos</a>
       <NuxtLink to="/blog" @click="closeMobileMenu()">Blog</NuxtLink>
       <button class="btn-nav" @click="plansModal?.open(); closeMobileMenu()">Analisar conversa</button>
