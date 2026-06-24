@@ -561,6 +561,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item4 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item5 }}</span></li>
         </ul>
+        <p class="price-note">{{ t.pricing.plan0_note }}</p>
         <button class="btn-price btn-price-paid" @click="goToCheckout('basico')">{{ t.pricing.plan0_cta }}</button>
       </div>
 
@@ -712,6 +713,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item4 }}</span></li>
           <li><span class="pf-ico">✦</span><span>{{ t.pricing.plan0_item5 }}</span></li>
         </ul>
+        <p class="price-note">{{ t.pricing.plan0_note }}</p>
         <button class="btn-price btn-price-paid" @click="goToCheckout('basico'); closePricesModal()">{{ t.pricing.plan0_cta }}</button>
       </div>
 

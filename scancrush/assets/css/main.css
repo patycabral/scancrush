@@ -825,6 +825,7 @@ body::after {
   line-height: 1.5;
 }
 .pf-ico { flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+.price-note { font-size: 11px; line-height: 1.5; color: var(--text-3); margin: -12px 0 16px; }
 .pf-includes {
   font-size: 11px;
   color: var(--pink);
