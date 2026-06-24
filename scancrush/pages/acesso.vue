@@ -18,9 +18,9 @@ onMounted(async () => {
     return
   }
 
-  const payload: Record<string, string> = { token }
-  const emailParam = params.get('email')
-  if (emailParam) payload.email = emailParam
+  // Sempre envia token + email (aceita ?e= ou ?email=; vazio se ausente)
+  const emailParam = params.get('e') || params.get('email') || ''
+  const payload: Record<string, string> = { token, email: emailParam }
 
 
   try {

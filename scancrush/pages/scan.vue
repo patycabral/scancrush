@@ -895,9 +895,8 @@ async function validateToken(token: string, email?: string) {
   accessError.value     = ''
 
   try {
-    // Envia o e-mail do link (quando houver) — backend valida/retorna o e-mail do comprador
-    const payload: Record<string, string> = { token }
-    if (email) payload.email = email
+    // Sempre envia token + email (o e-mail pode vir vazio; o backend resolve/retorna o do comprador)
+    const payload: Record<string, string> = { token, email: email ?? '' }
 
     const res  = await fetch(VALIDATE_URL, {
       method:  'POST',
