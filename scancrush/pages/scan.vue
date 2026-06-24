@@ -1275,7 +1275,7 @@ onUnmounted(() => {
 <!-- ══════════════════════════════════════════════════ -->
 <!-- POPUP: conteúdo inválido (não é conversa / bloqueado) -->
 <!-- ══════════════════════════════════════════════════ -->
-<div class="confirm-overlay" :class="{ open: showInvalidContent }" @click.self="closeInvalidContent()">
+<div class="confirm-overlay" :class="{ open: showInvalidContent }">
   <div class="confirm-card icw-card">
     <button class="confirm-close" @click="closeInvalidContent()" aria-label="Fechar">×</button>
     <div class="invalid-pop-icon">
@@ -4756,6 +4756,8 @@ body::after {
   display: flex; align-items: center; justify-content: center;
   margin: 4px auto 14px;
 }
+.icw-card .confirm-title,
+.icw-card .confirm-sub { text-align: center; }
 .icw-card .confirm-actions { flex-direction: column; gap: 10px; }
 .icw-card .confirm-btn-cancel,
 .icw-card .confirm-btn-ok { width: 100%; justify-content: center; }
