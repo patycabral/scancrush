@@ -667,11 +667,11 @@ async function startAnalysis() {
         goTo(5)   // tela de limite 24h
       } else if (data?.error === 'invalid_session') {
         goTo(6)   // tela de sessão inválida/expirada
-      } else if (data?.error === 'invalid_content') {
-        // Guardrails/validação: não é conversa ou conteúdo bloqueado → popup amigável
+      } else if (data?.error === 'invalid_content' || data?.error === 'AI_ERROR') {
+        // Guardrails/IA: não é conversa ou conteúdo bloqueado → popup amigável + volta ao upload
         goTo(2)
         invalidContentTitle.value = 'Esse print não parece uma conversa'
-        invalidContentMsg.value = data?.message ?? 'O conteúdo enviado não parece ser uma conversa. Envie um print real da conversa com o seu crush.'
+        invalidContentMsg.value = data?.message ?? 'Uma ou mais imagens enviadas não parecem prints de uma conversa. Volte e confira as imagens antes de enviar novamente.'
         showInvalidContent.value = true
         if (import.meta.client) document.body.style.overflow = 'hidden'
       } else {
