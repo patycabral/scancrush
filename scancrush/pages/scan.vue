@@ -508,6 +508,13 @@ const allKeyPatterns = computed(() => {
   return res.slice(0, 5)
 })
 
+/** Há pelo menos 1 sinal? (evita renderizar "Sinais na conversa" vazio) */
+const hasSignals = computed(() => {
+  const s = resultData.value?.signals
+  if (!s) return false
+  return ((s.positive?.length ?? 0) + (s.negative?.length ?? 0) + (s.neutral?.length ?? 0)) > 0
+})
+
 /** deep_analysis normalizado: aceita strings (legado) e objetos {tone,title,text} */
 const deepAnalysisItems = computed(() => {
   const arr = resultData.value?.deep_analysis ?? []
@@ -1426,7 +1433,7 @@ onUnmounted(() => {
 
     <!-- ④ FREE: sinais limitados + gate de upgrade ── -->
     <template v-if="isFree">
-      <div v-if="resultData?.signals" class="res-card">
+      <div v-if="hasSignals" class="res-card">
         <div class="res-label">Sinais na conversa</div>
         <div v-if="resultData.signals.positive?.[0]" class="signal-item">
           <span class="sig-dot g"></span>{{ norm(txt(resultData.signals.positive[0])) }}
@@ -1480,7 +1487,7 @@ onUnmounted(() => {
       </div>
 
       <!-- ⑥ Sinais na Conversa ── -->
-      <div v-if="resultData?.signals" class="res-card">
+      <div v-if="hasSignals" class="res-card">
         <div class="res-label">Sinais na Conversa</div>
         <div v-for="(item, i) in resultData.signals.positive ?? []" :key="'sp'+i" class="signal-item">
           <span class="sig-dot g"></span>{{ norm(txt(item)) }}
@@ -1660,7 +1667,7 @@ onUnmounted(() => {
       <!-- ⑮ Sobre esta análise (encerramento em dois níveis) ── -->
       <div class="about-analysis-card">
         <div class="about-label">Sobre esta análise</div>
-        <p class="about-emotional">Você talvez já sentisse parte disso. Agora consegue enxergar o padrão com mais clareza.</p>
+        <p class="about-emotional">Agora você tem uma leitura mais clara do que apareceu neste recorte.</p>
         <p class="about-text">Esta leitura foi gerada exclusivamente a partir do recorte enviado. O resultado não representa uma verdade absoluta sobre sentimentos, intenções ou personalidade. Trata-se de uma interpretação contextual baseada nos padrões observados nas mensagens analisadas.</p>
         <div class="about-sign">
           <span class="about-sign-brand">
@@ -1819,7 +1826,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="resultData?.signals" class="pdf-block">
+    <div v-if="hasSignals" class="pdf-block">
       <div class="pdf-block-label">Sinais na Conversa</div>
       <div v-for="(item, i) in resultData.signals.positive ?? []" :key="'psp'+i" class="pdf-signal">
         <span class="pdf-dot g"></span>{{ norm(txt(item)) }}
@@ -1961,7 +1968,7 @@ onUnmounted(() => {
     <!-- Encerramento (dois níveis: emocional + institucional) -->
     <div class="pdf-about">
       <div class="pdf-block-label">Sobre esta análise</div>
-      <p class="pdf-about-emotional">Você talvez já sentisse parte disso. Agora consegue enxergar o padrão com mais clareza.</p>
+      <p class="pdf-about-emotional">Agora você tem uma leitura mais clara do que apareceu neste recorte.</p>
       <p class="pdf-about-legal">Esta leitura foi gerada exclusivamente a partir do recorte enviado. O resultado não representa uma verdade absoluta sobre sentimentos, intenções ou personalidade. Trata-se de uma interpretação contextual baseada nos padrões observados nas mensagens analisadas.</p>
       <div class="pdf-about-sign">
         <span class="pdf-about-brand">
