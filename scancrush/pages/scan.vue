@@ -1430,7 +1430,10 @@ onUnmounted(() => {
           <span v-for="(f, i) in resultFeelings" :key="'fff'+i" class="ff-chip">{{ capFirst(f) }}</span>
         </div>
         <p class="free-insight-text">{{ norm(resultData?.final_message ?? '') }}</p>
-        <p class="result-signature">— Patty, do ScanCrush</p>
+        <div class="result-signature">
+          <img src="/brand/patty-avatar.webp" alt="" class="result-sig-avatar" width="28" height="28" loading="lazy" />
+          <span>— Patty, do ScanCrush</span>
+        </div>
       </div>
       <!-- Download PDF da leitura inicial (free também baixa) -->
       <div class="pdf-download-card">
@@ -1631,7 +1634,10 @@ onUnmounted(() => {
           <span v-for="(f, i) in resultFeelings" :key="'ff'+i" class="ff-chip">{{ capFirst(f) }}</span>
         </div>
         <p class="for-you-text">{{ norm(resultData.final_message) }}</p>
-        <p class="result-signature">— Patty, do ScanCrush</p>
+        <div class="result-signature">
+          <img src="/brand/patty-avatar.webp" alt="" class="result-sig-avatar" width="28" height="28" loading="lazy" />
+          <span>— Patty, do ScanCrush</span>
+        </div>
       </div>
 
       <!-- ⑭b Limites da leitura ── -->
@@ -3234,11 +3240,22 @@ body::after {
 }
 .result-signature {
   margin: 14px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
   font-family: var(--mono);
   font-size: 12px;
   font-style: italic;
   color: var(--purple);
   text-align: right;
+}
+.result-sig-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(155,93,229,0.45);
 }
 
 /* ── SIGNALS CARD (mantido para compatibilidade) ── */
