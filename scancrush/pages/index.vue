@@ -72,77 +72,67 @@ useHead({
           {
             '@type': 'Question',
             name: 'O que é o ScanCrush?',
-            acceptedAnswer: { '@type': 'Answer', text: 'O ScanCrush é uma ferramenta de análise de conversas que usa IA para identificar sinais, padrões de comportamento e reciprocidade nas mensagens. Ele ajuda a enxergar o que costuma passar despercebido — não é vidência, oráculo, terapia nem aconselhamento profissional.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'Quem é a Patty?',
-            acceptedAnswer: { '@type': 'Answer', text: 'A Patty é a analista virtual do ScanCrush — quem conduz a leitura dos sinais. Não é vidente, psicóloga, terapeuta nem coach: faz uma leitura neutra dos padrões e sinais na conversa.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'A Patty é uma pessoa real?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Não. A Patty é a analista virtual do ScanCrush — uma persona da marca. Não é uma pessoa real, nem psicóloga, terapeuta ou coach.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'ScanCrush, Scan Crush e Crush Scan são a mesma coisa?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Sim. ScanCrush, Scan Crush, Crush Scan e "scanner de crush" se referem ao mesmo produto.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'O ScanCrush analisa as suas conversas com o crush e aponta sinais, padrões e reciprocidade que costumam passar despercebidos. Não é vidência, terapia nem aconselhamento profissional: é só uma leitura mais clara do que já está nas mensagens.' },
           },
           {
             '@type': 'Question',
             name: 'Como funciona a análise?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Você cola os prints da conversa e a Patty identifica padrões de comportamento, consistência nas mensagens e sinais que passam despercebidos. O resultado traz um Score de Engajamento Observado, sinais e pontos de atenção.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Você cola os prints da conversa e a Patty faz a leitura. O resultado traz o Score de Engajamento Observado, os sinais positivos e os pontos de atenção encontrados nas mensagens.' },
           },
           {
             '@type': 'Question',
             name: 'A análise é 100% precisa?',
-            acceptedAnswer: { '@type': 'Answer', text: 'É uma análise de padrões, não uma leitura da mente. Ela traz mais clareza com base no que as mensagens mostram — a decisão final é sempre sua.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'O ScanCrush prevê o futuro ou decide por mim?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Não. Ele não adivinha nem prevê relacionamento e não toma decisões por você. Observa o comportamento presente nas mensagens enviadas e te dá mais clareza para decidir.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'O ScanCrush substitui aconselhamento profissional?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Não. É uma ferramenta de clareza sobre uma conversa — não é terapia, aconselhamento profissional nem detector de sentimentos.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'É uma leitura de padrões, não uma leitura da mente. Ela traz mais clareza com base no que as mensagens mostram. A decisão final é sempre sua.' },
           },
           {
             '@type': 'Question',
             name: 'Minha conversa fica salva em algum lugar?',
-            acceptedAnswer: { '@type': 'Answer', text: 'As conversas enviadas são usadas para gerar a análise solicitada, conforme a Política de Privacidade, e não ficam armazenadas após o uso da sessão.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. As mensagens são usadas só para gerar a sua análise e não ficam armazenadas depois da sessão.' },
           },
           {
             '@type': 'Question',
             name: 'A análise é privada?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Sim. As conversas são usadas apenas para gerar a análise solicitada. Não vendemos suas mensagens nem usamos os prints para exposição pública.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Sim. As conversas são usadas apenas para gerar a sua análise. Não vendemos suas mensagens nem usamos os prints para exposição pública.' },
           },
           {
             '@type': 'Question',
             name: 'Quantos prints posso enviar?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: Primeiras Impressões (1 print), Sinais Revelados (até 4 prints) e Raio-X do Crush (até 10 prints). Mais prints permitem uma leitura mais profunda.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Depende do plano: 1 print no Primeiras Impressões, até 4 no Sinais Revelados e até 10 no Raio-X do Crush. Quanto mais prints, mais profunda fica a leitura.' },
           },
           {
             '@type': 'Question',
             name: 'Por quanto tempo tenho acesso à análise?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Cada compra dá direito a uma análise. Você tem até 90 dias após a compra para gerá-la. Depois de concluída, o resultado é enviado por e-mail e fica disponível para download.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Cada compra dá direito a uma análise, e você tem até 90 dias para gerá-la. Depois de pronta, o resultado vai para o seu e-mail e fica disponível para download.' },
           },
           {
             '@type': 'Question',
-            name: 'E se eu não gostar do resultado?',
-            acceptedAnswer: { '@type': 'Answer', text: 'A análise interpreta os sinais presentes na conversa enviada. Emoções, intenções e relações humanas sempre envolvem contexto e subjetividade — por isso a leitura é um apoio, e a decisão é sua.' },
+            name: 'Quem é a Patty?',
+            acceptedAnswer: { '@type': 'Answer', text: 'A Patty é a analista virtual do ScanCrush. Ela conduz a leitura dos sinais da conversa e ajuda você a enxergar padrões, reciprocidade e pontos de atenção com mais clareza. Ela não é vidente, terapeuta ou coach. Também não é uma pessoa real. A Patty representa a leitura neutra e cuidadosa que o ScanCrush faz da sua conversa.' },
           },
           {
             '@type': 'Question',
             name: 'Por que isso é melhor do que usar uma IA genérica?',
-            acceptedAnswer: { '@type': 'Answer', text: 'A IA genérica responde perguntas, mas não analisa padrões de comportamento ao longo da conversa. Aqui você recebe uma leitura estruturada: comportamento observado, sinais presentes e interpretação do contexto das mensagens.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Porque o ScanCrush foi pensado para analisar conversas afetivas com mais contexto. Em vez de responder de forma genérica, ele observa padrões, reciprocidade, comportamento e pontos de atenção nas mensagens.' },
           },
           {
             '@type': 'Question',
             name: 'O que é o Score de Engajamento Observado?',
-            acceptedAnswer: { '@type': 'Answer', text: 'É uma medida de 0 a 100 de quanto o comportamento observado na conversa indica engajamento — quem inicia, responde, sustenta o assunto e demonstra reciprocidade. É uma leitura dos sinais presentes nas mensagens, não uma medida de sentimento.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'É uma medida de 0 a 100 que mostra o quanto a conversa indica engajamento: quem inicia, quem responde, quem sustenta o assunto e demonstra reciprocidade. É uma leitura dos sinais nas mensagens, não uma medida de sentimento.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'O ScanCrush substitui aconselhamento profissional?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. O ScanCrush ajuda você a interpretar uma conversa com mais clareza, mas não substitui terapia, aconselhamento profissional ou acompanhamento psicológico. A proposta é ajudar você a enxergar os sinais com menos achismo, não decidir sua vida por você.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'E se eu não gostar do resultado?',
+            acceptedAnswer: { '@type': 'Answer', text: 'A análise mostra os sinais presentes na conversa que você enviou, mesmo quando não são os que você esperava. Emoções e relações envolvem contexto, então use a leitura como apoio. A decisão é sua.' },
+          },
+          {
+            '@type': 'Question',
+            name: 'O ScanCrush prevê o futuro ou decide por mim?',
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. O ScanCrush não adivinha sentimentos, não prevê relacionamentos e não toma decisões por você. Ele analisa os sinais presentes na conversa e organiza essa leitura de forma mais clara, para que você consiga decidir com mais consciência.' },
           },
         ],
       }),
@@ -626,20 +616,18 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <div class="faq-list">
       <div v-for="(item, i) in [
         { q: t.faq.q9,  a: t.faq.a9 },
-        { q: t.faq.q10, a: t.faq.a10 },
-        { q: t.faq.q14, a: t.faq.a14 },
-        { q: t.faq.q11, a: t.faq.a11 },
         { q: t.faq.q1,  a: t.faq.a1 },
         { q: t.faq.q3,  a: t.faq.a3 },
-        { q: t.faq.q12, a: t.faq.a12 },
-        { q: t.faq.q13, a: t.faq.a13 },
         { q: t.faq.q2,  a: t.faq.a2 },
         { q: t.faq.q15, a: t.faq.a15 },
         { q: t.faq.q6,  a: t.faq.a6 },
         { q: t.faq.q8,  a: t.faq.a8 },
-        { q: t.faq.q7,  a: t.faq.a7 },
+        { q: t.faq.q10, a: t.faq.a10 },
         { q: t.faq.q5,  a: t.faq.a5 },
         { q: t.faq.q16, a: t.faq.a16 },
+        { q: t.faq.q13, a: t.faq.a13 },
+        { q: t.faq.q7,  a: t.faq.a7 },
+        { q: t.faq.q12, a: t.faq.a12 },
       ]" :key="i" class="faq-item" :class="{ open: openFaqIndex === i }">
         <button class="faq-btn" @click="toggleFaq(i)">
           <span>{{ item.q }}</span>
