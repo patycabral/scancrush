@@ -497,7 +497,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 <section class="section-pad" id="b-patty" style="background:radial-gradient(ellipse at 50% 0%, rgba(155,93,229,0.07) 0%, transparent 70%);">
   <div class="container">
     <div class="reveal" style="max-width:760px;margin:0 auto;text-align:center">
-      <span class="tag">// Quem lê a sua conversa</span>
+      <span class="tag">// Quem analisa a sua conversa</span>
       <h2 class="section-title">Conheça a <span class="grad">Patty</span></h2>
       <p style="font-size:17px;color:var(--text-2);font-weight:300;line-height:1.7;max-width:620px;margin:14px auto 0">
         A Patty olha para os sinais quando a emoção confunde.
@@ -510,15 +510,14 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       </div>
 
       <div class="patty-card">
-        <p class="patty-p">Quando a gente gosta de alguém, fica difícil ler uma conversa com calma. Um "kkk", uma demora para responder ou um "qualquer dia a gente marca" pode ganhar um peso maior do que realmente tem.</p>
+        <p class="patty-p">Quando a gente gosta de alguém, fica difícil ler uma conversa com calma. Um "kkk", uma demora para responder ou um "qualquer dia a gente marca" pode ganhar mais peso do que realmente tem.</p>
         <p class="patty-p"><strong>A Patty existe para olhar os fatos.</strong></p>
-        <p class="patty-p">Ela observa quem inicia, quem sustenta, o que se repete, o que fica no ar e quais sinais aparecem na conversa.</p>
-        <p class="patty-p">Identifica padrões, sinais de reciprocidade e pontos de atenção — sem drama, sem julgamento e sem prometer o que ninguém pode garantir.</p>
+        <p class="patty-p">Ela observa quem inicia, quem sustenta a conversa, o que se repete, o que fica no ar e quais sinais aparecem nas mensagens.</p>
+        <p class="patty-p">Ela identifica padrões, sinais de reciprocidade e pontos de atenção — sem julgamento e sem prometer o que ninguém pode garantir.</p>
         <p class="patty-origin">A Patty nasceu de uma história real: a de quem já confundiu atenção com interesse e queria ter tido alguém para olhar a conversa com calma. <NuxtLink to="/sobre">a história por trás do ScanCrush →</NuxtLink></p>
 
         <div class="patty-not-wrap">
-          <p class="patty-not-intro">Para ser bem claro: a Patty não tenta adivinhar sentimentos nem decidir por você.</p>
-          <p class="patty-not-label">A Patty não é</p>
+          <span class="patty-not-label">A Patty não é</span>
           <div class="patty-not-row">
             <span class="patty-not">vidência</span>
             <span class="patty-not">oráculo</span>
@@ -528,12 +527,16 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
             <span class="patty-not">promessa de relacionamento</span>
           </div>
         </div>
-
-        <button class="btn-primary patty-cta" @click="scrollToPricing()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <span>Ver os sinais com a Patty</span>
-        </button>
       </div>
+    </div>
+
+    <p class="reveal patty-clarify">Para ser bem claro: a Patty não adivinha sentimentos e não decide por você — ela analisa os sinais da conversa para trazer mais clareza.</p>
+
+    <div class="reveal patty-cta-wrap">
+      <button class="btn-primary patty-cta" @click="scrollToPricing()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Ver os sinais com a Patty</span>
+      </button>
     </div>
   </div>
 </section>
@@ -811,20 +814,21 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 .patty-p strong { color: var(--text); font-weight: 600; }
 .patty-origin { font-size: 13.5px; color: var(--text-3); font-style: italic; line-height: 1.7; margin-bottom: 20px; }
 .patty-origin a { color: var(--purple); text-decoration: none; font-style: normal; font-weight: 600; }
-.patty-not-wrap { margin-top: 20px; background: rgba(155,93,229,0.05); border: 1px solid rgba(155,93,229,0.16); border-radius: 14px; padding: 16px 18px; }
-.patty-not-intro { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 12px; }
-.patty-not-label { font-size: 10.5px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 9px; }
-.patty-not-row { display: flex; flex-wrap: wrap; gap: 8px; }
-.patty-cta { width: 100%; justify-content: center; margin-top: 22px; }
+.patty-not-wrap { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(155,93,229,0.14); }
+.patty-not-label { display: block; font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 10px; }
+.patty-not-row { display: flex; flex-wrap: wrap; gap: 7px; }
 .patty-not {
-  font-size: 12px;
-  color: var(--text-2);
-  background: rgba(255,255,255,0.03);
+  font-size: 11.5px;
+  color: var(--text-3);
+  background: transparent;
   border: 1px solid var(--border);
   border-radius: 100px;
-  padding: 5px 13px;
+  padding: 4px 11px;
   white-space: nowrap;
 }
+.patty-clarify { max-width: 580px; margin: 26px auto 0; text-align: center; font-size: 13.5px; color: var(--text-3); font-style: italic; line-height: 1.65; }
+.patty-cta-wrap { text-align: center; margin-top: 22px; }
+.patty-cta { font-size: 16px; padding: 16px 38px; }
 @media (max-width: 760px) {
   .patty-layout { flex-direction: column; gap: 24px; }
   .patty-photo-wrap { width: 200px; }
