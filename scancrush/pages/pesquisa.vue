@@ -188,7 +188,7 @@ async function submit() {
 
     <!-- FORM (mini quiz, 1 pergunta por tela) -->
     <div v-else-if="state === 'form'" class="ps-card">
-      <p class="ps-eyebrow">// A Patty quer saber</p>
+      <p class="ps-eyebrow">// Compartilhe sua experiência</p>
 
       <div class="ps-progress"><div class="ps-progress-bar" :style="{ width: progressPct }"></div></div>
       <p class="ps-step-count">{{ step }} de {{ total }}</p>
