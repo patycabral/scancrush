@@ -43,7 +43,7 @@ export default defineNuxtConfig({
   // SSR apenas na landing page — o resto é client-only (sem indexação)
   routeRules: {
     '/':           { ssr: true },
-    '/lp':         { ssr: true },
+    '/lp':         { redirect: { to: '/', statusCode: 301 } },
     '/blog':       { ssr: true },
     '/blog/**':    { ssr: true },
     '/quiz':       { ssr: true },
