@@ -123,7 +123,7 @@ async function submit() {
     <div v-else-if="state === 'form'" class="ps-card">
       <p class="ps-eyebrow">// A Patty quer saber</p>
       <h1 class="ps-title">Essa análise <span class="grad">te ajudou?</span></h1>
-      <p class="ps-sub">Menos de 1 minuto. Seu feedback ajuda a Patty a melhorar as próximas leituras.</p>
+      <p class="ps-sub">Sua opinião ajuda a Patty a entender o que realmente fez diferença para você. É rapidinho, menos de 1 minuto.</p>
 
       <div class="ps-q">
         <p class="ps-q-label">1. De 0 a 10, o quanto essa análise foi útil para você?</p>
@@ -163,7 +163,7 @@ async function submit() {
 
       <div class="ps-q">
         <p class="ps-q-label">6. Alguma sugestão, crítica ou comentário? <span class="ps-opt">(opcional)</span></p>
-        <textarea v-model="feedback" class="ps-textarea" rows="4" placeholder="Escreve aqui pra Patty…"></textarea>
+        <textarea v-model="feedback" class="ps-textarea" rows="4" placeholder="Escreve aqui para a Patty…"></textarea>
       </div>
 
       <p v-if="errorMsg" class="ps-error">{{ errorMsg }}</p>

@@ -501,13 +501,14 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <div class="reveal patty-layout">
       <div class="patty-photo-wrap">
         <img src="/brand/patty.webp" alt="Patty — a analista virtual do ScanCrush" class="patty-photo" width="440" height="660" loading="lazy" />
+        <p class="patty-clarify">Para ser bem claro: a Patty não adivinha sentimentos e não decide por você. Ela analisa os sinais da conversa para trazer mais clareza.</p>
       </div>
 
       <div class="patty-card">
         <p class="patty-p">Quando a gente gosta de alguém, fica difícil ler uma conversa com calma. Um "kkk", uma demora para responder ou um "qualquer dia a gente marca" pode ganhar mais peso do que realmente tem.</p>
         <p class="patty-p"><strong>A Patty existe para olhar os fatos.</strong></p>
         <p class="patty-p">Ela observa quem inicia, quem sustenta a conversa, o que se repete, o que fica no ar e quais sinais aparecem nas mensagens.</p>
-        <p class="patty-p">Ela identifica padrões, sinais de reciprocidade e pontos de atenção — sem julgamento e sem prometer o que ninguém pode garantir.</p>
+        <p class="patty-p">Ela identifica padrões, sinais de reciprocidade e pontos de atenção. Sem julgamento e sem prometer o que ninguém pode garantir.</p>
         <p class="patty-origin">A Patty nasceu de uma história real: a de quem já confundiu atenção com interesse e queria ter tido alguém para olhar a conversa com calma. <NuxtLink to="/sobre">a história por trás do ScanCrush →</NuxtLink></p>
 
         <div class="patty-not-wrap">
@@ -523,8 +524,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         </div>
       </div>
     </div>
-
-    <p class="reveal patty-clarify">Para ser bem claro: a Patty não adivinha sentimentos e não decide por você — ela analisa os sinais da conversa para trazer mais clareza.</p>
 
     <div class="reveal patty-cta-wrap">
       <button class="btn-primary patty-cta" @click="scrollToPricing()">
@@ -770,7 +769,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 /* ─── CONHEÇA A PATTY ─────────────────────────────────────────── */
 .patty-layout {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 38px;
   max-width: 900px;
   margin: 34px auto 0;
@@ -818,12 +817,12 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   padding: 4px 11px;
   white-space: nowrap;
 }
-.patty-clarify { max-width: 580px; margin: 26px auto 0; text-align: center; font-size: 13.5px; color: var(--text-3); font-style: italic; line-height: 1.65; }
-.patty-cta-wrap { text-align: center; margin-top: 22px; }
-.patty-cta { font-size: 16px; padding: 16px 38px; }
+.patty-clarify { margin: 18px 0 0; text-align: center; font-size: 13px; color: var(--text-3); font-style: italic; line-height: 1.6; }
+.patty-cta-wrap { max-width: 900px; margin: 24px auto 0; }
+.patty-cta { width: 100%; justify-content: center; font-size: 16px; padding: 17px 38px; }
 @media (max-width: 760px) {
-  .patty-layout { flex-direction: column; gap: 24px; }
-  .patty-photo-wrap { width: 200px; }
+  .patty-layout { flex-direction: column; gap: 24px; align-items: center; }
+  .patty-photo-wrap { width: 100%; max-width: 280px; }
   .patty-not-row { justify-content: center; }
   .patty-card { text-align: center; }
   .patty-not-wrap { text-align: center; }
