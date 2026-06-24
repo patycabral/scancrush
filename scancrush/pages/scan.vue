@@ -846,7 +846,11 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
       return
     }
 
-    const plan = data.plan ?? 'raiox'
+    // Resolve a chave do plano (aceita chave OU nome). Default 'free' = nunca mostra
+    // mais do que o plano pago (evita vazar conteúdo completo num plano básico).
+    const VALID_KEYS = new Set(['free', 'revealed', 'raiox'])
+    const rawPlan = data.plan ?? data.plan_name ?? ''
+    const plan = VALID_KEYS.has(rawPlan) ? rawPlan : (PLAN_NAME_TO_KEY[rawPlan] ?? 'free')
     resultPlan.value      = plan
     currentPlan.value     = plan
     resultUserName.value  = data.user_name ?? ''
@@ -884,8 +888,9 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
 
 // Mapeia o nome do plano vindo do webhook para a chave interna
 const PLAN_NAME_TO_KEY: Record<string, string> = {
-  'Sinais Revelados': 'revealed',
-  'Raio-X do Crush':  'raiox',
+  'Primeiras Impressões': 'free',
+  'Sinais Revelados':     'revealed',
+  'Raio-X do Crush':      'raiox',
 }
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
