@@ -17,7 +17,10 @@ const RESEARCH_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/resear
 const state         = ref<'loading' | 'form' | 'done' | 'already' | 'expired' | 'invalid' | 'error'>('loading')
 const sending       = ref(false)
 const errorMsg      = ref('')
-const validationMsg = ref('')   // mensagem vinda do webhook (sobrepõe o texto padrão do card)
+// Conteúdo do card vindo do webhook (sobrepõe os textos padrão): title / message / button
+const validationTitle  = ref('')
+const validationMsg     = ref('')
+const validationButton  = ref('')
 
 // ── Respostas ──
 const nps             = ref<number | null>(null)
@@ -107,7 +110,9 @@ onMounted(async () => {
       body: { token, protocolo, email },
     })
     const st = String(res?.status ?? '').toLowerCase()
-    validationMsg.value = res?.message || ''
+    validationTitle.value  = res?.title || ''
+    validationMsg.value    = res?.message || ''
+    validationButton.value = res?.button || ''
     if (st === 'respondida' || st === 'concluido') state.value = 'already'
     else if (st === 'expirada')                    state.value = 'expired'
     else if (st === 'invalida')                    state.value = 'invalid'
@@ -146,7 +151,9 @@ async function submit() {
       },
     })
     const st = String(res?.status ?? 'ok').toLowerCase()
-    validationMsg.value = res?.message || ''
+    validationTitle.value  = res?.title || ''
+    validationMsg.value    = res?.message || ''
+    validationButton.value = res?.button || ''
     if (st === 'respondida' || st === 'concluido') state.value = 'already'
     else if (st === 'expirada') state.value = 'expired'
     else state.value = 'done'
@@ -292,25 +299,25 @@ async function submit() {
     <!-- ALREADY ANSWERED -->
     <div v-else-if="state === 'already'" class="ps-card ps-msg">
       <div class="ps-icon">✓</div>
-      <h1 class="ps-title">Você já respondeu 💜</h1>
+      <h1 class="ps-title">{{ validationTitle || 'Você já respondeu 💜' }}</h1>
       <p class="ps-sub">{{ validationMsg || 'Obrigada! Essa pesquisa só pode ser respondida uma vez por análise.' }}</p>
-      <NuxtLink to="/" class="ps-submit ps-back">Voltar ao ScanCrush</NuxtLink>
+      <NuxtLink to="/" class="ps-submit ps-back">{{ validationButton || 'Voltar ao ScanCrush' }}</NuxtLink>
     </div>
 
     <!-- EXPIRED -->
     <div v-else-if="state === 'expired'" class="ps-card ps-msg">
       <div class="ps-icon">⏳</div>
-      <h1 class="ps-title">Essa pesquisa expirou</h1>
+      <h1 class="ps-title">{{ validationTitle || 'Essa pesquisa expirou' }}</h1>
       <p class="ps-sub">{{ validationMsg || 'O prazo para responder esta pesquisa já passou. Obrigada pelo interesse!' }}</p>
-      <NuxtLink to="/" class="ps-submit ps-back">Voltar ao ScanCrush</NuxtLink>
+      <NuxtLink to="/" class="ps-submit ps-back">{{ validationButton || 'Voltar ao ScanCrush' }}</NuxtLink>
     </div>
 
     <!-- INVALID -->
     <div v-else class="ps-card ps-msg">
       <div class="ps-icon">⚠️</div>
-      <h1 class="ps-title">Link inválido</h1>
+      <h1 class="ps-title">{{ validationTitle || 'Link inválido' }}</h1>
       <p class="ps-sub">{{ validationMsg || 'Esse link de pesquisa não é válido. Use o link enviado no seu e-mail.' }}</p>
-      <NuxtLink to="/" class="ps-submit ps-back">Voltar ao ScanCrush</NuxtLink>
+      <NuxtLink to="/" class="ps-submit ps-back">{{ validationButton || 'Voltar ao ScanCrush' }}</NuxtLink>
     </div>
   </main>
 </div>
