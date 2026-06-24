@@ -26,8 +26,8 @@ const validationButton  = ref('')
 const nps             = ref<number | null>(null)
 const npsReason       = ref('')
 const npsReasonOther  = ref('')
-const csat            = reactive({ clarity: 0, helpfulness: 0, depth: 0, value: 0, quali: 0 })
-const csatHover       = reactive({ clarity: 0, helpfulness: 0, depth: 0, value: 0, quali: 0 })
+const csat            = reactive({ clarity: 0, helpfulness: 0, depth: 0, value: 0, coherence: 0 })
+const csatHover       = reactive({ clarity: 0, helpfulness: 0, depth: 0, value: 0, coherence: 0 })
 const helped          = ref('')
 const mostUseful      = ref('')
 const mostUsefulOther = ref('')
@@ -54,7 +54,7 @@ const csatAttrs = [
   { k:'helpfulness'as const, l:'Ajuda para enxergar a situação' },
   { k:'depth'      as const, l:'Profundidade da leitura' },
   { k:'value'      as const, l:'Custo-benefício' },
-  { k:'quali'      as const, l:'Qualidade da análise' },
+  { k:'coherence'  as const, l:'Coerência com a conversa' },
 ]
 const helpedOpts   = [{ v:'sim', l:'Sim' }, { v:'parcialmente', l:'Parcialmente' }, { v:'nao', l:'Não' }]
 const usefulOpts = [
@@ -69,6 +69,18 @@ const usefulOpts = [
 const wouldUseOpts = [{ v:'sim', l:'Sim' }, { v:'talvez', l:'Talvez' }, { v:'nao', l:'Não' }]
 const contactOpts  = [{ v:'sim', l:'Sim, autorizo o contato' }, { v:'nao', l:'Não, prefiro não ser contatada' }]
 
+// Ordem aleatória (anti-viés). 'Outro' fica fixo no fim das causas.
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+const reasonOptsView = ref(reasonOpts)
+const csatAttrsView  = ref(csatAttrs)
+
 // ── Navegação do quiz ──
 const step  = ref(1)
 const total = 8
@@ -78,10 +90,10 @@ const progressPct = computed(() => `${Math.round((step.value / total) * 100)}%`)
 const canNext = computed(() => {
   switch (step.value) {
     case 1: return nps.value !== null
-    case 2: return npsReason.value !== ''
+    case 2: return npsReason.value !== '' && (npsReason.value !== 'outro' || npsReasonOther.value.trim() !== '')
     case 3: return true
     case 4: return helped.value !== ''
-    case 5: return mostUseful.value !== ''
+    case 5: return mostUseful.value !== '' && (mostUseful.value !== 'outro' || mostUsefulOther.value.trim() !== '')
     case 6: return wouldUse.value !== ''
     case 7: return true
     case 8: return contactConsent.value !== ''
@@ -89,7 +101,6 @@ const canNext = computed(() => {
   }
 })
 
-function back() { if (step.value > 1) step.value -= 1 }
 function next() {
   if (!canNext.value || sending.value) return
   if (step.value < total) step.value += 1
@@ -103,6 +114,13 @@ function next() {
 //   { status: 'expirada',   message?: '...' } → fora da validade
 //   { status: 'invalida',   message?: '...' } → token inexistente/errado
 onMounted(async () => {
+  // Embaralha causas (Outro fixo no fim) e atributos — anti-viés de ordem.
+  reasonOptsView.value = [
+    ...shuffle(reasonOpts.filter(o => o.v !== 'outro')),
+    ...reasonOpts.filter(o => o.v === 'outro'),
+  ]
+  csatAttrsView.value = shuffle(csatAttrs)
+
   if (!token) { state.value = 'invalid'; return }
   try {
     const res: any = await $fetch(VALIDATE_URL, {
@@ -138,7 +156,7 @@ async function submit() {
         csat_helpfulness:     csat.helpfulness || null,
         csat_depth:           csat.depth || null,
         csat_value_for_money: csat.value || null,
-        csat_quali:           csat.quali || null,
+        csat_coherence:       csat.coherence || null,
         helped_see_something: helped.value || null,
         most_useful_part:     mostUseful.value || null,
         most_useful_part_other: mostUseful.value === 'outro' ? (mostUsefulOther.value.trim() || null) : null,
@@ -154,7 +172,9 @@ async function submit() {
     validationTitle.value  = res?.title || ''
     validationMsg.value    = res?.message || ''
     validationButton.value = res?.button || ''
-    if (st === 'respondida' || st === 'concluido') state.value = 'already'
+    // Ao SALVAR, 'concluido' = sucesso (acabou de responder) → tela de obrigado.
+    // Só 'respondida' (double-check pegou resposta anterior) cai em "já respondeu".
+    if (st === 'respondida') state.value = 'already'
     else if (st === 'expirada') state.value = 'expired'
     else state.value = 'done'
     if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -208,7 +228,7 @@ async function submit() {
           <template v-else-if="step === 2">
             <p class="ps-q-label">Qual o principal motivo de você dar nota {{ nps }} para o ScanCrush?</p>
             <div class="ps-pills">
-              <button v-for="o in reasonOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: npsReason === o.v }" @click="npsReason = o.v">{{ o.l }}</button>
+              <button v-for="o in reasonOptsView" :key="o.v" type="button" class="ps-pill" :class="{ active: npsReason === o.v }" @click="npsReason = o.v">{{ o.l }}</button>
             </div>
             <input v-if="npsReason === 'outro'" v-model="npsReasonOther" class="ps-input" type="text" maxlength="160" placeholder="Me conta o principal motivo da sua nota." />
           </template>
@@ -218,7 +238,7 @@ async function submit() {
             <p class="ps-q-label">Como foi sua experiência?</p>
             <p class="ps-q-help">De acordo com o seu resultado, como você avalia:</p>
             <div class="ps-csat">
-              <div v-for="a in csatAttrs" :key="a.k" class="ps-csat-row" @mouseleave="csatHover[a.k] = 0">
+              <div v-for="a in csatAttrsView" :key="a.k" class="ps-csat-row" @mouseleave="csatHover[a.k] = 0">
                 <span class="ps-csat-label">{{ a.l }}</span>
                 <div class="ps-stars">
                   <button
@@ -280,7 +300,6 @@ async function submit() {
       <p v-if="errorMsg" class="ps-error">{{ errorMsg }}</p>
 
       <div class="ps-nav">
-        <button v-if="step > 1" type="button" class="ps-nav-back" @click="back()">← Voltar</button>
         <button type="button" class="ps-nav-next" :disabled="!canNext || sending" @click="next()">
           {{ step === total ? (sending ? 'Enviando…' : 'Enviar respostas') : 'Continuar' }}
         </button>
@@ -354,7 +373,7 @@ async function submit() {
 .ps-nps-btn:hover { border-color: rgba(255,45,107,0.4); }
 .ps-nps-btn.active { background: linear-gradient(135deg, var(--pink), #C0004D); color: #fff; border-color: transparent; }
 
-.ps-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.ps-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .ps-pill { padding: 10px 16px; border-radius: 100px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text-2); font-size: 13.5px; cursor: pointer; transition: all 0.15s; font-family: var(--font); }
 .ps-pill:hover { border-color: rgba(155,93,229,0.45); }
 .ps-pill.active { background: rgba(155,93,229,0.16); border-color: var(--purple); color: var(--text); }
