@@ -259,7 +259,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <div class="hero-eyebrow">IA especializada em analisar conversa do crush</div>
 
         <h1>
-          <span>Como saber se o crush gosta de mim</span> <span class="line2 grad">pela conversa?</span>
+          <span>Os sinais sempre estiveram ali…</span> <span class="line2 grad">você só não tinha percebido ainda.</span>
         </h1>
 
         <p class="hero-sub">
