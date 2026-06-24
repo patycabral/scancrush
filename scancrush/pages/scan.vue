@@ -890,12 +890,14 @@ const PLAN_NAME_TO_KEY: Record<string, string> = {
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
 
-async function validateToken(token: string) {
+async function validateToken(token: string, email?: string) {
   tokenValidating.value = true
   accessError.value     = ''
 
   try {
-    const payload = { token }
+    // Envia o e-mail do link (quando houver) — backend valida/retorna o e-mail do comprador
+    const payload: Record<string, string> = { token }
+    if (email) payload.email = email
 
     const res  = await fetch(VALIDATE_URL, {
       method:  'POST',
@@ -915,6 +917,8 @@ async function validateToken(token: string) {
 
       accessToken.value        = access.token
       currentPlan.value        = planKey
+      // E-mail verificado do comprador: prioriza o retorno do webhook, cai no e-mail do link.
+      userEmail.value          = access.email ?? data.user_email ?? email ?? ''
       if (Number(access.max_prints) > 0) PLAN_LIMITS[planKey] = Number(access.max_prints)
 
       const expiresAt = access.expires_at
@@ -928,9 +932,11 @@ async function validateToken(token: string) {
       localStorage.setItem('sc_expires_at', String(expiresAt))
       if (access.access_id) localStorage.setItem('sc_access_id', access.access_id)
 
-      // Remove token da URL sem recarregar
+      // Remove token e e-mail da URL sem recarregar
       const url = new URL(window.location.href)
       url.searchParams.delete('token')
+      url.searchParams.delete('e')
+      url.searchParams.delete('email')
       window.history.replaceState({}, '', url.toString())
 
     } else {
@@ -956,6 +962,7 @@ function clearStoredSession() {
 
 onMounted(async () => {
   const urlToken = route.query.token as string | undefined
+  const urlEmail = (route.query.e as string) || (route.query.email as string) || undefined
 
   const reportToken = route.query.r as string | undefined
 
@@ -964,7 +971,7 @@ onMounted(async () => {
     await loadSharedResult(reportToken, (route.query.p as string) ?? '', (route.query.e as string) ?? '')
   } else if (urlToken) {
     // Token na URL: sempre valida no webhook, nunca cai em free por falha
-    await validateToken(urlToken)
+    await validateToken(urlToken, urlEmail)
   } else {
     // Não há mais plano gratuito: o acesso é SEMPRE via link com ?token= (pós-compra)
     // ou ?r= (reabrir relatório). Acesso direto sem token → manda escolher um plano.
