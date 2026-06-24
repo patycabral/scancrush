@@ -10,12 +10,14 @@ const protocolo = (route.query.p as string) || ''
 const email     = (route.query.e as string) || ''
 const source    = (route.query.source as string) || 'email'
 
-const RESEARCH_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/research'
+const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/valida-pesquisa' // valida token / validade / já respondida
+const RESEARCH_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/research'        // salva as respostas
 
 // estados: loading | form | done | already | expired | invalid | error
-const state    = ref<'loading' | 'form' | 'done' | 'already' | 'expired' | 'invalid' | 'error'>('loading')
-const sending  = ref(false)
-const errorMsg = ref('')
+const state         = ref<'loading' | 'form' | 'done' | 'already' | 'expired' | 'invalid' | 'error'>('loading')
+const sending       = ref(false)
+const errorMsg      = ref('')
+const validationMsg = ref('')   // mensagem vinda do webhook (sobrepõe o texto padrão do card)
 
 // ── Respostas ──
 const nps             = ref<number | null>(null)
@@ -92,20 +94,26 @@ function next() {
 }
 
 // ── Valida o link ao abrir (token + validade + status) ──
+// Contrato esperado do /webhook/valida-pesquisa:
+//   { status: 'pendente'   }                 → pode responder (mostra o quiz)
+//   { status: 'respondida', message?: '...' } → já respondeu
+//   { status: 'expirada',   message?: '...' } → fora da validade
+//   { status: 'invalida',   message?: '...' } → token inexistente/errado
 onMounted(async () => {
   if (!token) { state.value = 'invalid'; return }
   try {
-    const res: any = await $fetch(RESEARCH_URL, {
+    const res: any = await $fetch(VALIDATE_URL, {
       method: 'POST',
-      body: { action: 'check', token, protocolo, email },
+      body: { token, protocolo, email },
     })
     const st = String(res?.status ?? '').toLowerCase()
-    if (st === 'concluido')        state.value = 'already'
-    else if (st === 'expirada')    state.value = 'expired'
-    else if (st === 'invalida')    state.value = 'invalid'
-    else                            state.value = 'form'   // pendente / desconhecido → mostra form
+    validationMsg.value = res?.message || ''
+    if (st === 'respondida' || st === 'concluido') state.value = 'already'
+    else if (st === 'expirada')                    state.value = 'expired'
+    else if (st === 'invalida')                    state.value = 'invalid'
+    else                                            state.value = 'form'   // pendente / desconhecido
   } catch (e) {
-    state.value = 'form'   // fail-open
+    state.value = 'form'   // fail-open: se o webhook cair, deixa responder
   }
 })
 
@@ -117,7 +125,6 @@ async function submit() {
     const res: any = await $fetch(RESEARCH_URL, {
       method: 'POST',
       body: {
-        action: 'submit',
         token, protocolo, email, source,
         nps_score:            nps.value,
         nps_reason:           npsReason.value || null,
@@ -139,7 +146,8 @@ async function submit() {
       },
     })
     const st = String(res?.status ?? 'ok').toLowerCase()
-    if (st === 'concluido') state.value = 'already'
+    validationMsg.value = res?.message || ''
+    if (st === 'respondida' || st === 'concluido') state.value = 'already'
     else if (st === 'expirada') state.value = 'expired'
     else state.value = 'done'
     if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -285,7 +293,7 @@ async function submit() {
     <div v-else-if="state === 'already'" class="ps-card ps-msg">
       <div class="ps-icon">✓</div>
       <h1 class="ps-title">Você já respondeu 💜</h1>
-      <p class="ps-sub">Obrigada! Essa pesquisa só pode ser respondida uma vez por análise.</p>
+      <p class="ps-sub">{{ validationMsg || 'Obrigada! Essa pesquisa só pode ser respondida uma vez por análise.' }}</p>
       <NuxtLink to="/" class="ps-submit ps-back">Voltar ao ScanCrush</NuxtLink>
     </div>
 
@@ -293,7 +301,7 @@ async function submit() {
     <div v-else-if="state === 'expired'" class="ps-card ps-msg">
       <div class="ps-icon">⏳</div>
       <h1 class="ps-title">Essa pesquisa expirou</h1>
-      <p class="ps-sub">O prazo para responder esta pesquisa já passou. Obrigada pelo interesse!</p>
+      <p class="ps-sub">{{ validationMsg || 'O prazo para responder esta pesquisa já passou. Obrigada pelo interesse!' }}</p>
       <NuxtLink to="/" class="ps-submit ps-back">Voltar ao ScanCrush</NuxtLink>
     </div>
 
@@ -301,7 +309,7 @@ async function submit() {
     <div v-else class="ps-card ps-msg">
       <div class="ps-icon">⚠️</div>
       <h1 class="ps-title">Link inválido</h1>
-      <p class="ps-sub">Esse link de pesquisa não é válido. Use o link enviado no seu e-mail.</p>
+      <p class="ps-sub">{{ validationMsg || 'Esse link de pesquisa não é válido. Use o link enviado no seu e-mail.' }}</p>
       <NuxtLink to="/" class="ps-submit ps-back">Voltar ao ScanCrush</NuxtLink>
     </div>
   </main>
