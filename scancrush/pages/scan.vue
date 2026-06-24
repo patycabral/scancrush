@@ -668,8 +668,8 @@ async function startAnalysis() {
       } else if (data?.error === 'invalid_session') {
         goTo(6)   // tela de sessão inválida/expirada
       } else if (data?.error === 'invalid_content' || data?.error === 'AI_ERROR') {
-        // Guardrails/IA: não é conversa ou conteúdo bloqueado → popup amigável + volta ao upload
-        goTo(2)
+        // Guardrails/IA: não é conversa ou conteúdo bloqueado → popup amigável + volta ao upload (screen 1)
+        goTo(1)
         invalidContentTitle.value = 'Esse print não parece uma conversa'
         invalidContentMsg.value = data?.message ?? 'Uma ou mais imagens enviadas não parecem prints de uma conversa. Volte e confira as imagens antes de enviar novamente.'
         showInvalidContent.value = true
