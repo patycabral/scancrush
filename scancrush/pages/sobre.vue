@@ -2,11 +2,11 @@
 useHead({
   title: 'A história por trás do ScanCrush e da Patty | Sobre',
   meta: [
-    { name: 'description', content: 'O ScanCrush nasceu de uma história real: a de quem passou anos interpretando sinais errados. Conheça a origem da marca e da Patty, a observadora que ajuda a enxergar a conversa com mais clareza.' },
+    { name: 'description', content: 'O ScanCrush nasceu de uma história real: a de quem passou anos interpretando sinais errados. Conheça a origem da marca e da Patty, a analista que ajuda a enxergar a conversa com mais clareza.' },
     { property: 'og:type', content: 'article' },
     { property: 'og:url', content: 'https://scancrush.com/sobre' },
     { property: 'og:title', content: 'A história por trás do ScanCrush e da Patty' },
-    { property: 'og:description', content: 'A origem da marca e da Patty — a observadora que ajuda a enxergar a conversa com mais clareza, sem achismo.' },
+    { property: 'og:description', content: 'A origem da marca e da Patty — a analista que ajuda a enxergar a conversa com mais clareza, sem achismo.' },
   ],
   link: [{ rel: 'canonical', href: 'https://scancrush.com/sobre' }],
 })
@@ -40,7 +40,7 @@ const plansModal = ref()
 
       <h2 class="about-h2">E a Patty?</h2>
 
-      <p>A <strong>Patty</strong> é a observadora virtual do ScanCrush — a personagem que conduz a análise. Ela é uma homenagem a essa história: representa a ajuda que a fundadora gostaria de ter tido naquela época. Alguém capaz de olhar uma conversa sem ansiedade, sem expectativa e sem envolvimento emocional.</p>
+      <p>A <strong>Patty</strong> é a analista virtual do ScanCrush — quem conduz a leitura dos sinais. Ela é uma homenagem a essa história: representa a ajuda que a fundadora gostaria de ter tido naquela época. Alguém capaz de olhar uma conversa sem ansiedade, sem expectativa e sem envolvimento emocional.</p>
 
       <p>Enquanto você está emocionalmente envolvido na situação, a Patty observa os fatos: quem inicia, quem sustenta, o que se repete, o que ficou no ar. Ela identifica sinais, padrões e reciprocidade — para reduzir o achismo e transformar dúvida em clareza.</p>
 
@@ -55,7 +55,7 @@ const plansModal = ref()
           <span class="about-not-chip">promessa de relacionamento</span>
           <span class="about-not-chip">uma pessoa real</span>
         </div>
-        <p class="about-not-foot">Ela é uma observadora neutra de padrões e sinais — nada além, nada a mais.</p>
+        <p class="about-not-foot">Ela faz uma leitura neutra de padrões e sinais — nada além, nada a mais.</p>
       </div>
 
       <p class="about-closing">No fim, o ScanCrush existe para que você não precise ler a conversa sozinha, no meio da ansiedade. A Patty olha junto — com calma.</p>

@@ -28,7 +28,7 @@ useHead({
         name: 'ScanCrush',
         alternateName: ['Scan Crush', 'Crush Scan', 'Scanner de Crush'],
         url: 'https://scancrush.com/',
-        description: 'O ScanCrush é uma ferramenta de análise de conversas que identifica sinais, padrões de comportamento e reciprocidade nas mensagens, conduzida pela Patty — a observadora virtual da marca. Não é vidência, oráculo nem aconselhamento profissional: ajuda a enxergar o que a conversa mostra (Score de Engajamento Observado).',
+        description: 'O ScanCrush é uma ferramenta de análise de conversas que identifica sinais, padrões de comportamento e reciprocidade nas mensagens, conduzida pela Patty — a analista virtual da marca. Não é vidência, oráculo nem aconselhamento profissional: ajuda a enxergar o que a conversa mostra (Score de Engajamento Observado).',
         applicationCategory: 'LifestyleApplication',
         operatingSystem: 'Web',
         inLanguage: 'pt-BR',
@@ -48,7 +48,7 @@ useHead({
         alternateName: ['Scan Crush', 'Crush Scan'],
         url: 'https://scancrush.com/',
         logo: 'https://scancrush.com/logo-email.png',
-        description: 'Plataforma de análise de conversas que identifica sinais, padrões e reciprocidade nas mensagens. A voz pública da marca é a Patty, observadora virtual.',
+        description: 'Plataforma de análise de conversas que identifica sinais, padrões e reciprocidade nas mensagens. A voz pública da marca é a Patty, analista virtual.',
       }),
     },
     {
@@ -60,7 +60,7 @@ useHead({
         alternateName: ['Scan Crush', 'Crush Scan', 'Scanner de Crush'],
         url: 'https://scancrush.com/',
         inLanguage: 'pt-BR',
-        description: 'Análise de conversas com IA: identifica sinais, padrões de comportamento e reciprocidade nas mensagens. Conduzida pela Patty, observadora virtual da marca (personagem, não uma pessoa real).',
+        description: 'Análise de conversas com IA: identifica sinais, padrões de comportamento e reciprocidade nas mensagens. Conduzida pela Patty, analista virtual da marca (uma persona, não uma pessoa real).',
       }),
     },
     {
@@ -77,12 +77,12 @@ useHead({
           {
             '@type': 'Question',
             name: 'Quem é a Patty?',
-            acceptedAnswer: { '@type': 'Answer', text: 'A Patty é a observadora virtual do ScanCrush — a personagem que conduz a análise. Não é vidente, psicóloga, terapeuta nem coach: é uma observadora neutra que identifica padrões e sinais na conversa.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'A Patty é a analista virtual do ScanCrush — quem conduz a leitura dos sinais. Não é vidente, psicóloga, terapeuta nem coach: faz uma leitura neutra dos padrões e sinais na conversa.' },
           },
           {
             '@type': 'Question',
             name: 'A Patty é uma pessoa real?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Não. A Patty é a observadora virtual do ScanCrush — uma personagem da marca. Não é uma pessoa real, nem psicóloga, terapeuta ou coach.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Não. A Patty é a analista virtual do ScanCrush — uma persona da marca. Não é uma pessoa real, nem psicóloga, terapeuta ou coach.' },
           },
           {
             '@type': 'Question',
@@ -506,7 +506,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
     <div class="reveal patty-layout">
       <div class="patty-photo-wrap">
-        <img src="/brand/patty.webp" alt="Patty — a observadora virtual do ScanCrush" class="patty-photo" width="440" height="660" loading="lazy" />
+        <img src="/brand/patty.webp" alt="Patty — a analista virtual do ScanCrush" class="patty-photo" width="440" height="660" loading="lazy" />
       </div>
 
       <div class="patty-card">

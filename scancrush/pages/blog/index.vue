@@ -98,7 +98,7 @@ const categories = computed(() => {
         <span class="bf-tag bf-tag-story">A história da marca</span>
       </div>
       <h2 class="bf-title">Por que o ScanCrush existe — e quem é a Patty</h2>
-      <p class="bf-desc">A marca nasceu de uma história real: a de quem já confundiu atenção com interesse. Conheça a origem e a observadora por trás das análises.</p>
+      <p class="bf-desc">A marca nasceu de uma história real: a de quem já confundiu atenção com interesse. Conheça a origem e a analista por trás das análises.</p>
       <span class="bf-cta">Ler a história →</span>
     </NuxtLink>
 

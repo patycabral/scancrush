@@ -223,11 +223,11 @@ const showAnalysisBlockedMsg = ref(false)
 const showBtnGenerate = ref(true)
 
 const TAGS = [
-  'animada', 'feliz', 'confusa', 'ansiosa',
-  'carente', 'curiosa', 'magoada', 'insegura',
-  'frustrada', 'empolgada', 'confiante',
-  'esperançosa', 'gostando dele(a)',
-  'com medo de perder', 'me sentindo ignorada',
+  'animado(a)', 'feliz', 'confuso(a)', 'ansioso(a)',
+  'carente', 'curioso(a)', 'magoado(a)', 'inseguro(a)',
+  'frustrado(a)', 'empolgado(a)', 'confiante',
+  'esperançoso(a)', 'gostando dele(a)',
+  'com medo de perder', 'me sentindo ignorado(a)',
   'parecendo que só eu me esforço',
 ]
 
@@ -1430,7 +1430,7 @@ onUnmounted(() => {
           <span v-for="(f, i) in resultFeelings" :key="'fff'+i" class="ff-chip">{{ capFirst(f) }}</span>
         </div>
         <p class="free-insight-text">{{ norm(resultData?.final_message ?? '') }}</p>
-        <p class="result-signature">— Patty, sua observadora no ScanCrush</p>
+        <p class="result-signature">— Patty, do ScanCrush</p>
       </div>
       <!-- Download PDF da leitura inicial (free também baixa) -->
       <div class="pdf-download-card">
@@ -1631,7 +1631,7 @@ onUnmounted(() => {
           <span v-for="(f, i) in resultFeelings" :key="'ff'+i" class="ff-chip">{{ capFirst(f) }}</span>
         </div>
         <p class="for-you-text">{{ norm(resultData.final_message) }}</p>
-        <p class="result-signature">— Patty, sua observadora no ScanCrush</p>
+        <p class="result-signature">— Patty, do ScanCrush</p>
       </div>
 
       <!-- ⑭b Limites da leitura ── -->
@@ -1933,7 +1933,7 @@ onUnmounted(() => {
         <span v-for="(f, i) in resultFeelings" :key="'pff'+i" class="pdf-ff-chip">{{ capFirst(f) }}</span>
       </div>
       <p class="pdf-p">{{ norm(resultData.final_message) }}</p>
-      <p class="pdf-signature">— Patty, sua observadora no ScanCrush</p>
+      <p class="pdf-signature">— Patty, do ScanCrush</p>
     </div>
 
     <div v-if="resultData?.limits" class="pdf-block pdf-block--limits">

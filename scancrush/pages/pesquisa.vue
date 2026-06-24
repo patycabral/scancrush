@@ -178,7 +178,7 @@ async function submit() {
       <div class="ps-icon">💜</div>
       <h1 class="ps-title">Obrigada por ajudar a melhorar o ScanCrush!</h1>
       <p class="ps-sub">Seu feedback nos ajuda a melhorar as próximas análises e a sua experiência.</p>
-      <p class="ps-sign">— Patty, sua observadora no ScanCrush</p>
+      <p class="ps-sign">— Patty, do ScanCrush</p>
       <NuxtLink to="/" class="ps-submit ps-back">Voltar ao ScanCrush</NuxtLink>
     </div>
 
