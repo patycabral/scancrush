@@ -62,7 +62,7 @@ const usefulOpts = [
   { v:'outro',            l:'Outro' },
 ]
 const wouldUseOpts = [{ v:'sim', l:'Sim' }, { v:'talvez', l:'Talvez' }, { v:'nao', l:'Não' }]
-const contactOpts  = [{ v:'sim', l:'Sim, pode entrar em contato' }, { v:'nao', l:'Prefiro não' }]
+const contactOpts  = [{ v:'sim', l:'Sim, autorizo o contato' }, { v:'nao', l:'Não, prefiro não ser contatada' }]
 
 // ── Navegação do quiz ──
 const step  = ref(1)
@@ -132,7 +132,10 @@ async function submit() {
         most_useful_part_other: mostUseful.value === 'outro' ? (mostUsefulOther.value.trim() || null) : null,
         would_use_again:      wouldUse.value || null,
         open_feedback:        feedback.value.trim() || null,
-        contact_consent:      contactConsent.value || null,
+        contact_permission:    contactConsent.value === 'sim',
+        contact_permission_at: contactConsent.value === 'sim' ? new Date().toISOString() : null,
+        contact_channels:      contactConsent.value === 'sim' ? 'email_whatsapp' : null,
+        contact_purpose:       contactConsent.value === 'sim' ? 'pesquisa_experiencia' : null,
       },
     })
     const st = String(res?.status ?? 'ok').toLowerCase()
@@ -241,18 +244,19 @@ async function submit() {
 
           <!-- 7 · Pergunta aberta (opcional) -->
           <template v-else-if="step === 7">
-            <p class="ps-q-label">Quer contar um pouco mais sobre a sua experiência? <span class="ps-opt">(opcional)</span></p>
-            <p class="ps-q-help">O que você achou da análise, o que faltou e qualquer sugestão de melhoria. Tudo isso ajuda a Patty a evoluir.</p>
-            <textarea v-model="feedback" class="ps-textarea" rows="4" maxlength="600" placeholder="Pode escrever à vontade: o que gostou, o que faltou, ideias de melhoria…"></textarea>
+            <p class="ps-q-label">Poderia nos contar um pouco mais sobre a sua experiência? <span class="ps-opt">(opcional)</span></p>
+            <textarea v-model="feedback" class="ps-textarea" rows="4" maxlength="600" placeholder="Compartilhe aqui o que gostou, o que faltou, ideias de melhoria…"></textarea>
           </template>
 
           <!-- 8 · Consentimento de contato -->
           <template v-else>
-            <p class="ps-q-label">A equipe do ScanCrush pode entrar em contato para entender melhor a sua experiência?</p>
-            <p class="ps-q-help">Só se você topar. Usaríamos o e-mail da sua compra, sem compromisso e sem spam.</p>
+            <p class="ps-q-label">Podemos falar com você depois?</p>
+            <p class="ps-q-text">Às vezes, nossa equipe conversa com alguns clientes para entender melhor a experiência no ScanCrush.</p>
+            <p class="ps-q-help">Só entraremos em contato se você permitir. O contato pode acontecer pelo e-mail ou WhatsApp informado na compra, apenas para pesquisa e melhoria da plataforma.</p>
             <div class="ps-pills">
               <button v-for="o in contactOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: contactConsent === o.v }" @click="contactConsent = o.v">{{ o.l }}</button>
             </div>
+            <p class="ps-consent-note">Você pode pedir para retirar essa autorização a qualquer momento.</p>
           </template>
 
         </div>
@@ -324,8 +328,11 @@ async function submit() {
 /* passo */
 .ps-step { min-height: 190px; }
 .ps-q-label { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 16px; line-height: 1.4; letter-spacing: -0.3px; }
-.ps-q-help { font-size: 13.5px; color: var(--text-3); margin: -8px 0 18px; }
+.ps-q-text { font-size: 14.5px; color: var(--text-2); font-weight: 300; line-height: 1.6; margin: -8px 0 12px; }
+.ps-q-help { font-size: 13.5px; color: var(--text-3); margin: -4px 0 18px; line-height: 1.55; }
+.ps-q-text + .ps-q-help { margin-top: 0; }
 .ps-opt { font-weight: 400; color: var(--text-3); font-size: 13px; }
+.ps-consent-note { font-size: 12px; color: var(--text-3); font-style: italic; margin: 16px 0 0; }
 
 .ps-nps { display: flex; flex-wrap: wrap; gap: 6px; }
 .ps-nps-btn { flex: 1; min-width: 38px; padding: 12px 0; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text-2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font); }
