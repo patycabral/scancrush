@@ -28,6 +28,7 @@ const mostUseful      = ref('')
 const mostUsefulOther = ref('')
 const wouldUse        = ref('')
 const feedback        = ref('')
+const contactConsent  = ref('')
 
 const npsScale = [0,1,2,3,4,5,6,7,8,9,10]
 
@@ -61,10 +62,11 @@ const usefulOpts = [
   { v:'outro',            l:'Outro' },
 ]
 const wouldUseOpts = [{ v:'sim', l:'Sim' }, { v:'talvez', l:'Talvez' }, { v:'nao', l:'Não' }]
+const contactOpts  = [{ v:'sim', l:'Sim, pode entrar em contato' }, { v:'nao', l:'Prefiro não' }]
 
 // ── Navegação do quiz ──
 const step  = ref(1)
-const total = 7
+const total = 8
 const progressPct = computed(() => `${Math.round((step.value / total) * 100)}%`)
 
 // Cada passo libera "Continuar" quando respondido (CSAT e aberta são opcionais).
@@ -77,6 +79,7 @@ const canNext = computed(() => {
     case 5: return mostUseful.value !== ''
     case 6: return wouldUse.value !== ''
     case 7: return true
+    case 8: return contactConsent.value !== ''
     default: return false
   }
 })
@@ -129,6 +132,7 @@ async function submit() {
         most_useful_part_other: mostUseful.value === 'outro' ? (mostUsefulOther.value.trim() || null) : null,
         would_use_again:      wouldUse.value || null,
         open_feedback:        feedback.value.trim() || null,
+        contact_consent:      contactConsent.value || null,
       },
     })
     const st = String(res?.status ?? 'ok').toLowerCase()
@@ -236,9 +240,19 @@ async function submit() {
           </template>
 
           <!-- 7 · Pergunta aberta (opcional) -->
+          <template v-else-if="step === 7">
+            <p class="ps-q-label">Quer contar um pouco mais sobre a sua experiência? <span class="ps-opt">(opcional)</span></p>
+            <p class="ps-q-help">O que você achou da análise, o que faltou e qualquer sugestão de melhoria. Tudo isso ajuda a Patty a evoluir.</p>
+            <textarea v-model="feedback" class="ps-textarea" rows="4" maxlength="600" placeholder="Pode escrever à vontade: o que gostou, o que faltou, ideias de melhoria…"></textarea>
+          </template>
+
+          <!-- 8 · Consentimento de contato -->
           <template v-else>
-            <p class="ps-q-label">O que faltou para essa experiência ser ainda melhor para você? <span class="ps-opt">(opcional)</span></p>
-            <textarea v-model="feedback" class="ps-textarea" rows="4" maxlength="600" placeholder="Se quiser, me conta aqui o que faria diferença para você."></textarea>
+            <p class="ps-q-label">A equipe do ScanCrush pode entrar em contato para entender melhor a sua experiência?</p>
+            <p class="ps-q-help">Só se você topar. Usaríamos o e-mail da sua compra, sem compromisso e sem spam.</p>
+            <div class="ps-pills">
+              <button v-for="o in contactOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: contactConsent === o.v }" @click="contactConsent = o.v">{{ o.l }}</button>
+            </div>
           </template>
 
         </div>
