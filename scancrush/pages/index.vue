@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  title: 'ScanCrush — Será que o crush gosta de você?',
+  title: 'ScanCrush: Como saber se o crush gosta de mim pela conversa',
   meta: [
     { name: 'description',        content: 'Cole os prints da conversa e deixe a Patty observar os sinais. O ScanCrush identifica padrões, reciprocidade e pontos de atenção — com clareza, sem achismo.' },
     { name: 'keywords',           content: 'ScanCrush, Scan Crush, Crush Scan, scanner de crush, análise de crush, como saber se o crush gosta de mim, sinais do crush, interpretar mensagens do crush, análise de conversa com IA, reciprocidade em conversas, sinais de interesse' },
@@ -8,13 +8,17 @@ useHead({
     { property: 'og:url',         content: 'https://scancrush.com/' },
     { property: 'og:site_name',   content: 'ScanCrush' },
     { property: 'og:locale',      content: 'pt_BR' },
-    { property: 'og:title',       content: 'ScanCrush — Será que o crush gosta de você?' },
-    { property: 'og:description', content: 'Cole os prints e deixe a Patty observar os sinais da conversa: padrões, reciprocidade e pontos de atenção — com clareza, sem achismo.' },
-    { property: 'og:image',       content: 'https://scancrush.com/logo-email.png' },
+    { property: 'og:title',       content: 'ScanCrush — Talvez os sinais sempre estiveram ali' },
+    { property: 'og:description', content: 'A Patty analisa sua conversa e mostra sinais, padrões e pontos de atenção com mais clareza.' },
+    { property: 'og:image',       content: 'https://scancrush.com/og-scancrush.png' },
+    { property: 'og:image:width', content: '1200' },
+    { property: 'og:image:height', content: '630' },
+    { property: 'og:image:type',  content: 'image/png' },
+    { property: 'og:image:alt',   content: 'ScanCrush — Talvez os sinais sempre estiveram ali. A Patty ajuda você a enxergar.' },
     { name: 'twitter:card',       content: 'summary_large_image' },
-    { name: 'twitter:title',      content: 'ScanCrush — Será que o crush gosta de você?' },
-    { name: 'twitter:description', content: 'A Patty observa os sinais da conversa com o seu crush: padrões, reciprocidade e pontos de atenção. Com clareza, sem achismo.' },
-    { name: 'twitter:image',      content: 'https://scancrush.com/logo-email.png' },
+    { name: 'twitter:title',      content: 'ScanCrush — Talvez os sinais sempre estiveram ali' },
+    { name: 'twitter:description', content: 'A Patty analisa sua conversa e mostra sinais, padrões e pontos de atenção com mais clareza.' },
+    { name: 'twitter:image',      content: 'https://scancrush.com/og-scancrush.png' },
   ],
   link: [
     { rel: 'canonical', href: 'https://scancrush.com/' }
