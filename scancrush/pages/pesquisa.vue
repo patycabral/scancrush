@@ -18,25 +18,39 @@ const sending  = ref(false)
 const errorMsg = ref('')
 
 // ── Respostas ──
-const nps        = ref<number | null>(null)
-const npsReason  = ref('')
-const helped     = ref('')
-const mostUseful = ref('')
-const wouldUse   = ref('')
-const feedback   = ref('')
+const nps             = ref<number | null>(null)
+const npsReason       = ref('')
+const npsReasonOther  = ref('')
+const csat            = reactive({ clarity: 0, helpfulness: 0, depth: 0, value: 0, quali: 0 })
+const csatHover       = reactive({ clarity: 0, helpfulness: 0, depth: 0, value: 0, quali: 0 })
+const helped          = ref('')
+const mostUseful      = ref('')
+const mostUsefulOther = ref('')
+const wouldUse        = ref('')
+const feedback        = ref('')
 
 const npsScale = [0,1,2,3,4,5,6,7,8,9,10]
+
 const reasonOpts = [
-  { v:'clareza',             l:'A leitura foi clara' },
-  { v:'confirmou',           l:'Confirmou o que eu sentia' },
-  { v:'algo_novo',           l:'Me mostrou algo novo' },
-  { v:'faltou_profundidade', l:'Faltou profundidade' },
-  { v:'nao_combinou',        l:'Não combinou com a conversa' },
-  { v:'preco',               l:'Preço x benefício' },
-  { v:'outro',               l:'Outro' },
+  { v:'clareza',        l:'Clareza da análise' },
+  { v:'qualidade',      l:'Qualidade da análise' },
+  { v:'profundidade',   l:'Profundidade da análise' },
+  { v:'utilidade',      l:'Utilidade da análise' },
+  { v:'custo_beneficio',l:'Custo-benefício' },
+  { v:'preco',          l:'Preço' },
+  { v:'coerencia',      l:'Coerência com a conversa' },
+  { v:'facilidade',     l:'Facilidade de entendimento' },
+  { v:'confianca',      l:'Confiança no resultado' },
+  { v:'outro',          l:'Outro' },
+]
+const csatAttrs = [
+  { k:'clarity'    as const, l:'Clareza da análise' },
+  { k:'helpfulness'as const, l:'Ajuda para enxergar a situação' },
+  { k:'depth'      as const, l:'Profundidade da leitura' },
+  { k:'value'      as const, l:'Custo-benefício' },
+  { k:'quali'      as const, l:'Qualidade da análise' },
 ]
 const helpedOpts   = [{ v:'sim', l:'Sim' }, { v:'parcialmente', l:'Parcialmente' }, { v:'nao', l:'Não' }]
-const wouldUseOpts = [{ v:'sim', l:'Sim' }, { v:'talvez', l:'Talvez' }, { v:'nao', l:'Não' }]
 const usefulOpts = [
   { v:'score',            l:'Score de Engajamento Observado' },
   { v:'sinais_positivos', l:'Sinais positivos' },
@@ -46,8 +60,33 @@ const usefulOpts = [
   { v:'clareza',          l:'Clareza da explicação' },
   { v:'outro',            l:'Outro' },
 ]
+const wouldUseOpts = [{ v:'sim', l:'Sim' }, { v:'talvez', l:'Talvez' }, { v:'nao', l:'Não' }]
 
-const canSubmit = computed(() => nps.value !== null)
+// ── Navegação do quiz ──
+const step  = ref(1)
+const total = 7
+const progressPct = computed(() => `${Math.round((step.value / total) * 100)}%`)
+
+// Cada passo libera "Continuar" quando respondido (CSAT e aberta são opcionais).
+const canNext = computed(() => {
+  switch (step.value) {
+    case 1: return nps.value !== null
+    case 2: return npsReason.value !== ''
+    case 3: return true
+    case 4: return helped.value !== ''
+    case 5: return mostUseful.value !== ''
+    case 6: return wouldUse.value !== ''
+    case 7: return true
+    default: return false
+  }
+})
+
+function back() { if (step.value > 1) step.value -= 1 }
+function next() {
+  if (!canNext.value || sending.value) return
+  if (step.value < total) step.value += 1
+  else submit()
+}
 
 // ── Valida o link ao abrir (token + validade + status) ──
 onMounted(async () => {
@@ -63,13 +102,12 @@ onMounted(async () => {
     else if (st === 'invalida')    state.value = 'invalid'
     else                            state.value = 'form'   // pendente / desconhecido → mostra form
   } catch (e) {
-    // fail-open: se o check falhar (rede/workflow), mostra o form mesmo assim
-    state.value = 'form'
+    state.value = 'form'   // fail-open
   }
 })
 
 async function submit() {
-  if (!canSubmit.value || sending.value) return
+  if (sending.value) return
   sending.value = true
   errorMsg.value = ''
   try {
@@ -80,8 +118,15 @@ async function submit() {
         token, protocolo, email, source,
         nps_score:            nps.value,
         nps_reason:           npsReason.value || null,
+        nps_reason_other:     npsReason.value === 'outro' ? (npsReasonOther.value.trim() || null) : null,
+        csat_clarity:         csat.clarity || null,
+        csat_helpfulness:     csat.helpfulness || null,
+        csat_depth:           csat.depth || null,
+        csat_value_for_money: csat.value || null,
+        csat_quali:           csat.quali || null,
         helped_see_something: helped.value || null,
         most_useful_part:     mostUseful.value || null,
+        most_useful_part_other: mostUseful.value === 'outro' ? (mostUsefulOther.value.trim() || null) : null,
         would_use_again:      wouldUse.value || null,
         open_feedback:        feedback.value.trim() || null,
       },
@@ -119,67 +164,103 @@ async function submit() {
       <p class="ps-sub" style="margin:0">Validando seu link…</p>
     </div>
 
-    <!-- FORM -->
+    <!-- FORM (mini quiz, 1 pergunta por tela) -->
     <div v-else-if="state === 'form'" class="ps-card">
       <p class="ps-eyebrow">// A Patty quer saber</p>
-      <h1 class="ps-title">Essa análise <span class="grad">te ajudou?</span></h1>
-      <p class="ps-sub">Sua opinião ajuda a Patty a entender o que realmente fez diferença para você. É rapidinho, menos de 1 minuto.</p>
 
-      <div class="ps-q">
-        <p class="ps-q-label">1. De 0 a 10, o quanto essa análise foi útil para você?</p>
-        <div class="ps-nps">
-          <button v-for="n in npsScale" :key="n" type="button" class="ps-nps-btn" :class="{ active: nps === n }" @click="nps = n">{{ n }}</button>
+      <div class="ps-progress"><div class="ps-progress-bar" :style="{ width: progressPct }"></div></div>
+      <p class="ps-step-count">{{ step }} de {{ total }}</p>
+
+      <Transition name="ps-slide" mode="out-in">
+        <div :key="step" class="ps-step">
+
+          <!-- 1 · NPS -->
+          <template v-if="step === 1">
+            <p class="ps-q-label">De 0 a 10, o quanto você recomendaria o ScanCrush para um amigo(a) ou familiar?</p>
+            <div class="ps-nps">
+              <button v-for="n in npsScale" :key="n" type="button" class="ps-nps-btn" :class="{ active: nps === n }" @click="nps = n">{{ n }}</button>
+            </div>
+          </template>
+
+          <!-- 2 · Motivo da nota (puxa a nota) -->
+          <template v-else-if="step === 2">
+            <p class="ps-q-label">Qual o principal motivo de você dar nota {{ nps }} para o ScanCrush?</p>
+            <div class="ps-pills">
+              <button v-for="o in reasonOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: npsReason === o.v }" @click="npsReason = o.v">{{ o.l }}</button>
+            </div>
+            <input v-if="npsReason === 'outro'" v-model="npsReasonOther" class="ps-input" type="text" maxlength="160" placeholder="Me conta o principal motivo da sua nota." />
+          </template>
+
+          <!-- 3 · CSAT por atributos (estrelas) -->
+          <template v-else-if="step === 3">
+            <p class="ps-q-label">Como foi sua experiência?</p>
+            <p class="ps-q-help">De acordo com o seu resultado, como você avalia:</p>
+            <div class="ps-csat">
+              <div v-for="a in csatAttrs" :key="a.k" class="ps-csat-row" @mouseleave="csatHover[a.k] = 0">
+                <span class="ps-csat-label">{{ a.l }}</span>
+                <div class="ps-stars">
+                  <button
+                    v-for="s in 5" :key="s" type="button" class="ps-star"
+                    :class="{ on: (csatHover[a.k] || csat[a.k]) >= s }"
+                    @mouseenter="csatHover[a.k] = s" @click="csat[a.k] = s"
+                    :aria-label="`${a.l}: ${s} de 5`"
+                  >★</button>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- 4 · Enxergou algo novo -->
+          <template v-else-if="step === 4">
+            <p class="ps-q-label">Essa análise ajudou você a enxergar algo que ainda não tinha percebido?</p>
+            <div class="ps-pills">
+              <button v-for="o in helpedOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: helped === o.v }" @click="helped = o.v">{{ o.l }}</button>
+            </div>
+          </template>
+
+          <!-- 5 · O que mais chamou atenção -->
+          <template v-else-if="step === 5">
+            <p class="ps-q-label">O que mais chamou sua atenção no resultado?</p>
+            <div class="ps-pills">
+              <button v-for="o in usefulOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: mostUseful === o.v }" @click="mostUseful = o.v">{{ o.l }}</button>
+            </div>
+            <input v-if="mostUseful === 'outro'" v-model="mostUsefulOther" class="ps-input" type="text" maxlength="160" placeholder="Qual parte chamou mais sua atenção?" />
+          </template>
+
+          <!-- 6 · Recompra -->
+          <template v-else-if="step === 6">
+            <p class="ps-q-label">Você usaria o ScanCrush novamente?</p>
+            <div class="ps-pills">
+              <button v-for="o in wouldUseOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: wouldUse === o.v }" @click="wouldUse = o.v">{{ o.l }}</button>
+            </div>
+          </template>
+
+          <!-- 7 · Pergunta aberta (opcional) -->
+          <template v-else>
+            <p class="ps-q-label">O que faltou para essa experiência ser ainda melhor para você? <span class="ps-opt">(opcional)</span></p>
+            <textarea v-model="feedback" class="ps-textarea" rows="4" maxlength="600" placeholder="Se quiser, me conta aqui o que faria diferença para você."></textarea>
+          </template>
+
         </div>
-        <div class="ps-nps-scale"><span>Nada útil</span><span>Muito útil</span></div>
-      </div>
-
-      <div class="ps-q">
-        <p class="ps-q-label">2. O que mais explica essa nota?</p>
-        <div class="ps-pills">
-          <button v-for="o in reasonOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: npsReason === o.v }" @click="npsReason = o.v">{{ o.l }}</button>
-        </div>
-      </div>
-
-      <div class="ps-q">
-        <p class="ps-q-label">3. A análise ajudou a enxergar algo que você ainda não tinha percebido?</p>
-        <div class="ps-pills">
-          <button v-for="o in helpedOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: helped === o.v }" @click="helped = o.v">{{ o.l }}</button>
-        </div>
-      </div>
-
-      <div class="ps-q">
-        <p class="ps-q-label">4. O que mais chamou sua atenção no resultado?</p>
-        <div class="ps-pills">
-          <button v-for="o in usefulOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: mostUseful === o.v }" @click="mostUseful = o.v">{{ o.l }}</button>
-        </div>
-      </div>
-
-      <div class="ps-q">
-        <p class="ps-q-label">5. Você usaria o ScanCrush novamente?</p>
-        <div class="ps-pills">
-          <button v-for="o in wouldUseOpts" :key="o.v" type="button" class="ps-pill" :class="{ active: wouldUse === o.v }" @click="wouldUse = o.v">{{ o.l }}</button>
-        </div>
-      </div>
-
-      <div class="ps-q">
-        <p class="ps-q-label">6. Alguma sugestão, crítica ou comentário? <span class="ps-opt">(opcional)</span></p>
-        <textarea v-model="feedback" class="ps-textarea" rows="4" placeholder="Escreve aqui para a Patty…"></textarea>
-      </div>
+      </Transition>
 
       <p v-if="errorMsg" class="ps-error">{{ errorMsg }}</p>
-      <button class="ps-submit" :disabled="!canSubmit || sending" @click="submit()">
-        {{ sending ? 'Enviando…' : 'Enviar respostas' }}
-      </button>
-      <p class="ps-hint">Sua resposta é única — leva menos de 1 minuto.</p>
+
+      <div class="ps-nav">
+        <button v-if="step > 1" type="button" class="ps-nav-back" @click="back()">← Voltar</button>
+        <button type="button" class="ps-nav-next" :disabled="!canNext || sending" @click="next()">
+          {{ step === total ? (sending ? 'Enviando…' : 'Enviar respostas') : 'Continuar' }}
+        </button>
+      </div>
     </div>
 
     <!-- DONE -->
     <div v-else-if="state === 'done'" class="ps-card ps-msg">
-      <div class="ps-icon">💜</div>
-      <h1 class="ps-title">Obrigada por ajudar a melhorar o ScanCrush!</h1>
-      <p class="ps-sub">Seu feedback nos ajuda a melhorar as próximas análises e a sua experiência.</p>
+      <img src="/brand/patty-avatar.webp" alt="Patty" class="ps-done-avatar" width="76" height="76" />
+      <h1 class="ps-title">Obrigada por responder 💗</h1>
+      <p class="ps-sub">Sua resposta ajuda a Patty a melhorar as próximas análises e a experiência do ScanCrush.</p>
       <p class="ps-sign">— Patty, do ScanCrush</p>
-      <NuxtLink to="/" class="ps-submit ps-back">Voltar ao ScanCrush</NuxtLink>
+      <NuxtLink to="/" class="ps-submit ps-back">← Voltar ao ScanCrush</NuxtLink>
     </div>
 
     <!-- ALREADY ANSWERED -->
@@ -214,41 +295,77 @@ async function submit() {
 .ps-header { padding: 20px 24px; border-bottom: 1px solid var(--border); }
 .ps-logo { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 18px; }
 .ps-pink { color: var(--pink); }
-.ps-main { max-width: 640px; margin: 0 auto; padding: 40px 22px 80px; }
-.ps-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px 28px; }
-.ps-eyebrow { font-size: 11px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--pink); margin-bottom: 12px; }
+.ps-main { max-width: 600px; margin: 0 auto; padding: 40px 22px 80px; }
+.ps-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 30px 28px; }
+.ps-eyebrow { font-size: 11px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--pink); margin-bottom: 16px; }
 .ps-title { font-size: clamp(22px, 4.5vw, 30px); font-weight: 800; letter-spacing: -0.8px; line-height: 1.18; margin-bottom: 12px; }
 .ps-sub { font-size: 15px; color: var(--text-2); font-weight: 300; line-height: 1.6; margin-bottom: 28px; }
 .grad { background: linear-gradient(135deg,#FF2D6B,#9B5DE5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-.ps-q { margin-bottom: 26px; }
-.ps-q-label { font-size: 14.5px; font-weight: 600; color: var(--text); margin-bottom: 12px; line-height: 1.5; }
+/* progresso */
+.ps-progress { height: 5px; border-radius: 100px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.ps-progress-bar { height: 100%; border-radius: 100px; background: linear-gradient(135deg, var(--pink), #9B5DE5); transition: width 0.35s ease; }
+.ps-step-count { font-size: 11px; font-family: var(--mono); color: var(--text-3); margin: 8px 0 22px; letter-spacing: 0.05em; }
+
+/* passo */
+.ps-step { min-height: 190px; }
+.ps-q-label { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 16px; line-height: 1.4; letter-spacing: -0.3px; }
+.ps-q-help { font-size: 13.5px; color: var(--text-3); margin: -8px 0 18px; }
 .ps-opt { font-weight: 400; color: var(--text-3); font-size: 13px; }
 
 .ps-nps { display: flex; flex-wrap: wrap; gap: 6px; }
-.ps-nps-btn { flex: 1; min-width: 36px; padding: 10px 0; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text-2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font); }
+.ps-nps-btn { flex: 1; min-width: 38px; padding: 12px 0; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text-2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font); }
 .ps-nps-btn:hover { border-color: rgba(255,45,107,0.4); }
 .ps-nps-btn.active { background: linear-gradient(135deg, var(--pink), #C0004D); color: #fff; border-color: transparent; }
-.ps-nps-scale { display: flex; justify-content: space-between; margin-top: 7px; font-size: 11px; font-family: var(--mono); color: var(--text-3); }
 
 .ps-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-.ps-pill { padding: 9px 16px; border-radius: 100px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text-2); font-size: 13.5px; cursor: pointer; transition: all 0.15s; font-family: var(--font); }
+.ps-pill { padding: 10px 16px; border-radius: 100px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text-2); font-size: 13.5px; cursor: pointer; transition: all 0.15s; font-family: var(--font); }
 .ps-pill:hover { border-color: rgba(155,93,229,0.45); }
 .ps-pill.active { background: rgba(155,93,229,0.16); border-color: var(--purple); color: var(--text); }
 
+/* CSAT estrelas */
+.ps-csat { display: flex; flex-direction: column; gap: 2px; }
+.ps-csat-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.ps-csat-row:last-child { border-bottom: none; }
+.ps-csat-label { font-size: 14px; color: var(--text-2); }
+.ps-stars { display: flex; gap: 3px; flex-shrink: 0; }
+.ps-star { font-size: 26px; line-height: 1; background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.16); transition: color 0.12s, transform 0.12s; padding: 0 1px; }
+.ps-star:hover { transform: scale(1.18); }
+.ps-star.on { color: #FFB800; }
+
+.ps-input { width: 100%; margin-top: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; color: var(--text); font-family: var(--font); font-size: 14px; }
+.ps-input:focus { outline: none; border-color: rgba(155,93,229,0.5); }
 .ps-textarea { width: 100%; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 14px; color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; resize: vertical; }
 .ps-textarea:focus { outline: none; border-color: rgba(155,93,229,0.5); }
 
-.ps-error { color: #FF6B8E; font-size: 13px; margin-bottom: 12px; }
-.ps-submit { display: block; width: 100%; text-align: center; padding: 16px; border: none; border-radius: 100px; background: linear-gradient(135deg, var(--pink), #C0004D); color: #fff; font-size: 16px; font-weight: 700; font-family: var(--font); cursor: pointer; box-shadow: var(--glow-pink); transition: opacity 0.2s, transform 0.2s; text-decoration: none; }
-.ps-submit:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
-.ps-submit:not(:disabled):hover { transform: translateY(-1px); }
-.ps-hint { text-align: center; font-size: 11.5px; color: var(--text-3); margin-top: 12px; }
+/* navegação */
+.ps-error { color: #FF6B8E; font-size: 13px; margin: 18px 0 0; }
+.ps-nav { display: flex; align-items: center; gap: 12px; margin-top: 28px; }
+.ps-nav-back { flex-shrink: 0; padding: 14px 20px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--text-2); font-size: 14px; font-weight: 600; font-family: var(--font); cursor: pointer; transition: all 0.15s; }
+.ps-nav-back:hover { border-color: var(--text-3); color: var(--text); }
+.ps-nav-next { flex: 1; padding: 15px; border: none; border-radius: 100px; background: linear-gradient(135deg, var(--pink), #C0004D); color: #fff; font-size: 15px; font-weight: 700; font-family: var(--font); cursor: pointer; box-shadow: var(--glow-pink); transition: opacity 0.2s, transform 0.2s; }
+.ps-nav-next:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.ps-nav-next:not(:disabled):hover { transform: translateY(-1px); }
 
+/* transição entre telas */
+.ps-slide-enter-active, .ps-slide-leave-active { transition: opacity 0.22s ease, transform 0.22s ease; }
+.ps-slide-enter-from { opacity: 0; transform: translateX(14px); }
+.ps-slide-leave-to { opacity: 0; transform: translateX(-14px); }
+
+/* telas de mensagem */
+.ps-submit { display: block; width: 100%; text-align: center; padding: 16px; border: none; border-radius: 100px; background: linear-gradient(135deg, var(--pink), #C0004D); color: #fff; font-size: 16px; font-weight: 700; font-family: var(--font); cursor: pointer; box-shadow: var(--glow-pink); transition: transform 0.2s; text-decoration: none; }
+.ps-submit:hover { transform: translateY(-1px); }
 .ps-msg { text-align: center; }
 .ps-icon { font-size: 42px; margin-bottom: 14px; }
+.ps-done-avatar { width: 76px; height: 76px; border-radius: 50%; border: 2px solid rgba(155,93,229,0.45); margin: 0 auto 18px; display: block; object-fit: cover; }
 .ps-sign { font-family: var(--mono); font-size: 13px; font-style: italic; color: var(--purple); margin: 18px 0 26px; }
 .ps-back { max-width: 280px; margin: 18px auto 0; }
 .ps-spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--pink); border-radius: 50%; margin: 0 auto 16px; animation: ps-spin 0.8s linear infinite; }
 @keyframes ps-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .ps-card { padding: 26px 20px; }
+  .ps-csat-label { font-size: 13px; }
+  .ps-star { font-size: 24px; }
+}
 </style>
