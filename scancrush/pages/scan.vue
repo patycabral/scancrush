@@ -498,9 +498,12 @@ function postureLabel(level: string): string {
 
 /** key_patterns achatados para Resumo Executivo */
 const allKeyPatterns = computed(() => {
-  const res: { text: string; kind: 'pos' | 'neg' }[] = []
+  const res: { text: string; kind: 'pos' | 'neg' | 'neu' }[] = []
   for (const item of resultData.value?.key_patterns?.positive ?? []) {
     res.push({ text: txt(item), kind: 'pos' })
+  }
+  for (const item of resultData.value?.key_patterns?.neutral ?? []) {
+    res.push({ text: txt(item), kind: 'neu' })
   }
   for (const item of resultData.value?.key_patterns?.negative ?? []) {
     res.push({ text: txt(item), kind: 'neg' })
@@ -3104,6 +3107,11 @@ body::after {
   border: 1px solid rgba(255,45,107,0.18);
   color: #ff6b8e;
 }
+.exec-chip.neu {
+  background: rgba(255,184,0,0.07);
+  border: 1px solid rgba(255,184,0,0.22);
+  color: #FFB800;
+}
 
 /* ── NÍVEL DE RECIPROCIDADE — painel premium (Variante C: Executivo) ── */
 .recip-hero {
@@ -4652,6 +4660,7 @@ body::after {
 }
 .pdf-chip.pos { color: var(--pdf-green); border-color: rgba(0,163,108,0.4); background: rgba(0,163,108,0.07); }
 .pdf-chip.neg { color: var(--pdf-pink);  border-color: rgba(255,45,107,0.4); background: rgba(255,45,107,0.06); }
+.pdf-chip.neu { color: var(--pdf-amber); border-color: rgba(255,140,0,0.4);  background: rgba(255,140,0,0.07); }
 /* flexbox (sem position:absolute) — evita reordenação da camada de texto no PDF */
 .pdf-signal {
   display: flex;
