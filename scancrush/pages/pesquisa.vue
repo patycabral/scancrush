@@ -309,8 +309,8 @@ async function submit() {
     <!-- DONE -->
     <div v-else-if="state === 'done'" class="ps-card ps-msg">
       <img src="/brand/patty-avatar.webp" alt="Patty" class="ps-done-avatar" width="76" height="76" />
-      <h1 class="ps-title">Obrigada por responder 💗</h1>
-      <p class="ps-sub">Sua resposta ajuda a Patty a melhorar as próximas análises e a experiência do ScanCrush.</p>
+      <h1 class="ps-title">Prontinho, recebi sua resposta 💗</h1>
+      <p class="ps-sub">Obrigada por dividir sua experiência. Sua resposta nos ajuda a entender o que funcionou, o que faltou e como deixar as próximas análises ainda melhores.</p>
       <p class="ps-sign">— Patty, do ScanCrush</p>
       <NuxtLink to="/" class="ps-submit ps-back">← Voltar ao ScanCrush</NuxtLink>
     </div>
@@ -366,7 +366,7 @@ async function submit() {
 .ps-q-help { font-size: 13.5px; color: var(--text-3); margin: -4px 0 18px; line-height: 1.55; }
 .ps-q-text + .ps-q-help { margin-top: 0; }
 .ps-opt { font-weight: 400; color: var(--text-3); font-size: 13px; }
-.ps-consent-note { font-size: 12px; color: var(--text-3); font-style: italic; margin: 16px 0 0; }
+.ps-consent-note { font-size: 12px; color: var(--text-3); font-style: italic; margin: 16px 0 0; text-align: center; }
 
 .ps-nps { display: flex; flex-wrap: wrap; gap: 6px; }
 .ps-nps-btn { flex: 1; min-width: 38px; padding: 12px 0; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text-2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font); }
