@@ -593,14 +593,32 @@ const recipMetrics = computed(() => {
   })
 })
 
-/** Veredito instantâneo do score de reciprocidade (faixa → título + subtítulo) */
+/** NOVO modelo: critérios pontuados (score/max_score por critério) */
+const recipCriteria = computed(() => {
+  const arr = resultData.value?.reciprocity?.criteria ?? []
+  return arr.map((c: any) => {
+    const score = Number(c?.score) || 0
+    const max   = Number(c?.max_score) || 0
+    const pct   = max > 0 ? Math.min(Math.round((score / max) * 100), 100) : 0
+    let status  = String(c?.status ?? '').toLowerCase().trim()
+    if (!['forte', 'parcial', 'fraco', 'ausente'].includes(status)) {
+      status = max === 0 ? 'ausente' : pct >= 75 ? 'forte' : pct >= 35 ? 'parcial' : 'fraco'
+    }
+    return { label: c?.label ?? '', explanation: c?.explanation ?? '', score, max, pct, status, noData: status === 'ausente' }
+  })
+})
+
+/** Veredito do score (título do JSON quando houver; subtítulo derivado da faixa) */
 const recipLabel = computed(() => {
+  const jsonLabel = String(resultData.value?.reciprocity?.label ?? '').trim()
   const s = recipScore.value
-  if (s <= 20) return { title: 'Reciprocidade muito baixa', sub: 'Investimento unilateral' }
-  if (s <= 40) return { title: 'Reciprocidade baixa',       sub: 'Forte desequilíbrio' }
-  if (s <= 60) return { title: 'Reciprocidade moderada',    sub: 'Desequilíbrio parcial' }
-  if (s <= 80) return { title: 'Reciprocidade equilibrada', sub: 'Troca razoável' }
-  return         { title: 'Reciprocidade alta',           sub: 'Troca mútua' }
+  let title: string, sub: string
+  if (s <= 20)      { title = 'Reciprocidade muito baixa'; sub = 'Investimento unilateral' }
+  else if (s <= 40) { title = 'Reciprocidade baixa';       sub = 'Forte desequilíbrio' }
+  else if (s <= 60) { title = 'Reciprocidade moderada';    sub = 'Troca parcial' }
+  else if (s <= 80) { title = 'Reciprocidade equilibrada'; sub = 'Troca razoável' }
+  else              { title = 'Reciprocidade alta';        sub = 'Troca mútua' }
+  return { title: jsonLabel || title, sub }
 })
 
 function updateNewAnalysisBtn() {
@@ -1581,8 +1599,23 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- MÉTRICAS: secundárias -->
-        <div v-if="recipMetrics.length" class="recip-metrics">
+        <!-- CRITÉRIOS pontuados (novo modelo quantitativo) -->
+        <div v-if="recipCriteria.length" class="recip-crit-list">
+          <div class="recip-crit-head"><span>Critério</span><span>Pontos</span></div>
+          <div v-for="(c, i) in recipCriteria" :key="'rc'+i" class="recip-crit" :class="c.status">
+            <div class="recip-crit-top">
+              <span class="recip-crit-label">{{ norm(c.label) }}</span>
+              <span class="recip-crit-points">
+                <template v-if="c.noData">—</template><template v-else>{{ c.score }}</template><span class="recip-crit-max">/{{ c.max }}</span>
+              </span>
+            </div>
+            <p class="recip-crit-exp">{{ c.noData ? 'Não observado no recorte.' : norm(c.explanation) }}</p>
+            <div class="recip-crit-bar"><div class="recip-crit-bar-fill" :style="{ width: (c.noData ? 0 : c.pct) + '%' }"></div></div>
+          </div>
+        </div>
+
+        <!-- LEGADO: métricas Você×Crush (análises antigas, sem `criteria`) -->
+        <div v-else-if="recipMetrics.length" class="recip-metrics">
           <div v-for="(m, i) in recipMetrics" :key="'rm'+i" class="recip-metric">
             <div class="recip-metric-top">
               <span class="recip-metric-label">{{ norm(m.label) }}</span>
@@ -1899,27 +1932,42 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div v-for="(m, i) in recipMetrics" :key="'prm'+i" class="pdf-recip-metric">
-        <div class="pdf-recip-mtop">
-          <span class="pdf-recip-mlabel">{{ norm(m.label) }}</span>
-          <span class="pdf-recip-mval">
-            <template v-if="m.noData"><span class="lbl">Não observado no recorte</span></template>
-            <template v-else>
-              <span class="lbl">Você</span> <b class="u">{{ m.user }}</b>
-              <span class="sep">·</span>
-              <b class="c">{{ m.crush }}</b> <span class="lbl">Crush</span>
-            </template>
-          </span>
+      <!-- CRITÉRIOS pontuados (novo modelo) -->
+      <div v-if="recipCriteria.length" class="pdf-recip-crit-list">
+        <div v-for="(c, i) in recipCriteria" :key="'prc'+i" class="pdf-recip-crit" :class="c.status">
+          <div class="pdf-recip-crit-top">
+            <span class="pdf-recip-crit-label">{{ norm(c.label) }}</span>
+            <span class="pdf-recip-crit-points"><template v-if="c.noData">—</template><template v-else>{{ c.score }}</template>/{{ c.max }}</span>
+          </div>
+          <p class="pdf-recip-crit-exp">{{ c.noData ? 'Não observado no recorte.' : norm(c.explanation) }}</p>
+          <div class="pdf-recip-crit-bar"><div class="pdf-recip-crit-bar-fill" :style="{ width: (c.noData ? 0 : c.pct) + '%' }"></div></div>
         </div>
-        <div class="pdf-recip-bar2">
-          <template v-if="m.u != null">
-            <div class="pdf-recip-bar2-u" :style="{ width: m.u + '%' }"></div>
-            <div class="pdf-recip-bar2-c" :style="{ width: m.c + '%' }"></div>
-          </template>
-          <div v-else class="pdf-recip-bar2-empty"></div>
-        </div>
-        <div v-if="m.dominance" class="pdf-recip-dominance">Predominância: <span>{{ m.dominance }}</span></div>
       </div>
+
+      <!-- LEGADO: métricas Você×Crush (análises antigas) -->
+      <template v-else>
+        <div v-for="(m, i) in recipMetrics" :key="'prm'+i" class="pdf-recip-metric">
+          <div class="pdf-recip-mtop">
+            <span class="pdf-recip-mlabel">{{ norm(m.label) }}</span>
+            <span class="pdf-recip-mval">
+              <template v-if="m.noData"><span class="lbl">Não observado no recorte</span></template>
+              <template v-else>
+                <span class="lbl">Você</span> <b class="u">{{ m.user }}</b>
+                <span class="sep">·</span>
+                <b class="c">{{ m.crush }}</b> <span class="lbl">Crush</span>
+              </template>
+            </span>
+          </div>
+          <div class="pdf-recip-bar2">
+            <template v-if="m.u != null">
+              <div class="pdf-recip-bar2-u" :style="{ width: m.u + '%' }"></div>
+              <div class="pdf-recip-bar2-c" :style="{ width: m.c + '%' }"></div>
+            </template>
+            <div v-else class="pdf-recip-bar2-empty"></div>
+          </div>
+          <div v-if="m.dominance" class="pdf-recip-dominance">Predominância: <span>{{ m.dominance }}</span></div>
+        </div>
+      </template>
       <div v-if="resultData.reciprocity.summary" class="pdf-recip-conclusion">
         <span class="pdf-recip-conclusion-tag">Leitura</span>
         <p>{{ norm(resultData.reciprocity.summary) }}</p>
@@ -3125,6 +3173,32 @@ body::after {
 .recip-bar2-empty { width: 100%; background: rgba(255,255,255,0.05); height: 100%; }
 .recip-dominance { margin-top: 6px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); }
 .recip-dominance span { color: var(--text-2); font-weight: 700; }
+
+/* ── Critérios pontuados (novo modelo quantitativo) ── */
+.recip-crit-head {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-3);
+  padding-bottom: 9px; border-bottom: 1px solid var(--border);
+}
+.recip-crit { padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.recip-crit:last-child { border-bottom: none; }
+.recip-crit-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.recip-crit-label { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.recip-crit-points { font-family: var(--mono); font-size: 14px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.recip-crit-max { color: var(--text-3); font-weight: 400; font-size: 11px; }
+.recip-crit-exp { margin: 4px 0 9px; font-size: 12.5px; color: var(--text-2); font-weight: 300; line-height: 1.55; }
+.recip-crit-bar { height: 4px; border-radius: 100px; overflow: hidden; background: rgba(255,255,255,0.06); }
+.recip-crit-bar-fill { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
+.recip-crit.forte   .recip-crit-points { color: #00D68F; }
+.recip-crit.forte   .recip-crit-bar-fill { background: linear-gradient(90deg, #00D68F, #34D399); }
+.recip-crit.parcial .recip-crit-points { color: #b98cff; }
+.recip-crit.parcial .recip-crit-bar-fill { background: linear-gradient(90deg, var(--purple), #b98cff); }
+.recip-crit.fraco   .recip-crit-points { color: #FF8C00; }
+.recip-crit.fraco   .recip-crit-bar-fill { background: linear-gradient(90deg, #FF8C00, #ffb347); }
+.recip-crit.ausente .recip-crit-points { color: var(--text-3); }
+.recip-crit.ausente .recip-crit-exp { font-style: italic; color: var(--text-3); }
+.recip-crit.ausente .recip-crit-bar { background: repeating-linear-gradient(90deg, rgba(255,255,255,0.07) 0 5px, transparent 5px 10px); }
 
 .recip-conclusion {
   margin-top: 22px; padding: 15px 17px; border-radius: 12px;
@@ -4550,6 +4624,25 @@ body::after {
 .pdf-recip-bar2-c { background: var(--pdf-purple); height: 100%; }
 .pdf-recip-dominance { margin-top: 5px; font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--pdf-faint); }
 .pdf-recip-dominance span { color: var(--pdf-muted); font-weight: 700; }
+
+/* ── Critérios pontuados no PDF (novo modelo) ── */
+.pdf-recip-crit { padding: 9px 0; border-bottom: 1px solid var(--pdf-line); }
+.pdf-recip-crit:last-of-type { border-bottom: none; }
+.pdf-recip-crit-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.pdf-recip-crit-label { font-size: 12.5px; font-weight: 700; color: var(--pdf-body); }
+.pdf-recip-crit-points { font-family: var(--mono); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.pdf-recip-crit-exp { margin: 3px 0 7px; font-size: 11.5px; color: var(--pdf-muted); line-height: 1.5; }
+.pdf-recip-crit-bar { height: 4px; border-radius: 100px; overflow: hidden; background: #eef0f4; }
+.pdf-recip-crit-bar-fill { height: 100%; border-radius: 100px; }
+.pdf-recip-crit.forte   .pdf-recip-crit-points { color: #0a9d6e; }
+.pdf-recip-crit.forte   .pdf-recip-crit-bar-fill { background: #00C281; }
+.pdf-recip-crit.parcial .pdf-recip-crit-points { color: #7a3fd0; }
+.pdf-recip-crit.parcial .pdf-recip-crit-bar-fill { background: #9B5DE5; }
+.pdf-recip-crit.fraco   .pdf-recip-crit-points { color: #d97400; }
+.pdf-recip-crit.fraco   .pdf-recip-crit-bar-fill { background: #FF8C00; }
+.pdf-recip-crit.ausente .pdf-recip-crit-points { color: var(--pdf-faint); }
+.pdf-recip-crit.ausente .pdf-recip-crit-exp { font-style: italic; color: var(--pdf-faint); }
+.pdf-recip-crit.ausente .pdf-recip-crit-bar { background: repeating-linear-gradient(90deg, #e2e5ea 0 5px, transparent 5px 10px); }
 .pdf-recip-bar2-empty { width: 100%; background: #eef0f4; height: 100%; }
 .pdf-recip-conclusion { margin-top: 16px; padding: 12px 14px; border-radius: 9px; background: #faf7fb; border: 1px solid var(--pdf-line); border-left: 2px solid var(--pdf-pink); }
 .pdf-recip-conclusion-tag { display: block; font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--pdf-pink); margin-bottom: 6px; }
