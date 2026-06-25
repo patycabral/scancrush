@@ -71,8 +71,37 @@ function onFileChange(e: Event) {
 }
 
 // ── Limites por imagem (anti-arquivo pesado / anti-montagem) ──
-const MAX_IMG_BYTES = 2 * 1024 * 1024   // 2 MB por imagem
+const MAX_IMG_BYTES = 15 * 1024 * 1024  // 15 MB (trava de segurança; a imagem é comprimida antes do upload)
 const MAX_IMG_ASPECT = 5                 // lado maior até 5× o menor (print normal ~2,2:1; montagem de 3+ telas reprova)
+
+// ── Compressão/resize no navegador ───────────────────────────────────────────────
+// A Anthropic já reduz qualquer imagem para 1568px no lado maior, então resize p/
+// ~1600px é "de graça" (sem perda de OCR) e derruba 5 MB → ~500 KB. Texto fica nítido.
+const COMPRESS_MAX_EDGE  = 1600
+const COMPRESS_QUALITY   = 0.88
+const COMPRESS_THRESHOLD = 900 * 1024    // só comprime se valer a pena (> ~900 KB ou grande)
+async function compressImage(file: File): Promise<File> {
+  try {
+    if (!file.type.startsWith('image/') || file.type === 'image/gif') return file
+    const bmp = await createImageBitmap(file)
+    const longEdge = Math.max(bmp.width, bmp.height)
+    const needsResize = longEdge > COMPRESS_MAX_EDGE
+    if (!needsResize && file.size <= COMPRESS_THRESHOLD) { bmp.close?.(); return file }
+    const scale = needsResize ? COMPRESS_MAX_EDGE / longEdge : 1
+    const w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale)
+    const canvas = document.createElement('canvas')
+    canvas.width = w; canvas.height = h
+    const ctx = canvas.getContext('2d')
+    if (!ctx) { bmp.close?.(); return file }
+    ctx.drawImage(bmp, 0, 0, w, h)
+    bmp.close?.()
+    const blob: Blob | null = await new Promise(res => canvas.toBlob(res, 'image/jpeg', COMPRESS_QUALITY))
+    if (!blob || blob.size >= file.size) return file   // não melhorou → mantém o original
+    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg', lastModified: Date.now() })
+  } catch {
+    return file   // qualquer falha → usa o original (não bloqueia o usuário)
+  }
+}
 
 // Carrega a imagem só para medir a proporção (largura × altura)
 function getImageAspect(file: File): Promise<number> {
@@ -106,7 +135,7 @@ async function handleFiles(newFiles: FileList | File[]) {
   for (const f of candidates) {
     if (f.size > MAX_IMG_BYTES) {
       rejectTitle = 'Essa imagem ficou pesada demais'
-      rejectMsg = 'Para a leitura sair certinha, cada print precisa ter até 2MB. Envie a imagem direto da galeria, sem editar — o print original da conversa já é tudo que a gente precisa. 💜'
+      rejectMsg = 'Essa imagem está muito grande (acima de 15 MB). Envie o print original da conversa, direto da galeria, sem editar — é tudo que a gente precisa. 💜'
       continue
     }
     const aspect = await getImageAspect(f)
@@ -119,7 +148,9 @@ async function handleFiles(newFiles: FileList | File[]) {
   }
 
   if (accepted.length) {
-    uploadedFiles.value = [...uploadedFiles.value, ...accepted]
+    // Comprime/redimensiona antes de adicionar (leve no upload, sem perder o OCR)
+    const compressed = await Promise.all(accepted.map(compressImage))
+    uploadedFiles.value = [...uploadedFiles.value, ...compressed]
     renderPreviews()
     btnContinueDisabled.value = false
   }
