@@ -78,7 +78,7 @@ const MAX_IMG_ASPECT = 5                 // lado maior até 5× o menor (print n
 // A Anthropic já reduz qualquer imagem para 1568px no lado maior, então resize p/
 // ~1600px é "de graça" (sem perda de OCR) e derruba 5 MB → ~500 KB. Texto fica nítido.
 const COMPRESS_MAX_EDGE  = 1600
-const COMPRESS_QUALITY   = 0.88
+const COMPRESS_QUALITY   = 0.92
 const COMPRESS_THRESHOLD = 900 * 1024    // só comprime se valer a pena (> ~900 KB ou grande)
 async function compressImage(file: File): Promise<File> {
   try {
