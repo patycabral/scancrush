@@ -608,17 +608,13 @@ const recipCriteria = computed(() => {
   })
 })
 
-/** Veredito do score (título do JSON quando houver; subtítulo derivado da faixa) */
+/** Veredito do score — faixas determinísticas (0-24 baixa · 25-49 parcial · 50-74 moderada · 75-100 alta) */
 const recipLabel = computed(() => {
-  const jsonLabel = String(resultData.value?.reciprocity?.label ?? '').trim()
   const s = recipScore.value
-  let title: string, sub: string
-  if (s <= 20)      { title = 'Reciprocidade muito baixa'; sub = 'Investimento unilateral' }
-  else if (s <= 40) { title = 'Reciprocidade baixa';       sub = 'Forte desequilíbrio' }
-  else if (s <= 60) { title = 'Reciprocidade moderada';    sub = 'Troca parcial' }
-  else if (s <= 80) { title = 'Reciprocidade equilibrada'; sub = 'Troca razoável' }
-  else              { title = 'Reciprocidade alta';        sub = 'Troca mútua' }
-  return { title: jsonLabel || title, sub }
+  if (s <= 24) return { title: 'Reciprocidade baixa',    sub: 'Investimento unilateral' }
+  if (s <= 49) return { title: 'Reciprocidade parcial',  sub: 'Equilíbrio desigual' }
+  if (s <= 74) return { title: 'Reciprocidade moderada', sub: 'Equilíbrio parcial' }
+  return              { title: 'Reciprocidade alta',     sub: 'Bem distribuída' }
 })
 
 function updateNewAnalysisBtn() {
@@ -1606,7 +1602,7 @@ onUnmounted(() => {
             <div class="recip-crit-top">
               <span class="recip-crit-label">{{ norm(c.label) }}</span>
               <span class="recip-crit-points">
-                <template v-if="c.noData">—</template><template v-else>{{ c.score }}</template><span class="recip-crit-max">/{{ c.max }}</span>
+                {{ c.score }}<span class="recip-crit-max">/{{ c.max }}</span>
               </span>
             </div>
             <p class="recip-crit-exp">{{ c.noData ? 'Não observado no recorte.' : norm(c.explanation) }}</p>
@@ -1937,7 +1933,7 @@ onUnmounted(() => {
         <div v-for="(c, i) in recipCriteria" :key="'prc'+i" class="pdf-recip-crit" :class="c.status">
           <div class="pdf-recip-crit-top">
             <span class="pdf-recip-crit-label">{{ norm(c.label) }}</span>
-            <span class="pdf-recip-crit-points"><template v-if="c.noData">—</template><template v-else>{{ c.score }}</template>/{{ c.max }}</span>
+            <span class="pdf-recip-crit-points">{{ c.score }}/{{ c.max }}</span>
           </div>
           <p class="pdf-recip-crit-exp">{{ c.noData ? 'Não observado no recorte.' : norm(c.explanation) }}</p>
           <div class="pdf-recip-crit-bar"><div class="pdf-recip-crit-bar-fill" :style="{ width: (c.noData ? 0 : c.pct) + '%' }"></div></div>
