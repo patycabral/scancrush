@@ -1411,8 +1411,8 @@ onUnmounted(() => {
       </div>
       <span class="loading-bar-pct">{{ Math.round(loadingProgress) }}%</span>
     </div>
-    <p class="loading-notice">Isso pode levar alguns instantes, principalmente quando há várias imagens. <strong>Mantenha esta tela aberta</strong> até o resultado aparecer.</p>
-    <p class="loading-notice-2">Se você sair da página ou o celular bloquear, não se preocupe: quando a análise for concluída, enviamos uma cópia para o e-mail usado na compra. 💜</p>
+    <p class="loading-notice">Isso pode levar alguns instantes, principalmente com várias imagens. <strong>Evite sair da página ou deixar a tela bloquear</strong> até o resultado aparecer.</p>
+    <p class="loading-notice-2">Mas fique tranquilo(a): se isso acontecer, sua análise também será enviada para o e-mail usado na compra. 💜</p>
   </div>
 </div>
 
