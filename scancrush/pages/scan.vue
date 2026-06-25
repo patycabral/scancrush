@@ -126,7 +126,14 @@ async function handleFiles(newFiles: FileList | File[]) {
   if (imgs.length > 1) imgs.reverse()
 
   const slots = limit - uploadedFiles.value.length
-  if (slots <= 0) { updateUploadUI(); return }
+  if (slots <= 0) {
+    // Só avisa quando a pessoa TENTA passar do limite (não ao atingir).
+    invalidContentTitle.value = 'Limite de imagens atingido'
+    invalidContentMsg.value = 'Você atingiu o limite de imagens deste plano.'
+    showInvalidContent.value = true
+    if (import.meta.client) document.body.style.overflow = 'hidden'
+    updateUploadUI(); return
+  }
   const candidates = imgs.slice(0, slots)
 
   // Valida tamanho + proporção de cada arquivo
@@ -178,18 +185,10 @@ function updateUploadUI() {
   uploadBarWidth.value = pct + '%'
   uploadBarClass.value = pct >= 100 ? 'full' : pct >= 70 ? 'warn' : ''
 
-  if (count >= limit && !LAUNCH_MODE) {
-    dropAreaStyle.value = { pointerEvents: 'none', opacity: '0.45' }
-    showLimitAlert.value = true
-    if (currentPlan.value === 'free') {
-      limitAlertText.value = '⚠️ Este plano analisa somente 1 print por análise. '
-    } else {
-      limitAlertText.value = `⚠️ Você atingiu o limite de ${limit} ${unit} do seu plano. Faça upgrade para enviar mais.`
-    }
-  } else if (count < limit || LAUNCH_MODE) {
-    dropAreaStyle.value = { pointerEvents: 'auto', opacity: '1' }
-    showLimitAlert.value = false
-  }
+  // Sem banner amarelo ao ATINGIR o limite — o contador "X / X" já comunica.
+  // A área segue ativa; o aviso só aparece se a pessoa TENTAR exceder (handleFiles).
+  dropAreaStyle.value = { pointerEvents: 'auto', opacity: '1' }
+  showLimitAlert.value = false
 }
 
 function renderPreviews() {
@@ -775,11 +774,13 @@ async function startAnalysis() {
     setTimeout(() => { scoreBarWidth.value = `${Math.min(score, 100)}%` }, 100)
 
   } catch {
+    // Timeout / perda de conexão / app em background no mobile: a análise pode ter
+    // sido concluída no servidor mesmo sem retorno aqui. NÃO afirmar "falhou".
     if (msgInterval) clearInterval(msgInterval)
     if (progressInterval) clearInterval(progressInterval)
     if (import.meta.client) sessionStorage.removeItem('sc_analysis_done')
     goTo(2)
-    validationMsgHtml.value = '⚠️ Erro ao processar sua análise. Verifique sua conexão e tente novamente.'
+    validationMsgHtml.value = '⏳ Não conseguimos confirmar o resultado nesta tela. Sua análise pode ter sido concluída — confira o e-mail usado na compra; se estiver pronta, enviamos o resultado para lá. 💜'
     showValidationMsg.value = true
   }
 }
@@ -1400,6 +1401,7 @@ onUnmounted(() => {
       <div class="scan-inner">🔍</div>
     </div>
     <div class="loading-content">
+      <h2 class="loading-title">Estamos analisando sua conversa…</h2>
       <p class="loading-text">{{ loadingText }}</p>
       <p class="loading-sub">{{ loadingSub }}</p>
     </div>
@@ -1409,7 +1411,8 @@ onUnmounted(() => {
       </div>
       <span class="loading-bar-pct">{{ Math.round(loadingProgress) }}%</span>
     </div>
-    <p class="loading-notice">A análise é feita em tempo real — pode levar alguns minutos.<br>Não feche esta tela.</p>
+    <p class="loading-notice">Isso pode levar alguns instantes, principalmente quando há várias imagens. <strong>Mantenha esta tela aberta</strong> até o resultado aparecer.</p>
+    <p class="loading-notice-2">Se você sair da página ou o celular bloquear, não se preocupe: quando a análise for concluída, enviamos uma cópia para o e-mail usado na compra. 💜</p>
   </div>
 </div>
 
@@ -2918,13 +2921,30 @@ body::after {
   min-width: 32px;
   text-align: right;
 }
+.loading-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+  text-align: center;
+  margin: 0 0 10px;
+}
 .loading-notice {
   font-size: 11px;
   color: var(--text-3);
   font-family: var(--mono);
   text-align: center;
   line-height: 1.7;
-  max-width: 280px;
+  max-width: 300px;
+}
+.loading-notice strong { color: var(--text-2); }
+.loading-notice-2 {
+  font-size: 11.5px;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.6;
+  max-width: 320px;
+  margin-top: 10px;
 }
 
 /* ── RESULT NOTICE CARD ── */
