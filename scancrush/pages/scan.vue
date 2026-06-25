@@ -4652,18 +4652,20 @@ body::after {
 }
 .pdf-chip.pos { color: var(--pdf-green); border-color: rgba(0,163,108,0.4); background: rgba(0,163,108,0.07); }
 .pdf-chip.neg { color: var(--pdf-pink);  border-color: rgba(255,45,107,0.4); background: rgba(255,45,107,0.06); }
+/* flexbox (sem position:absolute) — evita reordenação da camada de texto no PDF */
 .pdf-signal {
-  position: relative;
-  padding-left: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   font-size: 13px;
   color: var(--pdf-body);
   line-height: 1.65;
   margin-bottom: 7px;
 }
 .pdf-dot {
-  position: absolute;
-  left: 0; top: 7px;
+  flex-shrink: 0;
   width: 7px; height: 7px;
+  margin-top: 7px;
   border-radius: 50%;
 }
 .pdf-dot.g { background: var(--pdf-green); }
