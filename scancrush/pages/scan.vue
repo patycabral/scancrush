@@ -775,10 +775,18 @@ async function startAnalysis() {
 
   } catch {
     // Timeout / perda de conexão / app em background no mobile: a análise pode ter
-    // sido concluída no servidor mesmo sem retorno aqui. NÃO afirmar "falhou".
+    // sido concluída no servidor mesmo sem retorno aqui. Antes de mostrar erro,
+    // TENTA RECUPERAR o resultado salvo (print-result) por ~2 min.
     if (msgInterval) clearInterval(msgInterval)
     if (progressInterval) clearInterval(progressInterval)
+    loadingText.value = 'Reconectando…'
+    loadingSub.value  = 'buscando seu resultado — só um instante'
+    loadingProgress.value = Math.max(loadingProgress.value, 94)
+
+    const recovered = await recoverResult(accessToken.value, userEmail.value.trim())
     if (import.meta.client) sessionStorage.removeItem('sc_analysis_done')
+    if (recovered) return   // applySavedResult já levou pra tela de resultado (4)
+
     goTo(2)
     validationMsgHtml.value = '⏳ Não conseguimos confirmar o resultado nesta tela. Sua análise pode ter sido concluída — confira o e-mail usado na compra; se estiver pronta, enviamos o resultado para lá. 💜'
     showValidationMsg.value = true
@@ -902,34 +910,7 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
       return
     }
 
-    // Resolve a chave do plano (aceita chave OU nome). Default 'free' = nunca mostra
-    // mais do que o plano pago (evita vazar conteúdo completo num plano básico).
-    const VALID_KEYS = new Set(['free', 'revealed', 'raiox'])
-    const rawPlan = data.plan ?? data.plan_name ?? ''
-    const plan = VALID_KEYS.has(rawPlan) ? rawPlan : (PLAN_NAME_TO_KEY[rawPlan] ?? 'free')
-    resultPlan.value      = plan
-    currentPlan.value     = plan
-    resultUserName.value  = data.user_name ?? ''
-    resultUserEmail.value = data.user_email ?? ''
-    resultProtocol.value  = data.protocol ?? protocol ?? ''
-    resultPrintCount.value = data.print_count ?? (uploadedFiles.value.length || null)
-    resultAnalysisDate.value = data.generated_at ?? ''
-    resultFeelingsRaw.value = data.feelings ?? ''
-
-    const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
-    resultData.value = Array.isArray(rawData) ? (rawData[0] ?? {}) : rawData
-    resultCta.value  = data.cta ?? null
-
-    const relDyn = resultData.value?.executive_summary?.relationship_dynamics ?? null
-    resultRelDyn.value = relDyn ? {
-      'Análise do Usuário (você)': relDyn.user ?? null,
-      'Análise do(a) Crush':       relDyn.crush ?? null,
-      'Conclusão':                 relDyn.conclusion ?? resultData.value?.executive_summary?.conclusion ?? null,
-    } : null
-
-    goTo(4)
-    const score = resultData.value?.interest_score ?? 0
-    setTimeout(() => { scoreBarWidth.value = `${Math.min(score, 100)}%` }, 100)
+    applySavedResult(data, protocol)
 
     // Veio do botão "Baixar PDF" do e-mail (?dl=1) → abre a janela de impressão
     if (import.meta.client && route.query.dl) {
@@ -940,6 +921,61 @@ async function loadSharedResult(token: string, protocol: string, email: string) 
   } finally {
     tokenValidating.value = false
   }
+}
+
+// Popula a tela de resultado a partir do payload salvo (print-result). Reutilizado
+// pelo link de e-mail (loadSharedResult) e pela recuperação pós-timeout (recoverResult).
+function applySavedResult(data: any, protocol: string) {
+  // Default 'free' = nunca mostra mais do que o plano pago.
+  const VALID_KEYS = new Set(['free', 'revealed', 'raiox'])
+  const rawPlan = data.plan ?? data.plan_name ?? ''
+  const plan = VALID_KEYS.has(rawPlan) ? rawPlan : (PLAN_NAME_TO_KEY[rawPlan] ?? 'free')
+  resultPlan.value      = plan
+  currentPlan.value     = plan
+  resultUserName.value  = data.user_name ?? ''
+  resultUserEmail.value = data.user_email ?? ''
+  resultProtocol.value  = data.protocol ?? protocol ?? ''
+  resultPrintCount.value = data.print_count ?? (uploadedFiles.value.length || null)
+  resultAnalysisDate.value = data.generated_at ?? ''
+  resultFeelingsRaw.value = data.feelings ?? ''
+
+  const rawData = typeof data.data === 'string' ? JSON.parse(data.data) : (data.data ?? data.analysis ?? {})
+  resultData.value = Array.isArray(rawData) ? (rawData[0] ?? {}) : rawData
+  resultCta.value  = data.cta ?? null
+
+  const relDyn = resultData.value?.executive_summary?.relationship_dynamics ?? null
+  resultRelDyn.value = relDyn ? {
+    'Análise do Usuário (você)': relDyn.user ?? null,
+    'Análise do(a) Crush':       relDyn.crush ?? null,
+    'Conclusão':                 relDyn.conclusion ?? resultData.value?.executive_summary?.conclusion ?? null,
+  } : null
+
+  goTo(4)
+  const score = resultData.value?.interest_score ?? 0
+  setTimeout(() => { scoreBarWidth.value = `${Math.min(score, 100)}%` }, 100)
+}
+
+// A1 — recuperação pós-timeout/queda: a análise pode ter concluído no servidor mesmo
+// sem retorno aqui. Consulta o print-result pelo TOKEN até o resultado salvo aparecer.
+async function recoverResult(token: string, email: string, maxMs = 120000, intervalMs = 5000): Promise<boolean> {
+  if (!token) return false
+  const deadline = Date.now() + maxMs
+  while (Date.now() < deadline) {
+    try {
+      const res = await fetch(PRINT_RESULT_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ token, protocolo: '', email }),
+      })
+      const data = await res.json().catch(() => null)
+      if (data?.success && (data.data ?? data.analysis)) {
+        applySavedResult(data, data.protocol ?? '')
+        return true
+      }
+    } catch { /* ainda não salvou / sem rede — continua tentando */ }
+    await new Promise(r => setTimeout(r, intervalMs))
+  }
+  return false
 }
 
 // Mapeia o nome do plano vindo do webhook para a chave interna
