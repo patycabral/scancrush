@@ -1452,11 +1452,14 @@ onUnmounted(() => {
     <template v-if="isFree">
       <div v-if="hasSignals" class="res-card">
         <div class="res-label">Sinais na conversa</div>
-        <div v-if="resultData.signals.positive?.[0]" class="signal-item">
-          <span class="sig-dot g"></span>{{ norm(txt(resultData.signals.positive[0])) }}
+        <div v-for="(item, i) in resultData.signals.positive ?? []" :key="'fsp'+i" class="signal-item">
+          <span class="sig-dot g"></span>{{ norm(txt(item)) }}
         </div>
-        <div v-if="resultData.signals.negative?.[0]" class="signal-item">
-          <span class="sig-dot r"></span>{{ norm(txt(resultData.signals.negative[0])) }}
+        <div v-for="(item, i) in resultData.signals.neutral ?? []" :key="'fsu'+i" class="signal-item">
+          <span class="sig-dot y"></span>{{ norm(txt(item)) }}
+        </div>
+        <div v-for="(item, i) in resultData.signals.negative ?? []" :key="'fsn'+i" class="signal-item">
+          <span class="sig-dot r"></span>{{ norm(txt(item)) }}
         </div>
       </div>
       <div class="free-insight-card">
