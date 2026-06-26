@@ -10,8 +10,8 @@ const protocolo = (route.query.p as string) || ''
 const email     = (route.query.e as string) || ''
 const source    = (route.query.source as string) || 'email'
 
-const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/valida-pesquisa' // valida token / validade / já respondida
-const RESEARCH_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/research'        // salva as respostas
+const VALIDATE_URL = '/api/valida-pesquisa' // valida token / validade / já respondida
+const RESEARCH_URL = '/api/research'        // salva as respostas
 
 // estados: loading | form | done | already | expired | invalid | error
 const state         = ref<'loading' | 'form' | 'done' | 'already' | 'expired' | 'invalid' | 'error'>('loading')

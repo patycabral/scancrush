@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useHead({ title: 'ScanCrush — Validando acesso...' })
 
-const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/validate-access-token'
+const VALIDATE_URL = '/api/validate-access-token'
 
 type PageState = 'loading' | 'no-token' | 'error'
 

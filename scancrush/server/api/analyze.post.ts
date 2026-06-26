@@ -5,9 +5,8 @@
  * Em produção também funciona (servidor → n8n, sem CORS).
  */
 
-const N8N_WEBHOOK = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/analyze'
-
 export default defineEventHandler(async (event) => {
+  const N8N_WEBHOOK = `${useRuntimeConfig(event).n8nBase}/webhook/analyze`
   // Lê multipart (imagens + campos de texto)
   const parts = await readMultipartFormData(event)
 

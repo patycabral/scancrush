@@ -1,6 +1,12 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  // Base do n8n fica SÓ no servidor (não vai pro bundle do cliente).
+  // Em produção, defina NUXT_N8N_BASE no EasyPanel; sem isso, usa o fallback.
+  runtimeConfig: {
+    n8nBase: process.env.NUXT_N8N_BASE || 'https://scancrush-n8n.xpsbu9.easypanel.host',
+  },
+
   modules: ['@nuxtjs/tailwindcss', '@nuxt/content'],
 
   css: ['~/assets/css/main.css'],

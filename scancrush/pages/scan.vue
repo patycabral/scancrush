@@ -700,7 +700,7 @@ async function startAnalysis() {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 8 * 60 * 1000)
 
-    const res = await fetch('https://scancrush-n8n.xpsbu9.easypanel.host/webhook/analyze', {
+    const res = await fetch('/api/analyze', {
       method: 'POST',
       body: form,
       signal: controller.signal,
@@ -888,8 +888,8 @@ const route           = useRoute()
 const tokenValidating = ref(!!route.query.token || !!route.query.r)
 const accessError     = ref('')
 
-const VALIDATE_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/validate-access-token'
-const PRINT_RESULT_URL = 'https://scancrush-n8n.xpsbu9.easypanel.host/webhook/print-result'
+const VALIDATE_URL = '/api/validate-access-token'
+const PRINT_RESULT_URL = '/api/print-result'
 
 // Modo visualização (link do e-mail): reabre o resultado já gerado, somente leitura.
 // Valida token + protocolo + e-mail no n8n antes de devolver o result_json salvo.
