@@ -1,5 +1,8 @@
 <script setup lang="ts">
-useHead({ title: 'ScanCrush — Pagamento confirmado' })
+useHead({
+  title: 'ScanCrush — Pagamento confirmado',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+})
 </script>
 
 <template>

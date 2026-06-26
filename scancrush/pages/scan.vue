@@ -1,5 +1,8 @@
 <script setup lang="ts">
-useHead({ title: 'ScanCrush — Análise da conversa' })
+useHead({
+  title: 'ScanCrush — Análise da conversa',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+})
 
 // ════════════════════════════════════════════════════
 // PLAN LIMITS
@@ -657,8 +660,14 @@ function updateNewAnalysisBtn() {
   }
 }
 
+// M2: trava anti-duplicação — impede que o duplo-clique (ou re-clique antes da
+// troca de tela) dispare duas análises na mesma sessão (gasto duplo de IA).
+const isAnalyzing = ref(false)
+
 async function startAnalysis() {
   if (!validateS2()) return
+  if (isAnalyzing.value) return
+  isAnalyzing.value = true
 
   goTo(3)
   msgIdx = 0
@@ -790,6 +799,8 @@ async function startAnalysis() {
     goTo(2)
     validationMsgHtml.value = '⏳ Não conseguimos confirmar o resultado nesta tela. Sua análise pode ter sido concluída — confira o e-mail usado na compra; se estiver pronta, enviamos o resultado para lá. 💜'
     showValidationMsg.value = true
+  } finally {
+    isAnalyzing.value = false   // libera a trava em qualquer desfecho
   }
 }
 
@@ -1334,7 +1345,7 @@ onUnmounted(() => {
       <span style="font-size:12px;opacity:0.7;display:block;margin-top:6px">Faça upgrade para gerar uma nova análise.</span>
     </div>
 
-    <button class="btn-main" v-show="showBtnGenerate" @click="startAnalysis()">
+    <button class="btn-main" v-show="showBtnGenerate" :disabled="isAnalyzing" @click="startAnalysis()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Ver os sinais da conversa
     </button>

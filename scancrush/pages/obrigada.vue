@@ -1,5 +1,8 @@
 <script setup lang="ts">
-useHead({ title: 'ScanCrush — Pagamento aprovado' })
+useHead({
+  title: 'ScanCrush — Pagamento aprovado',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+})
 
 // Perfect Pay pode enviar ?status=processing para pagamentos pendentes (Pix/boleto)
 const status = ref<'approved' | 'processing'>('approved')

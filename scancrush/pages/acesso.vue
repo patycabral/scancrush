@@ -1,5 +1,8 @@
 <script setup lang="ts">
-useHead({ title: 'ScanCrush — Validando acesso...' })
+useHead({
+  title: 'ScanCrush — Validando acesso...',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+})
 
 const VALIDATE_URL = '/api/validate-access-token'
 
