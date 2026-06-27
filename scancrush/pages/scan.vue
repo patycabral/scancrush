@@ -516,8 +516,8 @@ function capFirst(text: string): string {
 /** Mapeia user_posture.level → nomenclatura neutra */
 const postureLevelMap: Record<string, string> = {
   'carente':    'Alta busca por conexão',
-  'emocionado': 'Investimento emocional elevado',
-  'emocionada': 'Investimento emocional elevado',
+  'emocionado': 'Investimento ativo',
+  'emocionada': 'Investimento ativo',
   'ansioso':    'Alta ansiedade emocional',
   'ansiosa':    'Alta ansiedade emocional',
   'inseguro':   'Busca por validação',
@@ -1650,7 +1650,7 @@ onUnmounted(() => {
         </template>
         <template v-if="resultData?.emotional_profile">
           <div class="behavior-row" style="align-items:flex-start; margin-top:12px">
-            <span class="behavior-label">Perfil</span>
+            <span class="behavior-label">Padrão observado</span>
             <span class="behavior-val" style="flex:1">
               <span class="emotional-type">{{ capFirst(norm(resultData.emotional_profile.type)) }}</span>
               <span v-if="resultData.emotional_profile.description" class="emotional-desc">{{ norm(resultData.emotional_profile.description) }}</span>
@@ -1991,7 +1991,7 @@ onUnmounted(() => {
         <span class="pdf-row-val"><strong class="pdf-accent-pink">{{ postureLabel(resultData.user_posture.level) }}</strong><span v-if="resultData.user_posture.explanation" class="pdf-row-sub">{{ norm(resultData.user_posture.explanation) }}</span></span>
       </div>
       <div v-if="resultData?.emotional_profile" class="pdf-row">
-        <span class="pdf-row-label">Perfil</span>
+        <span class="pdf-row-label">Padrão observado</span>
         <span class="pdf-row-val"><strong class="pdf-accent-purple">{{ norm(resultData.emotional_profile.type) }}</strong><span v-if="resultData.emotional_profile.description" class="pdf-row-sub">{{ norm(resultData.emotional_profile.description) }}</span></span>
       </div>
     </div>
@@ -2120,8 +2120,8 @@ onUnmounted(() => {
 
     <!-- CTA: nova análise → planos da landing -->
     <div class="pdf-cta">
-      <p class="pdf-cta-text">Quer ir mais fundo nessa conversa?</p>
-      <a class="pdf-cta-btn" href="https://scancrush.com/#b-pricing">Fazer uma nova análise</a>
+      <p class="pdf-cta-text">Quer analisar outro recorte dessa conversa?</p>
+      <a class="pdf-cta-btn" href="https://scancrush.com/#b-pricing">Fazer nova análise</a>
     </div>
 
     <footer class="pdf-footer">
