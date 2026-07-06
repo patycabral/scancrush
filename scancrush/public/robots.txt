@@ -1,9 +1,9 @@
 User-agent: *
 Allow: /
-# Páginas privadas (acesso por token / resultado / pesquisa)
-Disallow: /scan
-Disallow: /tack
-Disallow: /acesso
-Disallow: /pesquisa
+
+# Páginas privadas (/scan, /acesso, /pesquisa, /tack, /obrigada) NÃO são
+# bloqueadas aqui de propósito: elas usam <meta robots="noindex"> no HTML.
+# Bloquear no robots.txt impediria o Google de ler o noindex — então deixamos
+# ele rastrear, ver o noindex e removê-las do índice de forma limpa.
 
 Sitemap: https://scancrush.com/sitemap.xml
