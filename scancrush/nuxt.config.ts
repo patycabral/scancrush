@@ -71,6 +71,9 @@ export default defineNuxtConfig({
     routeRules: {
       '/_nuxt/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
       '/fonts/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
+      '/brand/**': { headers: { 'cache-control': 'public, max-age=2592000' } },
+      '/og-scancrush.png': { headers: { 'cache-control': 'public, max-age=2592000' } },
+      '/favicon.svg': { headers: { 'cache-control': 'public, max-age=2592000' } },
     },
   },
 

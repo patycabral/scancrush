@@ -223,7 +223,7 @@ body::after {
 
 .btn-nav {
   padding: 10px 22px;
-  background: var(--pink);
+  background: linear-gradient(135deg, var(--pink), #D40060);
   color: white;
   border-radius: 100px;
   font-size: 13px;
