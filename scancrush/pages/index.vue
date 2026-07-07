@@ -2,7 +2,7 @@
 useHead({
   title: 'ScanCrush: Como saber se o crush gosta de mim pela conversa',
   meta: [
-    { name: 'description',        content: 'Cole os prints da conversa e deixe a Patty observar os sinais. O ScanCrush identifica padrões, reciprocidade e pontos de atenção — com clareza, sem achismo.' },
+    { name: 'description',        content: 'Envie os prints da conversa e deixe a Patty observar os sinais. O ScanCrush identifica padrões, reciprocidade e pontos de atenção com clareza, sem achismo.' },
     { name: 'keywords',           content: 'ScanCrush, Scan Crush, Crush Scan, scanner de crush, análise de crush, como saber se o crush gosta de mim, sinais do crush, interpretar mensagens do crush, análise de conversa com IA, reciprocidade em conversas, sinais de interesse' },
     { property: 'og:type',        content: 'website' },
     { property: 'og:url',         content: 'https://scancrush.com/' },
@@ -14,7 +14,7 @@ useHead({
     { property: 'og:image:width', content: '1200' },
     { property: 'og:image:height', content: '630' },
     { property: 'og:image:type',  content: 'image/png' },
-    { property: 'og:image:alt',   content: 'ScanCrush — Os sinais sempre estiveram ali, você só não tinha percebido ainda. A Patty ajuda você a enxergar.' },
+    { property: 'og:image:alt',   content: 'ScanCrush: Os sinais sempre estiveram ali, você só não tinha percebido ainda. A Patty ajuda você a enxergar.' },
     { name: 'twitter:card',       content: 'summary_large_image' },
     { name: 'twitter:title',      content: 'Talvez você só não tinha percebido ainda…' },
     { name: 'twitter:description', content: 'A Patty analisa sua conversa e mostra sinais, padrões e pontos de atenção com mais clareza.' },
@@ -32,14 +32,14 @@ useHead({
         name: 'ScanCrush',
         alternateName: ['Scan Crush', 'Crush Scan', 'Scanner de Crush'],
         url: 'https://scancrush.com/',
-        description: 'O ScanCrush é uma ferramenta de análise de conversas que identifica sinais, padrões de comportamento e reciprocidade nas mensagens, conduzida pela Patty — a analista virtual da marca. Não é vidência, oráculo nem aconselhamento profissional: ajuda a enxergar o que a conversa mostra (Score de Engajamento Observado).',
+        description: 'O ScanCrush é uma ferramenta de análise de conversas que identifica sinais, padrões de comportamento e reciprocidade nas mensagens, conduzida pela Patty, a analista virtual da marca. Não é vidência, oráculo nem aconselhamento profissional: ajuda a enxergar o que a conversa mostra (Score de Engajamento Observado).',
         applicationCategory: 'LifestyleApplication',
         operatingSystem: 'Web',
         inLanguage: 'pt-BR',
         offers: [
-          { '@type': 'Offer', price: '6.90', priceCurrency: 'BRL', name: 'Primeiras Impressões — 1 print' },
-          { '@type': 'Offer', price: '19.90', priceCurrency: 'BRL', name: 'Sinais Revelados — até 4 prints' },
-          { '@type': 'Offer', price: '44.90', priceCurrency: 'BRL', name: 'Raio-X do Crush — até 10 prints' },
+          { '@type': 'Offer', price: '6.90', priceCurrency: 'BRL', name: 'Primeiras Impressões (1 print)' },
+          { '@type': 'Offer', price: '19.90', priceCurrency: 'BRL', name: 'Sinais Revelados (até 4 prints)' },
+          { '@type': 'Offer', price: '44.90', priceCurrency: 'BRL', name: 'Raio-X do Crush (até 10 prints)' },
         ],
       }),
     },
@@ -81,7 +81,7 @@ useHead({
           {
             '@type': 'Question',
             name: 'Como funciona a análise?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Você cola os prints da conversa e a Patty faz a leitura. O resultado traz o Score de Engajamento Observado, os sinais positivos e os pontos de atenção encontrados nas mensagens.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Você envia os prints da conversa e a Patty faz a leitura. O resultado traz o Score de Engajamento Observado, os sinais positivos e os pontos de atenção encontrados nas mensagens.' },
           },
           {
             '@type': 'Question',
@@ -251,6 +251,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 </nav>
 
 <!-- ─── HERO ─────────────────────────────────────────────────── -->
+<main>
 <section class="hero">
   <div class="container">
     <div class="hero-grid">
@@ -263,8 +264,8 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         </h1>
 
         <p class="hero-sub">
-          A resposta está nos padrões das mensagens — não no que você espera ouvir.<br>
-          <span class="hero-sub-2"><b>Cole os prints da conversa com o seu crush e receba uma leitura dos sinais presentes na conversa</b> — sem julgamento e com menos achismo.</span>
+          A resposta está nos padrões das mensagens, não no que você espera ouvir.<br>
+          <span class="hero-sub-2"><b>Envie os prints da conversa com o seu crush e receba uma leitura dos sinais presentes na conversa</b>, sem julgamento e com menos achismo.</span>
         </p>
 
         <div class="hero-actions">
@@ -391,19 +392,19 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <h2 class="section-title">
         <span>Interpretar mensagens do crush</span><br class="br-m-hide"> <span class="grad">com IA genérica não funciona.</span>
       </h2>
-      <p class="diff-sub reveal">Qualquer pessoa pode perguntar para IA genérica o que uma mensagem significa. Mas a IA genérica não foi treinada para ler relacionamentos — foi treinada para parecer prestativa com qualquer pergunta.</p>
-      <p class="diff-contrast reveal" style="margin-bottom:28px">"Talvez". "Depende". "Cada pessoa é diferente!" — sem nenhuma conclusão real sobre a conversa.</p>
+      <p class="diff-sub reveal">Você pergunta o que aquela mensagem significa e recebe uma resposta educada que serve para qualquer pessoa. Porque a IA genérica não foi feita para ler relacionamentos. Foi feita para agradar quem pergunta.</p>
+      <p class="diff-contrast reveal" style="margin-bottom:28px">"Talvez". "Depende". "Cada pessoa é diferente!" E você continua sem saber o que a conversa está dizendo.</p>
     </div>
     <div class="diff-grid">
       <div class="diff-card reveal">
         <div class="diff-icon">◈</div>
         <h3 class="diff-card-title">IA genérica evita se comprometer</h3>
-        <p class="diff-card-desc">Não foi treinada para analisar relacionamentos — então sempre diz "talvez" e "depende do contexto".</p>
+        <p class="diff-card-desc">Não foi treinada para analisar relacionamentos. Por isso sempre responde "talvez" e "depende do contexto".</p>
       </div>
       <div class="diff-card reveal" style="transition-delay:.08s">
         <div class="diff-icon">◈</div>
         <h3 class="diff-card-title">Amigos são parciais por natureza</h3>
-        <p class="diff-card-desc">Querem te ver feliz. Ou te proteger. De qualquer forma, não são imparciais — e isso distorce a análise.</p>
+        <p class="diff-card-desc">Querem te ver feliz. Ou te proteger. De qualquer forma, não são imparciais. E isso distorce a leitura.</p>
       </div>
       <div class="diff-card reveal" style="transition-delay:.16s">
         <div class="diff-icon">◈</div>
@@ -500,7 +501,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
     <div class="reveal patty-layout">
       <div class="patty-photo-wrap">
-        <img src="/brand/patty.webp" alt="Patty — a analista virtual do ScanCrush" class="patty-photo" width="440" height="660" loading="lazy" />
+        <img src="/brand/patty.webp" alt="Patty, a analista virtual do ScanCrush" class="patty-photo" width="440" height="660" loading="lazy" />
         <p class="patty-clarify">Para ser bem claro: a Patty não adivinha sentimentos e não decide por você. Ela analisa os sinais da conversa para trazer mais clareza.</p>
       </div>
 
@@ -659,6 +660,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     </div>
   </div>
 </section>
+</main>
 
 <!-- ─── FOOTER ────────────────────────────────────────────────── -->
 <footer>

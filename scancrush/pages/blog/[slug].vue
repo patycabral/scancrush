@@ -8,38 +8,54 @@ if (!article.value) {
   throw createError({ statusCode: 404, statusMessage: 'Artigo não encontrado' })
 }
 
+const pageUrl = `https://scancrush.com/blog/${route.params.slug}`
+
+const jsonLd: Array<{ type: string; innerHTML: string }> = [
+  {
+    type: 'application/ld+json',
+    innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: article.value.title,
+      description: article.value.description,
+      inLanguage: 'pt-BR',
+      ...(article.value.date && { datePublished: article.value.date }),
+      ...(article.value.updated && { dateModified: article.value.updated }),
+      author: { '@type': 'Organization', name: 'ScanCrush', url: 'https://scancrush.com' },
+      publisher: { '@type': 'Organization', name: 'ScanCrush', url: 'https://scancrush.com' },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+    }),
+  },
+]
+
+if (article.value.faq?.length) {
+  jsonLd.push({
+    type: 'application/ld+json',
+    innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: article.value.faq.map((item: { q: string; a: string }) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    }),
+  })
+}
+
 useHead({
   title: `${article.value.title} — ScanCrush`,
+  link: [{ rel: 'canonical', href: pageUrl }],
   meta: [
     { name: 'description', content: article.value.description },
-    { rel: 'canonical', href: `https://scancrush.com/blog/${route.params.slug}` },
     { property: 'og:title', content: article.value.title },
     { property: 'og:description', content: article.value.description },
     { property: 'og:type', content: 'article' },
+    { property: 'og:url', content: pageUrl },
+    { property: 'og:site_name', content: 'ScanCrush' },
+    { property: 'og:locale', content: 'pt_BR' },
   ],
-  script: [
-    {
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: article.value.title,
-        description: article.value.description,
-        datePublished: article.value.date,
-        author: { '@type': 'Organization', name: 'ScanCrush' },
-        publisher: { '@type': 'Organization', name: 'ScanCrush', url: 'https://scancrush.com' },
-        mainEntityOfPage: { '@type': 'WebPage', '@id': `https://scancrush.com/blog/${route.params.slug}` },
-        ...(article.value.faq && {
-          '@context': 'https://schema.org',
-          mainEntity: article.value.faq.map((item: { q: string; a: string }) => ({
-            '@type': 'Question',
-            name: item.q,
-            acceptedAnswer: { '@type': 'Answer', text: item.a },
-          })),
-        }),
-      }),
-    },
-  ],
+  script: jsonLd,
 })
 
 const plansModal = ref()
@@ -48,7 +64,7 @@ const plansModal = ref()
 <template>
 <SiteNav />
 
-<div class="article-page" v-if="article">
+<main class="article-page" v-if="article">
   <div class="article-header">
     <NuxtLink to="/blog" class="article-back">← Blog</NuxtLink>
     <div class="article-header-inner">
@@ -82,7 +98,7 @@ const plansModal = ref()
     <div class="article-final-cta">
       <p class="final-cta-eyebrow">// chega de adivinhar</p>
       <p class="final-cta-title">Você merece uma resposta de verdade</p>
-      <p class="final-cta-sub">Cole a conversa, a IA analisa os padrões e te diz o que está acontecendo — em segundos.</p>
+      <p class="final-cta-sub">Envie os prints da conversa e receba uma leitura dos sinais presentes na conversa de vocês.</p>
       <button type="button" class="final-cta-btn" @click="plansModal?.open()">Analisar minha conversa agora →</button>
     </div>
 
@@ -91,7 +107,7 @@ const plansModal = ref()
       <NuxtLink to="/blog" class="article-back-link">← Ver todos os artigos</NuxtLink>
     </div>
   </div>
-</div>
+</main>
 
 <PlansModal ref="plansModal" />
 </template>

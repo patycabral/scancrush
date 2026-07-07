@@ -1,0 +1,31 @@
+# ScanCrush
+
+> O ScanCrush é uma plataforma brasileira de análise de conversas afetivas. A pessoa envia os prints da conversa com o crush e recebe uma leitura dos sinais presentes nas mensagens: padrões de comportamento, reciprocidade, consistência e pontos de atenção, organizados no Score de Engajamento Observado. A leitura é conduzida pela Patty, a analista virtual da marca. A análise é probabilística e interpretativa: não é vidência, não prevê o futuro, não substitui terapia nem decide pela pessoa.
+
+Informações importantes:
+
+- O produto funciona por envio de prints (imagens) da conversa; as mensagens são usadas apenas para gerar a análise e não ficam armazenadas.
+- Planos: Primeiras Impressões (1 print, R$ 6,90), Sinais Revelados (até 4 prints, R$ 19,90) e Raio-X do Crush (até 10 prints, R$ 44,90).
+- Idioma principal: português do Brasil.
+
+## Páginas principais
+
+- [Início e análise](https://scancrush.com/): o que é o ScanCrush, como funciona e planos
+- [Sobre](https://scancrush.com/sobre): a história da marca e quem é a Patty
+- [Quizzes](https://scancrush.com/quiz): testes rápidos como "ele gosta de mim", "estou na friendzone" e "devo continuar insistindo"
+
+## Blog (guias sobre sinais e padrões em conversas)
+
+- [Índice do blog](https://scancrush.com/blog): 27 artigos sobre interpretação de mensagens
+- [Como saber se ele gosta de você pelo WhatsApp](https://scancrush.com/blog/sinais-que-ele-gosta-de-voce-pelo-whatsapp)
+- [O que significa ser deixada no visto](https://scancrush.com/blog/ele-me-deixou-no-visto)
+- [Por que ele some e volta](https://scancrush.com/blog/por-que-ele-some-e-volta)
+- [O que é situationship](https://scancrush.com/blog/o-que-e-situationship)
+- [Breadcrumbing: o que é e como identificar](https://scancrush.com/blog/breadcrumbing-o-que-e-como-identificar)
+- [Como analisar uma conversa com IA](https://scancrush.com/blog/analise-de-conversa-com-ia)
+
+## Opcional
+
+- [Sitemap](https://scancrush.com/sitemap.xml)
+- [Privacidade](https://scancrush.com/privacy)
+- [Termos](https://scancrush.com/terms)

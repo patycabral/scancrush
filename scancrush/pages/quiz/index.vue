@@ -66,7 +66,7 @@ const quizzes = [
     <div class="quiz-scan-cta">
       <p class="scan-cta-eyebrow">// análise aprofundada</p>
       <p class="scan-cta-title">Quiz não basta? Analise a conversa de verdade.</p>
-      <p class="scan-cta-sub">Cole o print da conversa, a IA lê os padrões e te dá uma análise personalizada — não genérica.</p>
+      <p class="scan-cta-sub">Envie os prints da conversa, a IA lê os padrões e te dá uma análise personalizada, não genérica.</p>
       <button class="scan-cta-btn" @click="plansModal?.open()">Analisar minha conversa →</button>
     </div>
   </div>

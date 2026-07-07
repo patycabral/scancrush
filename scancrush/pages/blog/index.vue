@@ -44,6 +44,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   whatsapp:      'WhatsApp',
   interpretação: 'Interpretação',
   tecnologia:    'Tecnologia',
+  conversa:      'Conversa',
 }
 
 // Artigo em destaque (primeiro da lista)

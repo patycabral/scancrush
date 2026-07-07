@@ -17,6 +17,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      htmlAttrs: { lang: 'pt-BR' },
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
       title: 'ScanCrush — Análise emocional de conversas',
@@ -25,18 +26,12 @@ export default defineNuxtConfig({
         { property: 'og:title', content: 'ScanCrush' },
         { property: 'og:description', content: 'Análise emocional de conversas com IA.' },
       ],
-      script: [
-        { src: 'https://www.googletagmanager.com/gtag/js?id=G-CFLFJK84RL', async: true },
-        { innerHTML: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-CFLFJK84RL');` },
-      ],
+      // gtag carrega via plugins/gtag.client.ts (não bloqueia a primeira pintura)
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap',
-        },
+        // Fontes self-hosted (variáveis): sem ida ao Google Fonts
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: '/fonts/sora-latin.woff2', crossorigin: '' },
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: '/fonts/jetbrains-mono-latin.woff2', crossorigin: '' },
       ],
     },
   },
@@ -46,14 +41,16 @@ export default defineNuxtConfig({
     configPath: '~/tailwind.config.ts',
   },
 
-  // SSR apenas na landing page — o resto é client-only (sem indexação)
+  // Páginas públicas: prerenderizadas no build (HTML estático + gzip/brotli).
+  // Páginas privadas: client-only (sem indexação).
   routeRules: {
-    '/':           { ssr: true },
+    '/':           { prerender: true },
     '/lp':         { redirect: { to: '/', statusCode: 301 } },
-    '/blog':       { ssr: true },
-    '/blog/**':    { ssr: true },
-    '/quiz':       { ssr: true },
-    '/quiz/**':    { ssr: true },
+    '/sobre':      { prerender: true },
+    '/blog':       { prerender: true },
+    '/blog/**':    { prerender: true },
+    '/quiz':       { prerender: true },
+    '/quiz/**':    { prerender: true },
     '/scan':       { ssr: false },
     '/tack':       { ssr: false },
     '/privacy':    { ssr: false },
@@ -66,6 +63,11 @@ export default defineNuxtConfig({
 
   nitro: {
     compressPublicAssets: true,
+    prerender: {
+      crawlLinks: true,
+      routes: ['/', '/blog', '/quiz', '/sobre'],
+      ignore: ['/scan', '/acesso', '/analise', '/obrigada', '/tack', '/pesquisa', '/privacy', '/terms', '/api'],
+    },
     routeRules: {
       '/_nuxt/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
       '/fonts/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
