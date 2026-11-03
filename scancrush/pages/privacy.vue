@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useHead({ title: 'ScanCrush — Privacidade' })
+useHead({ title: 'Política de Privacidade | ScanCrush' })
 </script>
 
 <template>
@@ -18,40 +18,102 @@ useHead({ title: 'ScanCrush — Privacidade' })
 <div class="page-wrap">
   <span class="page-tag">// Privacidade</span>
   <h1>Política de Privacidade</h1>
-  <p class="page-date">Última atualização: março de 2025</p>
+  <p class="page-date">Última atualização: 3 de novembro de 2026</p>
 
-  <h2>Dados que coletamos</h2>
-  <p>O ScanCrush coleta apenas as informações que você fornece diretamente durante o uso da ferramenta:</p>
+  <p>Você confia ao ScanCrush uma conversa importante. Esta página explica, sem letra miúda, quais dados usamos, para quê, com quem e por quanto tempo. Ela segue a Lei Geral de Proteção de Dados (Lei 13.709/2018, a LGPD).</p>
+
+  <h2>Quem cuida dos seus dados</h2>
+  <p>O ScanCrush é o controlador dos dados tratados neste site. Para qualquer assunto de privacidade, inclusive para exercer os seus direitos, escreva para <strong>contato@scancrush.com</strong>.</p>
+
+  <h2>Dados que usamos</h2>
+  <p><strong>Na compra.</strong> O pagamento é feito na Perfect Pay, que nos envia o seu nome, e-mail, telefone, país e os dados do pedido. Nós não recebemos os dados do seu cartão. A Perfect Pay pede o seu CPF para fazer a cobrança, e nós não guardamos esse número.</p>
+  <p><strong>Na análise.</strong></p>
   <ul>
-    <li>Prints (imagens) enviados para análise</li>
-    <li>Texto digitado no campo de observações</li>
-    <li>Tags de estado emocional selecionadas</li>
+    <li>Os prints da conversa que você envia</li>
+    <li>O que você escreve nos campos do formulário (o que tem te incomodado e como você tem se sentido)</li>
+    <li>A sua faixa de idade e a do crush, se você informar</li>
+    <li>O seu primeiro nome e o nome ou apelido que você der para o crush</li>
   </ul>
-  <p><strong>Não coletamos</strong> nome, e-mail, número de telefone ou qualquer dado de identificação pessoal sem seu consentimento explícito.</p>
+  <p><strong>No relatório.</strong> O resultado da análise, que pode citar trechos da conversa.</p>
+  <p><strong>Na navegação.</strong> Usamos o Google Analytics para saber, de forma agregada, quais páginas são visitadas, de onde as visitas chegam e em que tipo de aparelho. O seu código de acesso não é enviado ao Google. Também guardamos no seu navegador (localStorage) a sua preferência de idioma.</p>
+  <p><strong>Na pesquisa de satisfação.</strong> Se você responder, guardamos as suas respostas junto do protocolo da análise. Responder é opcional.</p>
 
-  <h2>Como usamos seus dados</h2>
-  <p>As informações enviadas são utilizadas exclusivamente para gerar a análise solicitada. O processamento é <strong>temporário e único</strong>: após a geração do resultado, os dados não são retidos em nossos servidores.</p>
+  <h2>Para que usamos</h2>
   <ul>
-    <li>As mensagens e imagens são processadas no momento da análise</li>
-    <li>Nenhum conteúdo fica armazenado após a conclusão do processo</li>
-    <li>Não utilizamos seus dados para treinamento de modelos</li>
+    <li>Gerar a análise que você comprou</li>
+    <li>Enviar por e-mail o seu acesso e o seu resultado, e deixar você reabrir o relatório</li>
+    <li>Responder ao seu contato e resolver problemas técnicos</li>
+    <li>Proteger o serviço contra fraude e uso abusivo</li>
+    <li>Melhorar o site com dados agregados de navegação e com as respostas da pesquisa</li>
+  </ul>
+  <p><strong>Nós não usamos os seus prints nem as suas conversas para treinar inteligência artificial, para criar conteúdo ou para qualquer outro fim.</strong> As conversas que aparecem nas nossas redes sociais são fictícias. Não vendemos nem alugamos os seus dados.</p>
+
+  <h2>Por que podemos usar esses dados</h2>
+  <ul>
+    <li><strong>Execução do contrato</strong> (art. 7º, V da LGPD): para entregar a análise que você comprou</li>
+    <li><strong>Consentimento</strong> (art. 11, I): uma conversa pode revelar dados sensíveis, como saúde ou vida íntima. Por isso pedimos a sua autorização específica antes de enviar os prints, e você pode retirar essa autorização quando quiser</li>
+    <li><strong>Obrigação legal</strong> (art. 7º, II): para guardar os registros de compra exigidos por lei</li>
+    <li><strong>Legítimo interesse</strong> (art. 7º, IX): para a segurança do serviço e as métricas agregadas do site</li>
   </ul>
 
-  <h2>Compartilhamento de dados</h2>
-  <p><strong>Não vendemos, alugamos ou compartilhamos</strong> suas informações com terceiros para fins comerciais.</p>
-  <p>Podemos utilizar serviços de processamento (como APIs de IA) para gerar a análise. Esses serviços processam os dados temporariamente conforme suas próprias políticas de privacidade, sem retenção.</p>
+  <h2>Com quem compartilhamos</h2>
+  <p>Só com os fornecedores que fazem o serviço funcionar, e só o necessário para cada um:</p>
+  <ul>
+    <li><strong>Anthropic</strong> (Estados Unidos): a inteligência artificial que lê os prints e escreve a análise</li>
+    <li><strong>OpenAI</strong> (Estados Unidos): inteligência artificial reserva, usada só se a primeira falhar</li>
+    <li><strong>Supabase</strong>: o banco de dados onde ficam o seu acesso e o seu relatório</li>
+    <li><strong>Servidor de automação</strong> contratado por nós, que organiza as etapas da análise</li>
+    <li><strong>Perfect Pay</strong>: o pagamento</li>
+    <li><strong>Google</strong>: as métricas de navegação do Google Analytics</li>
+    <li><strong>Provedor de e-mail</strong>: o envio do acesso, do resultado e da pesquisa</li>
+  </ul>
+  <p>Alguns desses fornecedores ficam fora do Brasil. Nesses casos a transferência segue o art. 33 da LGPD, com as garantias contratuais de cada um. Pelos termos comerciais da Anthropic e da OpenAI, os dados enviados para gerar a análise não são usados para treinar os modelos deles.</p>
 
-  <h2>Cookies e rastreamento</h2>
-  <p>Utilizamos apenas armazenamento local (localStorage) para salvar sua preferência de idioma. Nenhum cookie de rastreamento ou analytics de terceiros é utilizado.</p>
+  <h2>Por quanto tempo guardamos</h2>
+  <ul>
+    <li><strong>Prints:</strong> são usados só durante a análise e não ficam no nosso banco de dados. Os registros técnicos de cada análise, que podem incluir os prints, são apagados automaticamente em até 7 dias</li>
+    <li><strong>Transcrição da conversa:</strong> apagada assim que a análise termina</li>
+    <li><strong>Relatório e o que você escreveu no formulário:</strong> ficam disponíveis por 12 meses a partir da compra, para você reabrir quando quiser. Depois disso, são apagados</li>
+    <li><strong>Dados da compra:</strong> pelo prazo que a lei exige para registros fiscais e de consumo</li>
+    <li><strong>Métricas de navegação:</strong> pelo prazo configurado no Google Analytics</li>
+  </ul>
+  <p>Você pode pedir para apagar o seu relatório antes desse prazo.</p>
 
-  <h2>Acesso único</h2>
-  <p>O relatório gerado é de <strong>acesso único</strong>. Após fechar ou sair da página, o resultado não estará mais disponível. Recomendamos salvar o que precisar antes de sair.</p>
+  <h2>Dados de outras pessoas nos prints</h2>
+  <p>Uma conversa sempre tem mensagens de outra pessoa. Por isso:</p>
+  <ul>
+    <li>Envie só conversas de que você participa</li>
+    <li>Se puder, cubra antes o número de telefone, a foto e o sobrenome das pessoas</li>
+    <li>Nós não tentamos identificar nem entramos em contato com ninguém que aparece nos prints</li>
+    <li>Se você aparece num print enviado por outra pessoa e quer que esses dados sejam apagados, escreva para o nosso contato</li>
+  </ul>
+
+  <h2>Seus direitos</h2>
+  <p>Pela LGPD (art. 18), você pode pedir a qualquer momento:</p>
+  <ul>
+    <li>Confirmação de que tratamos os seus dados e acesso a eles</li>
+    <li>Correção de dados incompletos ou errados</li>
+    <li>Anonimização, bloqueio ou exclusão de dados desnecessários</li>
+    <li>Portabilidade dos seus dados</li>
+    <li>Informação sobre com quem compartilhamos</li>
+    <li>Retirada do consentimento e exclusão dos dados tratados com base nele</li>
+  </ul>
+  <p>Escreva para <strong>contato@scancrush.com</strong> usando o e-mail da compra. Respondemos em até 15 dias. Você também pode reclamar na Autoridade Nacional de Proteção de Dados (ANPD).</p>
+
+  <h2>Idade mínima</h2>
+  <p>O ScanCrush é só para maiores de 18 anos. Se descobrirmos dados de alguém com menos de 18 anos, apagamos.</p>
 
   <h2>Segurança</h2>
-  <p>Todos os dados são transmitidos via conexão criptografada (HTTPS). Adotamos práticas de segurança padrão da indústria para proteger as informações durante o processamento.</p>
+  <p>Tudo trafega com criptografia (HTTPS). Cada compra tem um código de acesso individual. O banco de dados não fica exposto no site, e o acesso a ele é restrito. Nenhum sistema é infalível, mas se acontecer um incidente que possa te afetar, nós avisamos você e a ANPD, como manda a lei.</p>
+
+  <h2>Cookies</h2>
+  <p>O Google Analytics usa cookies para medir as visitas de forma agregada. Você pode bloquear esses cookies nas configurações do seu navegador ou com o complemento de desativação do Google Analytics. O site continua funcionando normalmente sem eles.</p>
+
+  <h2>Mudanças nesta política</h2>
+  <p>Se esta política mudar, a data no topo da página muda junto. Mudanças importantes também serão avisadas no site.</p>
 
   <h2>Contato</h2>
-  <p>Para dúvidas sobre esta política, entre em contato: <strong>privacidade@scancrush.com</strong></p>
+  <p>Dúvidas, pedidos ou reclamações: <strong>contato@scancrush.com</strong></p>
 </div>
 
 <footer>

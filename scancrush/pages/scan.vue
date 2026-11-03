@@ -1336,7 +1336,7 @@ onUnmounted(() => {
     <div class="paid-terms-wrap">
       <label class="paid-terms-label">
         <input type="checkbox" v-model="termsAccepted" class="paid-terms-check" />
-        <span>Declaro ser maior de 18 anos e concordar com os <a href="/terms" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy" target="_blank" rel="noopener">Política de Privacidade</a></span>
+        <span>Declaro ser maior de 18 anos, concordo com os <a href="/terms" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy" target="_blank" rel="noopener">Política de Privacidade</a> e autorizo o uso dos meus prints só para gerar esta análise</span>
       </label>
     </div>
 

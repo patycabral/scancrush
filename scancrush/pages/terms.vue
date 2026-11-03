@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useHead({ title: 'ScanCrush — Termos de Uso' })
+useHead({ title: 'Termos de Uso | ScanCrush' })
 </script>
 
 <template>
@@ -18,49 +18,53 @@ useHead({ title: 'ScanCrush — Termos de Uso' })
 <div class="page-wrap">
   <span class="page-tag">// Termos</span>
   <h1>Termos de Uso</h1>
-  <p class="page-date">Última atualização: março de 2025</p>
+  <p class="page-date">Última atualização: 3 de novembro de 2026</p>
 
   <div class="notice-box">
-    ⚠️ Ao utilizar o ScanCrush, você concorda com os termos descritos nesta página. Leia com atenção antes de prosseguir.
+    Ao comprar ou usar o ScanCrush, você concorda com estes termos e com a <NuxtLink to="/privacy">Política de Privacidade</NuxtLink>. Leia com calma antes de seguir.
   </div>
 
-  <h2>Natureza da ferramenta</h2>
-  <p>O ScanCrush é uma ferramenta de <strong>análise informativa</strong> baseada em padrões de comunicação. Não se trata de conselho profissional, diagnóstico psicológico ou terapia.</p>
-  <p>Os resultados gerados são baseados em reconhecimento de padrões e devem ser interpretados como uma perspectiva complementar, <strong>não como verdade absoluta</strong>.</p>
+  <h2>O que é o ScanCrush</h2>
+  <p>O ScanCrush faz uma <strong>leitura dos sinais de uma conversa</strong>, feita por inteligência artificial a partir dos prints que você envia. A análise é <strong>probabilística e interpretativa</strong>: ela olha padrões como reciprocidade, consistência e iniciativa, e só enxerga o que está nos prints.</p>
+  <p>Ela não lê mente, não prevê o futuro, não diz o que a outra pessoa sente e não decide por você. Também não é terapia, aconselhamento psicológico nem diagnóstico de nenhum tipo.</p>
+  <p>Se você estiver numa situação de violência ou de risco, procure ajuda agora: <strong>Ligue 180</strong> (Central de Atendimento à Mulher), <strong>190</strong> (Polícia) ou <strong>188</strong> (CVV, apoio emocional, 24 horas).</p>
 
   <h2>Idade mínima</h2>
-  <p>O ScanCrush é destinado exclusivamente a pessoas <strong>maiores de 18 anos</strong>. Ao utilizar a ferramenta, você declara ter 18 anos ou mais e plena capacidade civil para aceitar estes Termos.</p>
-  <p>Em conformidade com a Lei Geral de Proteção de Dados (LGPD), não coletamos nem tratamos intencionalmente dados de menores de 18 anos. Caso seja identificado um cadastro de menor, os dados serão excluídos.</p>
+  <p>O ScanCrush é só para <strong>maiores de 18 anos</strong>. Ao usar o serviço, você declara ter 18 anos ou mais.</p>
 
   <h2>Uso adequado</h2>
-  <p>Ao usar o ScanCrush, você concorda em:</p>
+  <p>Ao usar o ScanCrush, você se compromete a:</p>
   <ul>
-    <li>Utilizar a ferramenta apenas para análise de conversas às quais você tem acesso legítimo</li>
-    <li>Não usar os resultados para assédio, perseguição ou qualquer forma de dano a terceiros</li>
-    <li>Compreender que a análise é automatizada e pode conter imprecisões</li>
-    <li>Tomar decisões com responsabilidade, sem se basear exclusivamente neste relatório</li>
+    <li>Enviar só conversas de que você participa</li>
+    <li>Não enviar conversas com pessoas menores de 18 anos</li>
+    <li>Não usar a análise para perseguir, controlar, expor ou constranger ninguém</li>
+    <li>Não tentar enganar o sistema, por exemplo escondendo instruções nas imagens ou nos campos do formulário</li>
+    <li>Não revender o acesso nem a análise</li>
   </ul>
 
-  <h2>Acesso, uso único e validade</h2>
-  <p>Cada compra dá direito a <strong>1 análise</strong>, de <strong>uso único</strong>. Após gerar a análise, o acesso é marcado como utilizado e não pode ser reaproveitado.</p>
-  <p>O acesso ao relatório fica disponível por <strong>90 dias</strong> após a compra e pode ser reaberto pelo link enviado por e-mail. Após esse período, o acesso expira. Recomendamos baixar o PDF para guardar o resultado.</p>
+  <h2>Compra e acesso</h2>
+  <p>Cada compra dá direito a <strong>1 análise</strong> do plano escolhido, com o número de prints que o plano permite. O pagamento é processado pela Perfect Pay, e a cobrança aparece em nome dela na fatura do cartão.</p>
+  <p>Depois da compra, você recebe por e-mail o seu acesso, que vale por <strong>12 meses</strong>. Quando a análise é gerada, o acesso é marcado como usado. O relatório pode ser reaberto pelo link do e-mail durante esses 12 meses. Recomendamos baixar o PDF para guardar o resultado.</p>
+  <p>Se a análise não for concluída por um problema técnico nosso, ou se as imagens enviadas não forem de uma conversa, o seu acesso continua valendo e você pode enviar os prints de novo.</p>
 
-  <h2>Limitação de responsabilidade</h2>
-  <p>O ScanCrush não se responsabiliza por:</p>
-  <ul>
-    <li>Decisões tomadas com base nos resultados da análise</li>
-    <li>Imprecisões ou interpretações equivocadas do relatório</li>
-    <li>Danos emocionais, relacionais ou de qualquer outra natureza decorrentes do uso da ferramenta</li>
-  </ul>
+  <h2>Direito de arrependimento e reembolso</h2>
+  <p>Pelo Código de Defesa do Consumidor (art. 49), você pode desistir da compra em até <strong>7 dias</strong> a partir da data do pagamento e receber o valor de volta. Peça pela Perfect Pay ou pelo e-mail <strong>contato@scancrush.com</strong>, informando o e-mail usado na compra.</p>
+
+  <h2>Limites da análise</h2>
+  <p>A análise é automática e pode errar, principalmente quando os prints mostram só um pedaço da conversa. Use o relatório como mais um ponto de vista, junto com o que você conhece da sua história. As decisões sobre a sua vida e as suas relações são sempre suas.</p>
+  <p>Nós respondemos pela entrega do serviço como descrito nesta página, nos termos do Código de Defesa do Consumidor.</p>
 
   <h2>Propriedade intelectual</h2>
-  <p>Todo o conteúdo, design, código e marca ScanCrush são de propriedade exclusiva dos seus criadores. É proibida a reprodução, cópia ou distribuição sem autorização prévia.</p>
+  <p>A marca, o design, os textos e o código do ScanCrush são nossos. O seu relatório é para o seu uso pessoal, e você pode compartilhar o seu próprio resultado se quiser.</p>
 
-  <h2>Alterações nos termos</h2>
-  <p>Podemos atualizar estes termos a qualquer momento. O uso continuado da plataforma após alterações constitui aceitação dos novos termos.</p>
+  <h2>Mudanças nestes termos</h2>
+  <p>Se estes termos mudarem, a data no topo da página muda junto. A versão que vale para a sua compra é a que estava publicada no dia do pagamento.</p>
+
+  <h2>Lei aplicável</h2>
+  <p>Estes termos seguem as leis do Brasil. Qualquer disputa pode ser levada ao foro da cidade onde você mora.</p>
 
   <h2>Contato</h2>
-  <p>Para dúvidas sobre estes termos: <strong>suporte@scancrush.com</strong></p>
+  <p>Dúvidas, pedidos ou reclamações: <strong>contato@scancrush.com</strong></p>
 </div>
 
 <footer>
@@ -162,6 +166,7 @@ footer {
   padding: 32px 24px; text-align: center;
   font-size: 12px; color: var(--text-3);
 }
+.notice-box a { color: var(--pink); text-decoration: underline; }
 footer a { color: var(--text-2); text-decoration: none; margin: 0 12px; }
 footer a:hover { color: var(--text); }
 </style>
