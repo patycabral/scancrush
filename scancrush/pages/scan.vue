@@ -629,6 +629,9 @@ const recipMetrics = computed(() => {
   })
 })
 
+/** Nível do critério mostrado no lugar dos pontos: a conta fica só por dentro */
+const RECIP_NIVEL: Record<string, string> = { forte: 'Forte', parcial: 'Parcial', fraco: 'Fraco', ausente: 'Sem dados' }
+
 /** NOVO modelo: critérios pontuados (score/max_score por critério) */
 const recipCriteria = computed(() => {
   const arr = resultData.value?.reciprocity?.criteria ?? []
@@ -1301,6 +1304,7 @@ onUnmounted(() => {
       v-model="observations"
       :placeholder="obsPlaceholder"
       rows="5"
+      maxlength="1000"
     ></textarea>
 
     <span class="tag-label">Como você tem se sentido nessa situação?</span>
@@ -1332,7 +1336,7 @@ onUnmounted(() => {
     <div class="paid-terms-wrap">
       <label class="paid-terms-label">
         <input type="checkbox" v-model="termsAccepted" class="paid-terms-check" />
-        <span>Declaro ser maior de 18 anos e concordar com os <a href="/terms.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy.html" target="_blank" rel="noopener">Política de Privacidade</a></span>
+        <span>Declaro ser maior de 18 anos e concordar com os <a href="/terms" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacy" target="_blank" rel="noopener">Política de Privacidade</a></span>
       </label>
     </div>
 
@@ -1684,13 +1688,11 @@ onUnmounted(() => {
 
         <!-- CRITÉRIOS pontuados (novo modelo quantitativo) -->
         <div v-if="recipCriteria.length" class="recip-crit-list">
-          <div class="recip-crit-head"><span>Critério</span><span>Pontos</span></div>
+          <div class="recip-crit-head"><span>Critério</span><span>Nível</span></div>
           <div v-for="(c, i) in recipCriteria" :key="'rc'+i" class="recip-crit" :class="c.status">
             <div class="recip-crit-top">
               <span class="recip-crit-label">{{ norm(c.label) }}</span>
-              <span class="recip-crit-points">
-                {{ c.score }}<span class="recip-crit-max">/{{ c.max }}</span>
-              </span>
+              <span class="recip-crit-points">{{ RECIP_NIVEL[c.status] }}</span>
             </div>
             <p class="recip-crit-exp">{{ c.noData ? 'Não observado no recorte.' : norm(c.explanation) }}</p>
             <div class="recip-crit-bar"><div class="recip-crit-bar-fill" :style="{ width: (c.noData ? 0 : c.pct) + '%' }"></div></div>
@@ -1834,8 +1836,8 @@ onUnmounted(() => {
         <span class="footer-brand-word">Scan<span>Crush</span></span>
       </div>
       <nav class="footer-links">
-        <a href="/terms.html" target="_blank">Termos de Uso</a>
-        <a href="/privacy.html" target="_blank">Privacidade</a>
+        <a href="/terms" target="_blank">Termos de Uso</a>
+        <a href="/privacy" target="_blank">Privacidade</a>
         <a href="mailto:contato@scancrush.com">Contato</a>
       </nav>
       <p class="footer-copy">© 2026 ScanCrush · Este relatório é gerado por IA e representa observações sobre padrões comportamentais. Não constitui diagnóstico psicológico.</p>
@@ -2020,7 +2022,7 @@ onUnmounted(() => {
         <div v-for="(c, i) in recipCriteria" :key="'prc'+i" class="pdf-recip-crit" :class="c.status">
           <div class="pdf-recip-crit-top">
             <span class="pdf-recip-crit-label">{{ norm(c.label) }}</span>
-            <span class="pdf-recip-crit-points">{{ c.score }}/{{ c.max }}</span>
+            <span class="pdf-recip-crit-points">{{ RECIP_NIVEL[c.status] }}</span>
           </div>
           <p class="pdf-recip-crit-exp">{{ c.noData ? 'Não observado no recorte.' : norm(c.explanation) }}</p>
           <div class="pdf-recip-crit-bar"><div class="pdf-recip-crit-bar-fill" :style="{ width: (c.noData ? 0 : c.pct) + '%' }"></div></div>
@@ -3290,8 +3292,7 @@ body::after {
 .recip-crit:last-child { border-bottom: none; }
 .recip-crit-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .recip-crit-label { font-size: 13.5px; font-weight: 600; color: var(--text); }
-.recip-crit-points { font-family: var(--mono); font-size: 14px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
-.recip-crit-max { color: var(--text-3); font-weight: 400; font-size: 11px; }
+.recip-crit-points { font-family: var(--mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; flex-shrink: 0; }
 .recip-crit-exp { margin: 4px 0 9px; font-size: 12.5px; color: var(--text-2); font-weight: 300; line-height: 1.55; }
 .recip-crit-bar { height: 4px; border-radius: 100px; overflow: hidden; background: rgba(255,255,255,0.06); }
 .recip-crit-bar-fill { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
@@ -4735,7 +4736,7 @@ body::after {
 .pdf-recip-crit:last-of-type { border-bottom: none; }
 .pdf-recip-crit-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .pdf-recip-crit-label { font-size: 12.5px; font-weight: 700; color: var(--pdf-body); }
-.pdf-recip-crit-points { font-family: var(--mono); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.pdf-recip-crit-points { font-family: var(--mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
 .pdf-recip-crit-exp { margin: 3px 0 7px; font-size: 11.5px; color: var(--pdf-muted); line-height: 1.5; }
 .pdf-recip-crit-bar { height: 4px; border-radius: 100px; overflow: hidden; background: #eef0f4; }
 .pdf-recip-crit-bar-fill { height: 100%; border-radius: 100px; }

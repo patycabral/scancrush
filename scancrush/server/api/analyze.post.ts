@@ -5,8 +5,21 @@
  * Em produção também funciona (servidor → n8n, sem CORS).
  */
 
+// Teto de tamanho dos campos de texto do formulário (o resto é cortado no n8n também)
+const MAX_CAMPO: Record<string, number> = {
+  observations: 1000, feelings: 300, user_age_range: 20, crush_age_range: 20,
+  user_name: 60, crush_name: 60, user_email: 120, token: 128, plan: 60, image_count: 4, lang: 5,
+}
+
 export default defineEventHandler(async (event) => {
   const N8N_WEBHOOK = `${useRuntimeConfig(event).n8nBase}/webhook/analyze`
+
+  // Recusa pelo tamanho declarado ANTES de ler o corpo inteiro na memória
+  const declarado = Number(getRequestHeader(event, 'content-length') || 0)
+  if (declarado > 45 * 1024 * 1024) {
+    return { success: false, error: 'invalid_upload', message: 'O envio total ficou grande demais. Reduza a quantidade de prints.' }
+  }
+
   // Lê multipart (imagens + campos de texto)
   const parts = await readMultipartFormData(event)
 
@@ -58,8 +71,8 @@ export default defineEventHandler(async (event) => {
       const blob = new Blob([part.data], { type: part.type ?? 'application/octet-stream' })
       form.append(name, blob, part.filename)
     } else {
-      // Campo de texto
-      form.append(name, part.data.toString())
+      // Campo de texto (cortado no teto do campo; campo desconhecido vai até 200)
+      form.append(name, part.data.toString().slice(0, MAX_CAMPO[name] ?? 200))
     }
   }
 

@@ -69,6 +69,15 @@ export default defineNuxtConfig({
       ignore: ['/scan', '/acesso', '/analise', '/obrigada', '/tack', '/pesquisa', '/privacy', '/terms', '/api'],
     },
     routeRules: {
+      // Cabeçalhos de segurança em todas as respostas. Referrer-Policy impede que a
+      // URL com token (/scan, /pesquisa) vaze inteira para outros sites.
+      '/**': { headers: {
+        'strict-transport-security': 'max-age=31536000',
+        'x-content-type-options': 'nosniff',
+        'x-frame-options': 'SAMEORIGIN',
+        'referrer-policy': 'strict-origin-when-cross-origin',
+        'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+      } },
       '/_nuxt/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
       '/fonts/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
       '/brand/**': { headers: { 'cache-control': 'public, max-age=2592000' } },

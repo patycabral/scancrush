@@ -11,7 +11,9 @@ export default defineNuxtPlugin(() => {
   // @ts-expect-error — API global do GA
   window.gtag = gtag
   gtag('js', new Date())
-  gtag('config', GA_ID)
+  // Sem query string: links de acesso e de pesquisa trazem token, protocolo e
+  // e-mail na URL, e isso não pode ir para o Google Analytics.
+  gtag('config', GA_ID, { page_location: window.location.origin + window.location.pathname })
 
   let loaded = false
   const load = () => {
