@@ -836,6 +836,31 @@ body::after {
   margin-bottom: 20px;
 }
 .price-curr { font-size: 15px; font-weight: 600; color: var(--text-2); }
+.price-promo {
+  display: inline-block;
+  margin: 18px auto 0;
+  padding: 8px 16px;
+  border: 1px solid rgba(255,45,107,0.35);
+  border-radius: 100px;
+  background: rgba(255,45,107,0.08);
+  color: var(--pink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+.price-was {
+  margin: -10px 0 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+}
+.price-was s {
+  margin-right: 4px;
+  font-size: 14px;
+  color: var(--text-2);
+  text-decoration-color: var(--pink);
+  text-decoration-thickness: 2px;
+}
 .price-num {
   font-size: 36px;
   font-weight: 800;
@@ -1183,7 +1208,7 @@ footer {
   .hu-priv { display: block; margin-top: 5px; }
 
   /* títulos/subtítulos dos planos centralizados */
-  .price-name, .price-desc { text-align: center; }
+  .price-name, .price-desc, .price-was { text-align: center; }
   .price-amount { justify-content: center; text-align: center; }
   .diff-sub { font-size: 14px; }
 

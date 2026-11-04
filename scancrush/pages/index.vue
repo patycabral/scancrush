@@ -106,7 +106,7 @@ useHead({
           {
             '@type': 'Question',
             name: 'Por quanto tempo tenho acesso à análise?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Cada compra dá direito a uma análise, e você tem até 90 dias para gerá-la. Depois de pronta, o resultado vai para o seu e-mail e fica disponível para download.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Cada compra dá direito a uma análise, e você tem até 30 dias para gerá-la. Depois de pronta, o resultado vai para o seu e-mail e fica disponível para reabrir e baixar por 30 dias.' },
           },
           {
             '@type': 'Question',
@@ -544,12 +544,14 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <span>{{ t.pricing.title }}</span><br>
         <span class="grad">{{ t.pricing.title_accent }}</span>
       </h2>
+      <p v-if="t.pricing.promo" class="price-promo">{{ t.pricing.promo }}</p>
     </div>
 
     <div class="pricing-grid">
       <div class="price-card reveal">
         <div class="price-name">{{ t.pricing.plan0_name }}</div>
         <p class="price-desc">{{ t.pricing.plan0_desc }}</p>
+        <p v-if="t.pricing.plan0_price_after" class="price-was"><s>{{ t.pricing.plan0_price_after }}</s> {{ t.pricing.promo_after }}</p>
         <div class="price-amount">
           <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan0_price_curr }}</span>
           <span class="price-num">{{ t.pricing.plan0_price_num }}</span>
@@ -570,6 +572,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <div class="popular-badge">{{ t.pricing.popular }}</div>
         <div class="price-name">{{ t.pricing.plan1_name }}</div>
         <p class="price-desc">{{ t.pricing.plan1_desc }}</p>
+        <p v-if="t.pricing.plan1_price_after" class="price-was"><s>{{ t.pricing.plan1_price_after }}</s> {{ t.pricing.promo_after }}</p>
         <div class="price-amount">
           <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan1_price_curr }}</span>
           <span class="price-num">{{ t.pricing.plan1_price_num }}</span>
@@ -590,6 +593,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <div class="price-card reveal" style="transition-delay:.16s">
         <div class="price-name">{{ t.pricing.plan2_name }}</div>
         <p class="price-desc">{{ t.pricing.plan2_desc }}</p>
+        <p v-if="t.pricing.plan2_price_after" class="price-was"><s>{{ t.pricing.plan2_price_after }}</s> {{ t.pricing.promo_after }}</p>
         <div class="price-amount">
           <span class="price-curr">{{ t.pricing.plan2_price_curr }}</span>
           <span class="price-num">{{ t.pricing.plan2_price_num }}</span>
@@ -695,6 +699,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     <button class="lp-modal-close" @click="closePricesModal()" aria-label="Fechar">×</button>
     <p class="lp-modal-eyebrow">// {{ t.pricing.tag }}</p>
     <h2 class="lp-modal-title">{{ t.pricing.title }} <span class="grad">{{ t.pricing.title_accent }}</span></h2>
+    <p v-if="t.pricing.promo" class="price-promo">{{ t.pricing.promo }}</p>
 
     <!-- Espelho exato da seção de planos (#b-pricing) -->
     <div class="lp-modal-plans" style="margin-top:20px">
@@ -703,6 +708,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <div class="price-card">
         <div class="price-name">{{ t.pricing.plan0_name }}</div>
         <p class="price-desc">{{ t.pricing.plan0_desc }}</p>
+        <p v-if="t.pricing.plan0_price_after" class="price-was"><s>{{ t.pricing.plan0_price_after }}</s> {{ t.pricing.promo_after }}</p>
         <div class="price-amount">
           <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan0_price_curr }}</span>
           <span class="price-num">{{ t.pricing.plan0_price_num }}</span>
@@ -724,6 +730,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
         <div class="popular-badge">{{ t.pricing.popular }}</div>
         <div class="price-name">{{ t.pricing.plan1_name }}</div>
         <p class="price-desc">{{ t.pricing.plan1_desc }}</p>
+        <p v-if="t.pricing.plan1_price_after" class="price-was"><s>{{ t.pricing.plan1_price_after }}</s> {{ t.pricing.promo_after }}</p>
         <div class="price-amount">
           <span class="price-curr" style="color:var(--text-2)">{{ t.pricing.plan1_price_curr }}</span>
           <span class="price-num">{{ t.pricing.plan1_price_num }}</span>
@@ -745,6 +752,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
       <div class="price-card">
         <div class="price-name">{{ t.pricing.plan2_name }}</div>
         <p class="price-desc">{{ t.pricing.plan2_desc }}</p>
+        <p v-if="t.pricing.plan2_price_after" class="price-was"><s>{{ t.pricing.plan2_price_after }}</s> {{ t.pricing.promo_after }}</p>
         <div class="price-amount">
           <span class="price-curr">{{ t.pricing.plan2_price_curr }}</span>
           <span class="price-num">{{ t.pricing.plan2_price_num }}</span>

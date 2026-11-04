@@ -1049,6 +1049,10 @@ async function validateToken(token: string, email?: string) {
       url.searchParams.delete('email')
       window.history.replaceState({}, '', url.toString())
 
+    } else if (data.error?.code === 'TOKEN_ALREADY_USED') {
+      // Análise já feita: o mesmo link do e-mail reabre o relatório salvo (fica 30 dias)
+      const reaberto = await recoverResult(token, email ?? '', 1500, 0)
+      if (!reaberto) accessError.value = 'Esta análise já foi feita. O relatório fica disponível por 30 dias depois de pronto. Se esse prazo passou, ele já foi apagado.'
     } else {
       accessError.value = data.error?.message ?? 'Seu link de acesso não é válido ou expirou.'
     }

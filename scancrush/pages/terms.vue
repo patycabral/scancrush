@@ -44,7 +44,7 @@ useHead({ title: 'Termos de Uso | ScanCrush' })
 
   <h2>Compra e acesso</h2>
   <p>Cada compra dá direito a <strong>1 análise</strong> do plano escolhido, com o número de prints que o plano permite. O pagamento é processado pela Perfect Pay, e a cobrança aparece em nome dela na fatura do cartão.</p>
-  <p>Depois da compra, você recebe por e-mail o seu acesso, que vale por <strong>12 meses</strong>. Quando a análise é gerada, o acesso é marcado como usado. O relatório pode ser reaberto pelo link do e-mail durante esses 12 meses. Recomendamos baixar o PDF para guardar o resultado.</p>
+  <p>Depois da compra, você recebe por e-mail o seu acesso, que vale por <strong>30 dias</strong>. Quando a análise é gerada, o acesso é marcado como usado. O relatório pode ser reaberto pelo link do e-mail por <strong>30 dias</strong> depois de pronto e então é apagado. Baixe o PDF para guardar o resultado.</p>
   <p>Se a análise não for concluída por um problema técnico nosso, ou se as imagens enviadas não forem de uma conversa, o seu acesso continua valendo e você pode enviar os prints de novo.</p>
 
   <h2>Direito de arrependimento e reembolso</h2>

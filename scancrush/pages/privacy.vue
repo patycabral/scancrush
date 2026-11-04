@@ -26,7 +26,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
   <p>O ScanCrush é o controlador dos dados tratados neste site. Para qualquer assunto de privacidade, inclusive para exercer os seus direitos, escreva para <strong>contato@scancrush.com</strong>.</p>
 
   <h2>Dados que usamos</h2>
-  <p><strong>Na compra.</strong> O pagamento é feito na Perfect Pay, que nos envia o seu nome, e-mail, telefone, país e os dados do pedido. Nós não recebemos os dados do seu cartão. A Perfect Pay pede o seu CPF para fazer a cobrança, e nós não guardamos esse número.</p>
+  <p><strong>Na compra.</strong> O pagamento é feito na Perfect Pay, que nos envia o seu nome, e-mail, telefone, país e os dados do pedido. Nós não recebemos os dados do seu cartão. A Perfect Pay também nos envia o CPF informado na cobrança, que guardamos junto do registro da compra para resolver reembolsos, contestações de pagamento e pedidos de suporte.</p>
   <p><strong>Na análise.</strong></p>
   <ul>
     <li>Os prints da conversa que você envia</li>
@@ -35,7 +35,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
     <li>O seu primeiro nome e o nome ou apelido que você der para o crush</li>
   </ul>
   <p><strong>No relatório.</strong> O resultado da análise, que pode citar trechos da conversa.</p>
-  <p><strong>Na navegação.</strong> Usamos o Google Analytics para saber, de forma agregada, quais páginas são visitadas, de onde as visitas chegam e em que tipo de aparelho. O seu código de acesso não é enviado ao Google. Também guardamos no seu navegador (localStorage) a sua preferência de idioma.</p>
+  <p><strong>Na navegação.</strong> Usamos o Google Analytics para saber, de forma agregada, quais páginas são visitadas, de onde as visitas chegam e em que tipo de aparelho. O seu código de acesso não é enviado ao Google. Também guardamos no seu navegador (localStorage) a sua preferência de idioma e, depois da compra, o seu código de acesso e o plano, para a página de envio funcionar.</p>
   <p><strong>Na pesquisa de satisfação.</strong> Se você responder, guardamos as suas respostas junto do protocolo da análise. Responder é opcional.</p>
 
   <h2>Para que usamos</h2>
@@ -43,6 +43,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
     <li>Gerar a análise que você comprou</li>
     <li>Enviar por e-mail o seu acesso e o seu resultado, e deixar você reabrir o relatório</li>
     <li>Responder ao seu contato e resolver problemas técnicos</li>
+    <li>Resolver reembolsos e contestações de pagamento</li>
     <li>Proteger o serviço contra fraude e uso abusivo</li>
     <li>Melhorar o site com dados agregados de navegação e com as respostas da pesquisa</li>
   </ul>
@@ -52,7 +53,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
   <ul>
     <li><strong>Execução do contrato</strong> (art. 7º, V da LGPD): para entregar a análise que você comprou</li>
     <li><strong>Consentimento</strong> (art. 11, I): uma conversa pode revelar dados sensíveis, como saúde ou vida íntima. Por isso pedimos a sua autorização específica antes de enviar os prints, e você pode retirar essa autorização quando quiser</li>
-    <li><strong>Obrigação legal</strong> (art. 7º, II): para guardar os registros de compra exigidos por lei</li>
+    <li><strong>Obrigação legal e exercício de direitos</strong> (art. 7º, II e VI): para guardar os registros de compra exigidos por lei e resolver reembolsos e contestações</li>
     <li><strong>Legítimo interesse</strong> (art. 7º, IX): para a segurança do serviço e as métricas agregadas do site</li>
   </ul>
 
@@ -73,7 +74,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
   <ul>
     <li><strong>Prints:</strong> são usados só durante a análise e não ficam no nosso banco de dados. Os registros técnicos de cada análise, que podem incluir os prints, são apagados automaticamente em até 7 dias</li>
     <li><strong>Transcrição da conversa:</strong> apagada assim que a análise termina</li>
-    <li><strong>Relatório e o que você escreveu no formulário:</strong> ficam disponíveis por 12 meses a partir da compra, para você reabrir quando quiser. Depois disso, são apagados</li>
+    <li><strong>Relatório, nota e o que você escreveu no formulário:</strong> ficam disponíveis por 30 dias depois que a análise fica pronta, para você reabrir e baixar o PDF. Depois disso, são apagados automaticamente</li>
     <li><strong>Dados da compra:</strong> pelo prazo que a lei exige para registros fiscais e de consumo</li>
     <li><strong>Métricas de navegação:</strong> pelo prazo configurado no Google Analytics</li>
   </ul>
