@@ -55,6 +55,9 @@ export default defineNuxtConfig({
     '/tack':       { ssr: false },
     '/privacy':    { ssr: false },
     '/terms':      { ssr: false },
+    // Versões antigas em HTML puro: levam para as páginas atuais
+    '/privacy.html': { redirect: { to: '/privacy', statusCode: 301 } },
+    '/terms.html':   { redirect: { to: '/terms', statusCode: 301 } },
   },
 
   content: {
