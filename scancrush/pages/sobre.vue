@@ -58,7 +58,7 @@ const plansModal = ref()
         <p class="about-not-foot">Ela faz uma leitura neutra de padrões e sinais — nada além, nada a mais.</p>
       </div>
 
-      <p class="about-closing">No fim, o ScanCrush existe para que você não precise ler a conversa sozinha, no meio da ansiedade. A Patty olha junto — com calma.</p>
+      <p class="about-closing">No fim, o ScanCrush existe para que você não precise ler a conversa sozinha, no meio da ansiedade. A Patty olha junto, com calma.</p>
     </article>
 
     <div class="about-cta">
@@ -66,6 +66,11 @@ const plansModal = ref()
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span>Deixa a Patty observar sua conversa</span>
       </button>
+    </div>
+
+    <div class="about-social">
+      <p class="about-social-text">Acompanhe a Patty</p>
+      <SocialLinks />
     </div>
   </div>
 </main>
@@ -107,5 +112,7 @@ const plansModal = ref()
 .about-not-foot { font-size: 13.5px; color: var(--text-3); font-style: italic; margin: 0; line-height: 1.6; max-width: 460px; margin: 0 auto; }
 .about-closing { font-size: 17px; color: var(--text); font-weight: 400; line-height: 1.7; border-left: 2px solid var(--purple); padding-left: 16px; }
 .about-cta { margin-top: 36px; }
+.about-social { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+.about-social-text { font-size: 12px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin: 0; }
 .grad { background: linear-gradient(135deg,#FF2D6B,#9B5DE5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 </style>

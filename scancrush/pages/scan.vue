@@ -1839,6 +1839,7 @@ onUnmounted(() => {
         </svg>
         <span class="footer-brand-word">Scan<span>Crush</span></span>
       </div>
+      <SocialLinks />
       <nav class="footer-links">
         <a href="/terms" target="_blank">Termos de Uso</a>
         <a href="/privacy" target="_blank">Privacidade</a>

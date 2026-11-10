@@ -102,6 +102,12 @@ const plansModal = ref()
       <button type="button" class="final-cta-btn" @click="plansModal?.open()">Analisar minha conversa agora →</button>
     </div>
 
+    <!-- Redes da Patty -->
+    <div class="article-follow">
+      <p class="article-follow-text">Mais leituras de sinais, todo dia, no perfil da Patty.</p>
+      <SocialLinks />
+    </div>
+
     <!-- Related -->
     <div class="article-back-footer">
       <NuxtLink to="/blog" class="article-back-link">← Ver todos os artigos</NuxtLink>
@@ -144,6 +150,8 @@ const plansModal = ref()
 .final-cta-sub { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-bottom: 20px; }
 .final-cta-btn { display: inline-block; background: linear-gradient(135deg, #FF2D6B, #9B5DE5); color: #fff; font-size: 14px; font-weight: 700; padding: 13px 28px; border-radius: 100px; text-decoration: none; transition: opacity .2s; }
 .final-cta-btn:hover { opacity: .88; }
+.article-follow { margin-top: 28px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.article-follow-text { font-size: 13px; color: var(--text-3); margin: 0; }
 .article-back-footer { margin-top: 36px; text-align: center; }
 .article-back-link { font-size: 13px; color: var(--text-3); text-decoration: none; font-family: var(--mono); }
 .article-back-link:hover { color: var(--text-2); }

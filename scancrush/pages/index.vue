@@ -53,6 +53,7 @@ useHead({
         url: 'https://scancrush.com/',
         logo: 'https://scancrush.com/logo-email.png',
         description: 'Plataforma de análise de conversas que identifica sinais, padrões e reciprocidade nas mensagens. A voz pública da marca é a Patty, analista virtual.',
+        sameAs: activeSocialLinks().map((s) => s.url),
       }),
     },
     {
@@ -679,6 +680,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
           <span class="logo-word">Scan<span>Crush</span></span>
         </div>
         <p class="footer-tagline">{{ t.footer.tagline }}</p>
+        <SocialLinks class="footer-social" />
       </div>
       <ul class="footer-links">
         <li><a href="#b-how">{{ t.footer.how }}</a></li>
