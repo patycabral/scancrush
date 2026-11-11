@@ -72,7 +72,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
 
   <h2>Por quanto tempo guardamos</h2>
   <ul>
-    <li><strong>Prints:</strong> são usados só durante a análise e não ficam no nosso banco de dados. Os registros técnicos de cada análise, que podem incluir os prints, são apagados automaticamente em até 7 dias</li>
+    <li><strong>Prints:</strong> são usados só durante a análise e não ficam no nosso banco de dados. Os registros técnicos de cada análise, que podem incluir os prints, são apagados automaticamente em até 30 dias</li>
     <li><strong>Transcrição da conversa:</strong> apagada assim que a análise termina</li>
     <li><strong>Relatório, nota e o que você escreveu no formulário:</strong> quando a análise fica pronta, o resultado aparece na página, com a opção de baixar o PDF, e também vai para o seu e-mail, que permanece com você. A página e o PDF valem só enquanto a página estiver aberta. No nosso banco de dados, esses registros são apagados automaticamente em até 30 dias depois que a análise fica pronta</li>
     <li><strong>Dados da compra:</strong> pelo prazo que a lei exige para registros fiscais e de consumo</li>
