@@ -18,7 +18,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
 <div class="page-wrap">
   <span class="page-tag">// Privacidade</span>
   <h1>Política de Privacidade</h1>
-  <p class="page-date">Última atualização: 3 de novembro de 2026</p>
+  <p class="page-date">Última atualização: 11 de novembro de 2026</p>
 
   <p>Você confia ao ScanCrush uma conversa importante. Esta página explica, sem letra miúda, quais dados usamos, para quê, com quem e por quanto tempo. Ela segue a Lei Geral de Proteção de Dados (Lei 13.709/2018, a LGPD).</p>
 
@@ -41,7 +41,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
   <h2>Para que usamos</h2>
   <ul>
     <li>Gerar a análise que você comprou</li>
-    <li>Enviar por e-mail o seu acesso e o seu resultado, e deixar você reabrir o relatório</li>
+    <li>Mostrar o resultado na página, com a opção de baixar o PDF, e enviar por e-mail o seu acesso e o seu resultado</li>
     <li>Responder ao seu contato e resolver problemas técnicos</li>
     <li>Resolver reembolsos e contestações de pagamento</li>
     <li>Proteger o serviço contra fraude e uso abusivo</li>
@@ -74,7 +74,7 @@ useHead({ title: 'Política de Privacidade | ScanCrush' })
   <ul>
     <li><strong>Prints:</strong> são usados só durante a análise e não ficam no nosso banco de dados. Os registros técnicos de cada análise, que podem incluir os prints, são apagados automaticamente em até 7 dias</li>
     <li><strong>Transcrição da conversa:</strong> apagada assim que a análise termina</li>
-    <li><strong>Relatório, nota e o que você escreveu no formulário:</strong> ficam disponíveis por 30 dias depois que a análise fica pronta, para você reabrir e baixar o PDF. Depois disso, são apagados automaticamente</li>
+    <li><strong>Relatório, nota e o que você escreveu no formulário:</strong> quando a análise fica pronta, o resultado aparece na página, com a opção de baixar o PDF, e também vai para o seu e-mail, que permanece com você. A página e o PDF valem só enquanto a página estiver aberta. No nosso banco de dados, esses registros são apagados automaticamente em até 30 dias depois que a análise fica pronta</li>
     <li><strong>Dados da compra:</strong> pelo prazo que a lei exige para registros fiscais e de consumo</li>
     <li><strong>Métricas de navegação:</strong> pelo prazo configurado no Google Analytics</li>
   </ul>

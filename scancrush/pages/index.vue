@@ -92,7 +92,7 @@ useHead({
           {
             '@type': 'Question',
             name: 'Minha conversa fica salva em algum lugar?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Não. As mensagens são usadas só para gerar a sua análise e não ficam armazenadas depois da sessão.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Os prints não ficam guardados. Quando a análise fica pronta, o resultado aparece na página e também vai para o seu e-mail, que permanece com você.' },
           },
           {
             '@type': 'Question',
@@ -107,7 +107,7 @@ useHead({
           {
             '@type': 'Question',
             name: 'Por quanto tempo tenho acesso à análise?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Cada compra dá direito a uma análise, e você tem até 30 dias para gerá-la. Depois de pronta, o resultado vai para o seu e-mail e fica disponível para reabrir e baixar por 30 dias.' },
+            acceptedAnswer: { '@type': 'Answer', text: 'Cada compra dá direito a uma análise, e você tem até 30 dias para gerá-la. Quando fica pronta, o resultado aparece na página, com a opção de baixar o PDF, e também vai para o seu e-mail. A página e o PDF valem enquanto a página estiver aberta. O e-mail permanece com você.' },
           },
           {
             '@type': 'Question',

@@ -18,7 +18,7 @@ useHead({ title: 'Termos de Uso | ScanCrush' })
 <div class="page-wrap">
   <span class="page-tag">// Termos</span>
   <h1>Termos de Uso</h1>
-  <p class="page-date">Última atualização: 3 de novembro de 2026</p>
+  <p class="page-date">Última atualização: 11 de novembro de 2026</p>
 
   <div class="notice-box">
     Ao comprar ou usar o ScanCrush, você concorda com estes termos e com a <NuxtLink to="/privacy">Política de Privacidade</NuxtLink>. Leia com calma antes de seguir.
@@ -44,7 +44,8 @@ useHead({ title: 'Termos de Uso | ScanCrush' })
 
   <h2>Compra e acesso</h2>
   <p>Cada compra dá direito a <strong>1 análise</strong> do plano escolhido, com o número de prints que o plano permite. O pagamento é processado pela Perfect Pay, e a cobrança aparece em nome dela na fatura do cartão.</p>
-  <p>Depois da compra, você recebe por e-mail o seu acesso, que vale por <strong>30 dias</strong>. Quando a análise é gerada, o acesso é marcado como usado. O relatório pode ser reaberto pelo link do e-mail por <strong>30 dias</strong> depois de pronto e então é apagado. Baixe o PDF para guardar o resultado.</p>
+  <p>Depois da compra, você recebe por e-mail o seu acesso e tem até <strong>30 dias</strong> para gerar a análise. A análise é única: quando ela é gerada, o acesso é marcado como usado.</p>
+  <p>Quando a análise fica pronta, o resultado aparece numa página, com a opção de baixar o PDF, e também vai para o seu e-mail, que permanece com você. A página e o PDF valem só enquanto a página estiver aberta. Os prints não ficam guardados.</p>
   <p>Se a análise não for concluída por um problema técnico nosso, ou se as imagens enviadas não forem de uma conversa, o seu acesso continua valendo e você pode enviar os prints de novo.</p>
 
   <h2>Direito de arrependimento e reembolso</h2>
