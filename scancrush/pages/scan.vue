@@ -905,40 +905,8 @@ const accessError     = ref('')
 const VALIDATE_URL = '/api/validate-access-token'
 const PRINT_RESULT_URL = '/api/print-result'
 
-// Modo visualização (link do e-mail): reabre o resultado já gerado, somente leitura.
-// Valida token + protocolo + e-mail no n8n antes de devolver o result_json salvo.
-async function loadSharedResult(token: string, protocol: string, email: string) {
-  tokenValidating.value = true
-  accessError.value = ''
-  try {
-    const res = await fetch(PRINT_RESULT_URL, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      // n8n lê body.protocolo (Set "Recebe Vars do webhook")
-      body:    JSON.stringify({ token, protocolo: protocol, email }),
-    })
-    const data = await res.json()
-
-    if (!data?.success) {
-      accessError.value = data?.error?.message ?? 'Não foi possível abrir este relatório. O link pode estar incorreto.'
-      return
-    }
-
-    applySavedResult(data, protocol)
-
-    // Veio do botão "Baixar PDF" do e-mail (?dl=1) → abre a janela de impressão
-    if (import.meta.client && route.query.dl) {
-      setTimeout(() => downloadPdf(), 1200)
-    }
-  } catch {
-    accessError.value = 'Não foi possível abrir este relatório. Verifique sua conexão e tente novamente.'
-  } finally {
-    tokenValidating.value = false
-  }
-}
-
-// Popula a tela de resultado a partir do payload salvo (print-result). Reutilizado
-// pelo link de e-mail (loadSharedResult) e pela recuperação pós-timeout (recoverResult).
+// Popula a tela de resultado a partir do payload salvo (print-result). Usado só
+// pela recuperação pós-timeout (recoverResult), com a página da análise aberta.
 function applySavedResult(data: any, protocol: string) {
   // Default 'free' = nunca mostra mais do que o plano pago.
   const VALID_KEYS = new Set(['free', 'revealed', 'raiox'])
@@ -1077,17 +1045,22 @@ onMounted(async () => {
   const urlToken = route.query.token as string | undefined
   const urlEmail = (route.query.e as string) || (route.query.email as string) || undefined
 
-  const reportToken = route.query.r as string | undefined
-
-  if (reportToken) {
-    // Link do e-mail: abre o relatório já gerado em modo visualização
-    await loadSharedResult(reportToken, (route.query.p as string) ?? '', (route.query.e as string) ?? '')
+  if (route.query.r) {
+    // Link antigo de reabrir relatório (?r=): o relatório não reabre mais por link.
+    // Mostra só o aviso e limpa os parâmetros da URL (r, p, e, dl).
+    accessError.value = 'Esta análise já foi feita. O resultado foi enviado para o seu e-mail.'
+    tokenValidating.value = false
+    if (import.meta.client) {
+      const url = new URL(window.location.href)
+      for (const k of ['r', 'p', 'e', 'dl']) url.searchParams.delete(k)
+      window.history.replaceState({}, '', url.toString())
+    }
   } else if (urlToken) {
     // Token na URL: sempre valida no webhook, nunca cai em free por falha
     await validateToken(urlToken, urlEmail)
   } else {
-    // Não há mais plano gratuito: o acesso é SEMPRE via link com ?token= (pós-compra)
-    // ou ?r= (reabrir relatório). Acesso direto sem token → manda escolher um plano.
+    // Não há mais plano gratuito: o acesso é SEMPRE via link com ?token= (pós-compra).
+    // Acesso direto sem token → manda escolher um plano.
     clearStoredSession()
     if (import.meta.client) { window.location.href = '/#b-pricing'; return }
   }
